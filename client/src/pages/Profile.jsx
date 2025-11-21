@@ -1,0 +1,248 @@
+import React, { useState, useEffect } from "react";
+import BaseLayout from "../components/Layout/BaseLayout";
+import { useAuth } from "../context/AuthContext";
+import { getUserProfile } from "../api/user";
+import Button from "../components/UI/Button";
+import { useNavigate } from "react-router-dom";
+import "./Profile.css";
+
+const Profile = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Touch gesture states
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const minSwipeDistance = 50;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        try {
+          const data = await getUserProfile(user.uid);
+          setUserData(data);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  const handleEditProfile = () => {
+    navigate("/profile/edit");
+  };
+
+  const nextPhoto = () => {
+    if (userData?.images && userData.images.length > 0 && !isTransitioning) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentPhotoIndex((prev) =>
+          prev === userData.images.length - 1 ? 0 : prev + 1
+        );
+        setTimeout(() => setIsTransitioning(false), 50);
+      }, 200);
+    }
+  };
+
+  const prevPhoto = () => {
+    if (userData?.images && userData.images.length > 0 && !isTransitioning) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentPhotoIndex((prev) =>
+          prev === 0 ? userData.images.length - 1 : prev - 1
+        );
+        setTimeout(() => setIsTransitioning(false), 50);
+      }, 200);
+    }
+  };
+
+  // Touch handlers
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextPhoto();
+    } else if (isRightSwipe) {
+      prevPhoto();
+    }
+  };
+
+  if (loading) {
+    return (
+      <BaseLayout showTabs={true} maxWidth="mobile">
+        <div style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh"
+        }}>
+          <div className="spinner" style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid rgba(255,255,255,0.1)",
+            borderLeftColor: "var(--primary-color)",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite"
+          }}></div>
+        </div>
+      </BaseLayout>
+    );
+  }
+
+  const photos = userData?.images || [];
+  const hasPhotos = photos.length > 0;
+
+  return (
+    <BaseLayout showTabs={true} maxWidth="mobile">
+      <div className="profile-container">
+        {/* Image Carousel */}
+        <div className="photo-carousel">
+          {hasPhotos ? (
+            <>
+              <div
+                className={`carousel-image ${isTransitioning ? 'transitioning' : ''}`}
+                style={{
+                  backgroundImage: `url(${photos[currentPhotoIndex]})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center"
+                }}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
+                {photos.length > 1 && (
+                  <>
+                    <button className="carousel-btn prev" onClick={prevPhoto}>
+                      ‹
+                    </button>
+                    <button className="carousel-btn next" onClick={nextPhoto}>
+                      ›
+                    </button>
+                    <div className="carousel-indicators">
+                      {photos.map((_, index) => (
+                        <div
+                          key={index}
+                          className={`indicator ${index === currentPhotoIndex ? 'active' : ''}`}
+                          onClick={() => setCurrentPhotoIndex(index)}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="carousel-image placeholder">
+              <div className="placeholder-icon">📷</div>
+              <p>Sin fotos</p>
+            </div>
+          )}
+        </div>
+
+        {/* Profile Info */}
+        <div className="profile-info">
+          {/* Name & Age */}
+          <div className="profile-header">
+            <h1>
+              {userData?.name || "Usuario"}, {userData?.age || "—"}
+            </h1>
+            {userData?.location?.city && (
+              <p className="location">
+                📍 {userData.location.city}
+                {userData.location.state && `, ${userData.location.state}`}
+              </p>
+            )}
+          </div>
+
+          {/* Bio */}
+          {userData?.bio && (
+            <div className="profile-section">
+              <h3>💭 Sobre mí</h3>
+              <p className="bio-text">{userData.bio}</p>
+            </div>
+          )}
+
+          {/* Details */}
+          <div className="profile-section">
+            <h3>ℹ️ Detalles</h3>
+            <div className="details-grid">
+              {userData?.gender && (
+                <div className="detail-item">
+                  <span className="detail-label">Género</span>
+                  <span className="detail-value">{userData.gender}</span>
+                </div>
+              )}
+              {userData?.sexualOrientation && (
+                <div className="detail-item">
+                  <span className="detail-label">Orientación</span>
+                  <span className="detail-value">{userData.sexualOrientation}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Interests */}
+          {userData?.interests && userData.interests.length > 0 && (
+            <div className="profile-section">
+              <h3>🎯 Intereses</h3>
+              <div className="interests-container">
+                {userData.interests.map((interest, index) => (
+                  <span key={index} className="interest-tag">
+                    {interest}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="action-buttons">
+            <Button onClick={handleEditProfile}>
+              ✏️ Editar Perfil
+            </Button>
+            <Button onClick={handleLogout} variant="secondary">
+              🚪 Cerrar Sesión
+            </Button>
+          </div>
+
+          {/* Footer */}
+          <div className="profile-footer">
+            <p>Versión 1.0.0 • App de Citas</p>
+          </div>
+        </div>
+      </div>
+    </BaseLayout>
+  );
+};
+
+export default Profile;
