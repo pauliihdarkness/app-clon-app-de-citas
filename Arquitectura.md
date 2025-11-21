@@ -10,172 +10,307 @@
 
 ## 📌 Resumen General
 
-La arquitectura se basa en un frontend **React** desacoplado, que interactúa con **Firebase** (Auth + Firestore + Functions) como backend serverless y **Cloudinary** para imágenes optimizadas.
+La arquitectura se basa en un frontend **React** desacoplado, que interactúa con **Firebase** (Auth + Firestore) como backend serverless y **Cloudinary** para imágenes optimizadas.
 
-> Escalable · Segura · Modular · Pensada para alto tráfico
+> Escalable · Segura · Modular · Mobile First
 
 ```mermaid
 graph TD
-  A[React App (UI + State + Routing)] -->|REST / SDK| B[Firebase\nAuth, Firestore, Functions, Hosting]
-  B -->|Upload / URL| C[Cloudinary\nStorage + Transformations]
+  A[React App (Vite)] -->|Firebase SDK| B[Firebase Auth]
+  A -->|Firestore SDK| C[Firestore Database]
+  A -->|Upload Widget| D[Cloudinary]
+  C -->|Reglas de Seguridad| E[Datos Públicos/Privados]
+  D -->|CDN| F[Imágenes Optimizadas]
 ```
 
 ---
 
-
 ## 🧩 Arquitectura de Carpetas (Frontend React)
 
 ```plaintext
-src/
- ├── api/           # Integraciones Firebase/Cloudinary
- ├── components/    # UI, Auth, Profile, Feed, Chat, Layout
- ├── context/       # AuthContext, UserContext, AppConfig
- ├── hooks/         # useAuth, useFirestoreQuery, useGeolocation
- ├── pages/         # Home, Feed, Profile, EditProfile, Chat, Login, Register
- ├── utils/         # validators, formatters, geolocation
- ├── assets/        # icons, images, styles
+client/src/
+ ├── api/                   # Integraciones Firebase/Cloudinary
+ │   ├── firebase.js        # Configuración Firebase
+ │   ├── user.js            # API de usuarios (CRUD)
+ │   └── cloudinary.js      # Utilidades Cloudinary
+ ├── components/            # Componentes reutilizables
+ │   ├── Layout/            # BaseLayout, TabNavigation, ProtectedRoute
+ │   ├── Profile/           # LocationSelector, UpdateMultipleImagesWithCrop
+ │   └── UI/                # Button, Input, TextArea, Modal
+ ├── context/               # Contextos de React
+ │   └── AuthContext.jsx    # Estado de autenticación global
+ ├── pages/                 # Vistas principales
+ │   ├── Home.jsx           # Landing page
+ │   ├── Login.jsx          # Inicio de sesión
+ │   ├── Register.jsx       # Registro
+ │   ├── CreateProfile.jsx  # Creación de perfil inicial
+ │   ├── Profile.jsx        # Visualización de perfil
+ │   ├── EditProfile.jsx    # Edición de perfil (modales)
+ │   ├── Settings.jsx       # Configuración
+ │   ├── AccountInfo.jsx    # Información de cuenta
+ │   ├── Feed.jsx           # Feed de usuarios (pendiente)
+ │   └── Chat.jsx           # Chat (pendiente)
+ ├── utils/                 # Funciones de utilidad
+ │   └── dateUtils.js       # Cálculo y validación de fechas
+ ├── assets/                # Recursos estáticos
+ │   └── data/              # JSON (géneros, orientaciones, intereses)
  ├── App.jsx
- ├── AppRouter.jsx
+ ├── AppRouter.jsx          # Configuración de rutas
  └── main.jsx
 ```
 
 ---
 
-
 ## 🗄️ Arquitectura Firestore (Base de Datos)
 
-```plaintext
-users/{userId}
-  - name, age, bio, interests[], location {city, country, approxCoords?}
-  - photos: []
-  - settings {maxDistance, ageRange}
-  - createdAt, updatedAt
+### Estructura Actual
 
+```plaintext
+users/{userId}                          # Datos PÚBLICOS
+  - uid, name, age, gender, sexualOrientation
+  - bio, interests[], images[]
+  - location {country, state, city}
+  - createdAt, updatedAt
+  
+  /private/                             # Subcolección PRIVADA
+    /data                               # Documento de datos sensibles
+      - email, birthDate, authMethod
+      - (futuro: preferencias, notificaciones)
+```
+
+### Estructura Futura (Pendiente)
+
+```plaintext
 likes/{likeId}
-  - fromUser, toUser, timestamp
+  - fromUserId, toUserId, type (like/dislike)
+  - createdAt
 
 matches/{matchId}
-  - users: [userA, userB], createdAt
+  - user1Id, user2Id
+  - createdAt, lastMessageAt
+  - unreadCount {userId: number}
 
-messages/{matchId}/messages/{messageId}
-  - senderId, text, imageUrl, createdAt
+chats/{chatId}
+  - matchId, participants[]
+  - lastMessage, lastMessageAt, lastMessageBy
+  
+  /messages/{messageId}
+    - senderId, text, createdAt
+    - read, readAt
 ```
 
 ---
-
 
 ## 🌐 Flujo de Datos Principal
 
-<details>
-<summary>🔐 Autenticación</summary>
+### 🔐 Autenticación
 
-1. Usuario se registra/inicia sesión con Firebase Auth
-2. Firebase devuelve uid
-3. React guarda el usuario en AuthContext
-4. Se carga el documento `/users/{uid}`
-</details>
+1. Usuario se registra/inicia sesión con Firebase Auth (Email/Password o Google)
+2. Firebase devuelve `uid`
+3. React guarda el usuario en `AuthContext`
+4. Se verifica si existe perfil en `/users/{uid}`
+5. Si no existe → redirige a `/create-profile`
+6. Si existe → redirige a `/feed`
 
-<details>
-<summary>👤 Creación de Perfil</summary>
+### 👤 Creación de Perfil
 
-1. Usuario sube fotos → Cloudinary → devuelve URL
-2. Se guarda el perfil en Firestore `/users/{uid}`
-</details>
+1. Usuario completa formulario con datos personales
+2. Usuario selecciona **fecha de nacimiento** (validación: +18 años)
+3. Se calcula **edad** automáticamente desde la fecha
+4. Usuario sube fotos → Cloudinary → devuelve URLs
+5. Se guarda:
+   - Datos públicos en `/users/{uid}`
+   - `birthDate` y `email` en `/users/{uid}/private/data`
+6. Redirige a `/feed`
 
-<details>
-<summary>❤️ Feed y Recomendaciones</summary>
+### ✏️ Edición de Perfil
 
-1. React consulta `/users/` filtrando por distancia, edad, género, no vistos
-2. Swipe (Like / Dislike)
-3. Se registra en `likes/`
-4. Cloud Function (opcional) detecta match y genera `matches/`
-</details>
+1. Usuario accede a `/profile/edit`
+2. Sistema de **modales** para editar por secciones:
+   - Información Básica (nombre, género, orientación, ubicación)
+   - Biografía (máx 500 caracteres)
+   - Intereses (máx 8)
+   - Fotos (subida directa, sin modal)
+3. Al guardar, se **recalcula edad** automáticamente desde `birthDate`
+4. **Nota**: La fecha de nacimiento NO es editable (seguridad)
 
-<details>
-<summary>💬 Chat en Tiempo Real</summary>
+### 📋 Información de Cuenta
 
-1. React escucha cambios en `/matches/{matchId}/messages/`
-2. Mensajes se escriben allí
+1. Usuario accede a `Settings → Información de la cuenta`
+2. Se obtiene `birthDate` desde `/users/{uid}/private/data`
+3. Se muestra fecha de nacimiento formateada
+4. Se indica que NO es editable por seguridad
+
+### ❤️ Feed y Recomendaciones (Futuro)
+
+1. React consulta `/users/` filtrando por:
+   - Distancia (geolocalización)
+   - Rango de edad
+   - Género/orientación compatible
+   - No vistos previamente
+2. Usuario hace swipe (Like / Dislike)
+3. Se registra en `likes/{likeId}`
+4. Si hay match mutuo → se crea `matches/{matchId}`
+
+### 💬 Chat en Tiempo Real (Futuro)
+
+1. React escucha cambios en `/chats/{chatId}/messages/`
+2. Mensajes se escriben en tiempo real
 3. Si incluyen imagen → primero subir a Cloudinary
-4. Chat actualiza en tiempo real
-</details>
+4. Chat actualiza automáticamente con `onSnapshot`
 
 ---
-
-
-## 🛠️ Cloud Functions (Opcionales)
-
-```plaintext
-functions/
- ├── onLikeCreate.js         # Detecta si hay match
- ├── onMessageCreate.js      # Push notifications
- ├── cleanInactiveMatches.js # Limpia matches viejos
- └── moderatePhotos.js       # Moderación con Cloudinary AI
-```
-
----
-
-
 
 ## 🖼️ Arquitectura de Imágenes (Cloudinary)
 
-**Presets recomendados:**
-- profile_photos
-- chat_images
+### Configuración
 
-**Transformaciones automáticas:**
-- `q_auto`, `f_auto`, `c_fill`, `aspect_ratio=1:1` (perfiles)
-- Miniaturas para acelerar el feed
+- **Cloud Name**: Configurado en `.env`
+- **Upload Preset**: Sin firma, configurado en Cloudinary
+- **Carpeta**: `app-de-citas/users/{uid}/`
+- **Límite**: 9 fotos por usuario
 
----
+### Transformaciones Automáticas
 
-## 🔌 Arquitectura de Estados (State Management)
+- `q_auto` - Calidad automática
+- `f_auto` - Formato automático (WebP en navegadores compatibles)
+- `c_fill` - Recorte para llenar dimensiones
+- Compresión: Máx 1MB
+- Dimensiones: Máx 1500px
 
-**Global State:**
-- usuario autenticado
-- perfil completo
-- filtros de búsqueda
-- matches activos
-- chats activos
+### Flujo de Subida
 
-**Locales/Componentes:**
-- estado de swipe
-- estado de carga de fotos
-- UI (modals, banners, toggles)
-
-> Opción recomendada: **Zustand** (más simple que Redux)
+1. Usuario selecciona imagen
+2. Crop interactivo con `react-easy-crop`
+3. Subida a Cloudinary con Upload Widget
+4. Cloudinary devuelve URL optimizada
+5. URL se guarda en Firestore `/users/{uid}/images[]`
+6. Actualización inmediata en UI
 
 ---
 
-## 🌍 Hosting
+## 🔒 Seguridad y Reglas de Firestore
 
-| Opción | Descripción |
-|--------|-------------|
-| Firebase Hosting (PWA) | Hosting serverless, integración directa |
-| Vercel + Firebase backend | Deploy frontend en Vercel, backend en Firebase |
+### Reglas Implementadas
 
-Ambas funcionan perfectamente con React.
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Colección de usuarios (pública)
+    match /users/{userId} {
+      // Cualquier usuario autenticado puede leer perfiles
+      allow read: if request.auth != null;
+      
+      // Solo el dueño puede crear/actualizar su perfil
+      allow create, update: if request.auth != null 
+                            && request.auth.uid == userId;
+      
+      // Subcolección privada
+      match /private/data {
+        // Solo el dueño puede leer/escribir sus datos privados
+        allow read, write: if request.auth != null 
+                           && request.auth.uid == userId;
+        
+        // Prevenir edición de birthDate después de la creación
+        allow update: if request.auth.uid == userId 
+                      && (!request.resource.data.keys().hasAny(['birthDate']) 
+                          || request.resource.data.birthDate == resource.data.birthDate);
+      }
+    }
+  }
+}
+```
+
+### Principios de Seguridad
+
+- ✅ Separación de datos públicos y privados
+- ✅ Validación a nivel de base de datos
+- ✅ Fecha de nacimiento inmutable después del registro
+- ✅ Solo el usuario puede ver/editar sus datos privados
+- ✅ Perfiles públicos visibles solo para usuarios autenticados
+
+---
+
+## 🔌 Gestión de Estado (State Management)
+
+### Estado Global (Context API)
+
+- **AuthContext**: Usuario autenticado, funciones de login/logout
+- Futuro: **UserContext** para perfil completo
+- Futuro: **MatchesContext** para matches activos
+
+### Estado Local (useState)
+
+- Estados de formularios
+- Estados de carga (loading, saving)
+- Estados de modales (open/close)
+- Estados de UI (carrusel, tabs)
+
+> **Nota**: Para funcionalidades futuras más complejas, considerar **Zustand** o **Redux Toolkit**
 
 ---
 
 ## 🚀 Escalabilidad
-- Firestore con índices compuestos para consultas de feed
-- Fotos heavy → Cloudinary CDN
-- Lecturas minimizadas usando `onSnapshot` y `startAfter`
-- Particionar chats por match
-- Cloud Functions para automatización
-- Manejo eficiente de listeners
+
+### Optimizaciones Implementadas
+
+- ✅ Lazy loading de imágenes
+- ✅ Compresión automática con Cloudinary
+- ✅ Separación de datos públicos/privados
+- ✅ Cálculo de edad en el backend (no en cliente)
+
+### Optimizaciones Futuras
+
+- [ ] Índices compuestos en Firestore para consultas de feed
+- [ ] Paginación con `startAfter` para resultados grandes
+- [ ] Cache de perfiles visitados
+- [ ] Listeners eficientes con `onSnapshot`
+- [ ] Cloud Functions para automatización (detección de matches)
+- [ ] PWA para instalación en móviles
 
 ---
 
-## 🧪 Testing
-- Unit tests: **Jest + React Testing Library**
-- E2E: **Cypress**
-- Pruebas de reglas Firestore con **Firebase Emulator**
+## 🌍 Hosting y Deployment
+
+### Opción Recomendada: Vercel + Firebase
+
+| Componente | Plataforma | Razón |
+|------------|-----------|-------|
+| Frontend (React) | Vercel | Deploy automático, CDN global, preview URLs |
+| Backend (Auth + DB) | Firebase | Serverless, escalable, integración directa |
+| Imágenes | Cloudinary | CDN global, transformaciones automáticas |
+
+### Alternativa: Firebase Hosting
+
+- Todo en Firebase (Hosting + Auth + Firestore)
+- Más simple, menos configuración
+- Ideal para MVP
+
+---
+
+## 🧪 Testing (Futuro)
+
+### Recomendaciones
+
+- **Unit Tests**: Jest + React Testing Library
+- **E2E Tests**: Cypress o Playwright
+- **Firestore Rules**: Firebase Emulator Suite
+- **Visual Regression**: Percy o Chromatic
+
+---
+
+## 📊 Métricas y Analytics (Futuro)
+
+- Firebase Analytics para eventos de usuario
+- Cloudinary Analytics para uso de imágenes
+- Custom events: swipes, matches, mensajes
 
 ---
 
 <div align="center">
   <sub>✨ Arquitectura pensada para escalar, ser segura y fácil de mantener. ✨</sub>
+  <br>
+  <sub>Actualizado: Noviembre 2025</sub>
 </div>
-

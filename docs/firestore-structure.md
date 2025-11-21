@@ -1,114 +1,223 @@
-# Estructura de Datos - Firestore
+# Estructura de Datos de Firestore
 
-## Colección: `users`
+## Colecciones Principales
 
-### Documento Principal: `users/{uid}`
+### 📁 `users` (Colección)
 
-**Datos Públicos del Perfil** (visibles para otros usuarios)
+Almacena la información **pública** del perfil de usuario que es visible para otros usuarios.
+
+#### Documento: `users/{userId}`
 
 ```javascript
 {
-  // Identificación
-  "uid": "string",                    // ID único del usuario (Firebase Auth UID)
+  // Información Básica
+  uid: string,                    // ID único del usuario (Firebase Auth UID)
+  name: string,                   // Nombre del usuario
+  age: number,                    // Edad (calculada automáticamente desde birthDate)
   
-  // Información Personal
-  "name": "string",                   // Nombre del usuario
-  "age": number,                      // Edad calculada
-  "birthdate": "string",              // Fecha de nacimiento (formato: YYYY-MM-DD)
-  "gender": "string",                 // Género (ej: "Hombre", "Mujer", "No binario", etc.)
-  "sexualOrientation": "string",      // Orientación sexual (ej: "Heterosexual", "Homosexual", etc.)
+  // Identidad y Orientación
+  gender: string,                 // Género del usuario
+  sexualOrientation: string,      // Orientación sexual
   
   // Perfil
-  "bio": "string",                    // Biografía del usuario (máx 500 caracteres)
-  "interests": ["string"],            // Array de intereses (máx 5)
+  bio: string,                    // Biografía del usuario (máx 500 caracteres)
+  interests: string[],            // Array de intereses (máx 8)
+  
+  // Multimedia
+  images: string[],               // URLs de imágenes de Cloudinary (máx 9)
   
   // Ubicación
-  "location": {
-    "country": "string",              // País (ej: "Argentina")
-    "state": "string",                // Provincia/Estado
-    "city": "string"                  // Ciudad
+  location: {
+    country: string,              // País
+    state: string,                // Estado/Provincia
+    city: string                  // Ciudad
   },
   
-  // Imágenes
-  "images": ["string"],               // Array de URLs de Cloudinary (máx 6)
-                                      // Organizadas en: app-de-citas/users/{uid}/
-  
-  // Metadatos
-  "CreationDate": Timestamp,          // Fecha de creación del perfil
-  "createdAt": Timestamp              // Fecha de creación del documento (desde login)
-}
-```
-
-**Ejemplo:**
-```json
-{
-  "uid": "abc123xyz",
-  "name": "María García",
-  "age": 28,
-  "birthdate": "1996-05-15",
-  "gender": "Mujer",
-  "sexualOrientation": "Bisexual",
-  "bio": "Amante de los viajes y la fotografía. Me encanta conocer gente nueva y compartir experiencias.",
-  "interests": ["Fotografía", "Viajes", "Yoga", "Cine", "Cocina"],
-  "location": {
-    "country": "Argentina",
-    "state": "Buenos Aires",
-    "city": "La Plata"
-  },
-  "images": [
-    "https://res.cloudinary.com/dgswnms90/image/upload/v1234567890/app-de-citas/users/abc123xyz/photo1.jpg",
-    "https://res.cloudinary.com/dgswnms90/image/upload/v1234567890/app-de-citas/users/abc123xyz/photo2.jpg"
-  ],
-  "CreationDate": "2025-11-20T19:00:00.000Z",
-  "createdAt": "2025-11-20T18:55:00.000Z"
+  // Metadata
+  createdAt: timestamp,           // Fecha de creación del perfil
+  updatedAt: timestamp            // Última actualización (opcional)
 }
 ```
 
 ---
 
-### Subcolección: `users/{uid}/private/auth`
+### 🔒 `users/{userId}/private` (Subcolección)
 
-**Datos Sensibles** (solo accesibles por el usuario autenticado)
+Almacena información **privada y sensible** del usuario que NO es visible para otros usuarios.
+
+#### Documento: `users/{userId}/private/data`
 
 ```javascript
 {
-  // Autenticación
-  "email": "string",                  // Email del usuario
-  "photoURL": "string",               // URL de foto de perfil de Google/Auth
-  "authMethod": "string"              // Método de autenticación: "google" | "email"
-}
-```
-
-**Ejemplo:**
-```json
-{
-  "email": "maria.garcia@example.com",
-  "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocK...",
-  "authMethod": "google"
+  // Información de Cuenta
+  email: string,                  // Email del usuario (Firebase Auth)
+  
+  // Información Sensible
+  birthDate: string,              // Fecha de nacimiento en formato YYYY-MM-DD
+                                  // ⚠️ NO EDITABLE después del registro
+                                  // Se usa para calcular la edad automáticamente
+  
+  // Metadata de Autenticación
+  authMethod: string,             // Método de autenticación: "email" | "google"
+  emailVerified: boolean,         // Si el email está verificado (opcional)
+  
+  // Preferencias (futuro)
+  notifications: {                // Configuración de notificaciones
+    matches: boolean,
+    messages: boolean,
+    likes: boolean
+  }
 }
 ```
 
 ---
 
-## Reglas de Seguridad de Firestore
+## 🔮 Colecciones Futuras (Pendientes de Implementación)
+
+### 📁 `likes` (Colección)
+
+Almacena los "me gusta" y "no me gusta" entre usuarios.
+
+```javascript
+{
+  fromUserId: string,             // Usuario que da el like/dislike
+  toUserId: string,               // Usuario que recibe el like/dislike
+  type: "like" | "dislike",       // Tipo de interacción
+  createdAt: timestamp            // Fecha de la interacción
+}
+```
+
+**Índices necesarios:**
+- `fromUserId` + `toUserId` (compuesto, único)
+- `toUserId` + `type`
+
+---
+
+### 📁 `matches` (Colección)
+
+Almacena los matches (likes mutuos) entre usuarios.
+
+```javascript
+{
+  user1Id: string,                // ID del primer usuario (orden alfabético)
+  user2Id: string,                // ID del segundo usuario (orden alfabético)
+  createdAt: timestamp,           // Fecha del match
+  lastMessageAt: timestamp,       // Última vez que hubo un mensaje (opcional)
+  unreadCount: {                  // Mensajes no leídos por usuario
+    [userId]: number
+  }
+}
+```
+
+**Índices necesarios:**
+- `user1Id` + `user2Id` (compuesto, único)
+- `user1Id` + `lastMessageAt`
+- `user2Id` + `lastMessageAt`
+
+---
+
+### 📁 `chats` (Colección)
+
+Almacena las conversaciones entre matches.
+
+#### Documento: `chats/{chatId}`
+
+```javascript
+{
+  matchId: string,                // ID del match asociado
+  participants: string[],         // Array con los 2 UIDs de los participantes
+  lastMessage: string,            // Último mensaje enviado (preview)
+  lastMessageAt: timestamp,       // Timestamp del último mensaje
+  lastMessageBy: string           // UID del usuario que envió el último mensaje
+}
+```
+
+#### Subcolección: `chats/{chatId}/messages`
+
+```javascript
+{
+  senderId: string,               // UID del usuario que envió el mensaje
+  text: string,                   // Contenido del mensaje
+  createdAt: timestamp,           // Timestamp del mensaje
+  read: boolean,                  // Si el mensaje fue leído
+  readAt: timestamp               // Timestamp de lectura (opcional)
+}
+```
+
+**Índices necesarios:**
+- `createdAt` (descendente) para ordenar mensajes
+
+---
+
+## 🔐 Reglas de Seguridad de Firestore
+
+### Reglas Actuales Recomendadas
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Colección de usuarios
+    // Función auxiliar para verificar autenticación
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Función auxiliar para verificar si es el dueño
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Colección de usuarios (pública)
     match /users/{userId} {
-      // Lectura pública (para mostrar perfiles)
-      allow read: if true;
+      // Cualquier usuario autenticado puede leer perfiles públicos
+      allow read: if isAuthenticated();
       
-      // Escritura solo del dueño
-      allow write: if request.auth != null && request.auth.uid == userId;
+      // Solo el dueño puede crear/actualizar su perfil
+      allow create, update: if isOwner(userId);
       
-      // Subcolección de datos privados
-      match /private/{document} {
-        // Solo el dueño puede leer y escribir sus datos privados
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Solo el dueño puede eliminar su perfil
+      allow delete: if isOwner(userId);
+      
+      // Subcolección privada
+      match /private/data {
+        // Solo el dueño puede leer/escribir sus datos privados
+        allow read, write: if isOwner(userId);
+        
+        // Prevenir edición de birthDate después de la creación
+        allow update: if isOwner(userId) 
+                      && (!request.resource.data.keys().hasAny(['birthDate']) 
+                          || request.resource.data.birthDate == resource.data.birthDate);
+      }
+    }
+    
+    // Colección de likes (futuro)
+    match /likes/{likeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.fromUserId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.fromUserId;
+    }
+    
+    // Colección de matches (futuro)
+    match /matches/{matchId} {
+      allow read: if isAuthenticated() 
+                  && (request.auth.uid == resource.data.user1Id 
+                      || request.auth.uid == resource.data.user2Id);
+      allow create: if isAuthenticated();
+    }
+    
+    // Colección de chats (futuro)
+    match /chats/{chatId} {
+      allow read: if isAuthenticated() 
+                  && request.auth.uid in resource.data.participants;
+      allow create, update: if isAuthenticated() 
+                            && request.auth.uid in request.resource.data.participants;
+      
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() 
+                    && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow create: if isAuthenticated() 
+                      && request.auth.uid == request.resource.data.senderId;
       }
     }
   }
@@ -117,133 +226,91 @@ service cloud.firestore {
 
 ---
 
-## Flujo de Datos
+## 📊 Diagrama de Relaciones
 
-### 1. Login / Registro
-
-**Google Sign-In:**
-```javascript
-// 1. Usuario inicia sesión con Google
-const user = await signInWithPopup(auth, googleProvider);
-
-// 2. Se crea documento público básico
-await createUserProfile(user.uid, {
-  uid: user.uid,
-  createdAt: new Date()
-});
-
-// 3. Se guardan datos sensibles en subcolección privada
-await createPrivateData(user.uid, {
-  email: user.email,
-  photoURL: user.photoURL,
-  authMethod: "google"
-});
-
-// 4. Redirigir a /create-profile para completar perfil
 ```
-
-**Email/Password Sign-In:**
-```javascript
-// Similar al flujo de Google, pero authMethod: "email"
-await createPrivateData(user.uid, {
-  email: user.email,
-  photoURL: "",
-  authMethod: "email"
-});
-```
-
-### 2. Crear Perfil Completo
-
-```javascript
-// Usuario completa su perfil en /create-profile
-await createUserProfile(user.uid, {
-  name: "María García",
-  birthdate: "1996-05-15",
-  age: 28,
-  gender: "Mujer",
-  sexualOrientation: "Bisexual",
-  bio: "Amante de los viajes...",
-  interests: ["Fotografía", "Viajes", "Yoga"],
-  location: {
-    country: "Argentina",
-    state: "Buenos Aires",
-    city: "La Plata"
-  },
-  uid: user.uid,
-  images: [
-    "https://res.cloudinary.com/.../photo1.jpg",
-    "https://res.cloudinary.com/.../photo2.jpg"
-  ],
-  CreationDate: new Date()
-});
-
-// Redirigir a /feed
-```
-
-### 3. Leer Perfil Público
-
-```javascript
-// Cualquier usuario autenticado puede leer perfiles públicos
-const profile = await getUserProfile(userId);
-// Retorna: { name, age, bio, interests, location, images, etc. }
-// NO incluye: email, photoURL, authMethod
-```
-
-### 4. Leer Datos Privados
-
-```javascript
-// Solo el usuario autenticado puede leer sus propios datos privados
-const privateData = await getPrivateData(currentUser.uid);
-// Retorna: { email, photoURL, authMethod }
+users (collection)
+├── {userId} (document)
+│   ├── uid, name, age, gender, etc.
+│   └── private (subcollection)
+│       └── data (document)
+│           └── email, birthDate, authMethod
+│
+likes (collection) [FUTURO]
+├── {likeId}
+│   └── fromUserId, toUserId, type
+│
+matches (collection) [FUTURO]
+├── {matchId}
+│   └── user1Id, user2Id, createdAt
+│
+chats (collection) [FUTURO]
+├── {chatId}
+│   ├── matchId, participants, lastMessage
+│   └── messages (subcollection)
+│       └── {messageId}
+│           └── senderId, text, createdAt, read
 ```
 
 ---
 
-## Cloudinary - Organización de Imágenes
+## 🔄 Flujo de Datos: Edad y Fecha de Nacimiento
 
-**Estructura de carpetas:**
-```
-app-de-citas/
-└── users/
-    └── {uid}/
-        ├── image_1.jpg
-        ├── image_2.jpg
-        ├── image_3.jpg
-        ├── image_4.jpg
-        ├── image_5.jpg
-        └── image_6.jpg
-```
+### Registro de Usuario
 
-**Configuración:**
-- Preset: `app-citas`
-- Cloud Name: `dgswnms90`
-- Compresión: Máx 1MB, 1500px
-- Formato: JPEG
+1. Usuario ingresa **fecha de nacimiento** en `CreateProfile`
+2. Se valida que tenga al menos 18 años
+3. Se calcula la **edad** desde la fecha de nacimiento
+4. Se guarda:
+   - `birthDate` en `users/{userId}/private/data` 🔒
+   - `age` (calculada) en `users/{userId}` 📋
 
----
+### Visualización de Perfil
 
-## Campos Opcionales vs Requeridos
+1. Se obtiene `age` desde `users/{userId}` (dato público)
+2. La edad se muestra en el perfil
+3. La fecha de nacimiento NO es visible públicamente
 
-### Requeridos para perfil completo:
-- ✅ `name`
-- ✅ `age`
-- ✅ `birthdate`
-- ✅ `gender`
-- ✅ `CreationDate`
+### Actualización de Perfil
 
-### Opcionales:
-- `sexualOrientation`
-- `bio`
-- `interests`
-- `location` (puede estar vacío)
-- `images` (puede estar vacío)
+1. Usuario edita su perfil en `EditProfile`
+2. **NO puede editar** la fecha de nacimiento (campo no disponible)
+3. La edad se **recalcula automáticamente** en el backend desde `birthDate`
+4. Se actualiza `age` en `users/{userId}`
+
+### Información de Cuenta
+
+1. Usuario accede a `Settings → Información de la cuenta`
+2. Se obtiene `birthDate` desde `users/{userId}/private/data`
+3. Se muestra la fecha de nacimiento formateada
+4. Se indica que NO es editable por seguridad
 
 ---
 
-## Notas de Implementación
+## 📝 Notas Importantes
 
-1. **Privacidad**: Email y photoURL nunca se exponen en el documento público
-2. **Seguridad**: Reglas de Firestore protegen la subcolección `private`
-3. **Escalabilidad**: Estructura permite agregar más subcolecciones privadas en el futuro
-4. **Trazabilidad**: Se guarda el método de autenticación para analytics
-5. **Merge**: Todas las escrituras usan `{ merge: true }` para evitar sobrescribir datos
+### Seguridad y Privacidad
+
+- ✅ La fecha de nacimiento está en una subcolección **privada**
+- ✅ Solo el usuario puede ver su propia fecha de nacimiento
+- ✅ La edad es pública pero se calcula automáticamente
+- ✅ No se puede modificar la fecha de nacimiento después del registro
+
+### Validaciones
+
+- ✅ Edad mínima: 18 años
+- ✅ Fecha de nacimiento: formato YYYY-MM-DD
+- ✅ Rango válido: últimos 100 años
+
+### Cálculo de Edad
+
+La edad se calcula automáticamente en:
+- **Registro**: Al crear el perfil
+- **Actualización**: Al actualizar cualquier campo del perfil
+- **Visualización**: Al obtener el perfil del usuario
+
+Esto garantiza que la edad siempre esté actualizada sin necesidad de intervención manual.
+
+---
+
+**Última actualización**: 21 de noviembre de 2025

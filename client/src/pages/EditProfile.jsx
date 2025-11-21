@@ -6,6 +6,7 @@ import BaseLayout from "../components/Layout/BaseLayout";
 import Input from "../components/UI/Input";
 import Button from "../components/UI/Button";
 import TextArea from "../components/UI/TextArea";
+import Modal from "../components/UI/Modal";
 import UpdateMultipleImagesWithCrop from "../components/Profile/UpdateMultipleImagesWithCrop";
 import LocationSelector from "../components/Profile/LocationSelector";
 import genderDataRaw from "../assets/data/gender-identities.json";
@@ -15,27 +16,28 @@ import "./EditProfile.css";
 
 const genderData = genderDataRaw.identidades_genero;
 const orientationData = orientationDataRaw.orientaciones_sexuales;
-// Flatten interests from all categories
-const interestsData = Object.values(interestsDataRaw).flat().map(item => item.nombre);
 
 const EditProfile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [activeModal, setActiveModal] = useState(null); // 'basic', 'bio', 'interests'
 
-  // Form states
-  const [nombre, setNombre] = useState("");
-  const [edad, setEdad] = useState("");
-  const [genero, setGenero] = useState("");
-  const [bio, setBio] = useState("");
-  const [orientacionSexual, setOrientacionSexual] = useState("");
-  const [intereses, setIntereses] = useState([]);
-  const [imageUrls, setImageUrls] = useState([]);
-  const [pais, setPais] = useState("");
-  const [provincia, setProvincia] = useState("");
-  const [ciudad, setCiudad] = useState("");
+  // Data states (Source of Truth)
+  const [userData, setUserData] = useState({
+    name: "",
+    gender: "",
+    bio: "",
+    sexualOrientation: "",
+    interests: [],
+    images: [],
+    location: { country: "", state: "", city: "" }
+  });
+
+  // Temp states for editing (Modals)
+  const [tempData, setTempData] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -43,16 +45,19 @@ const EditProfile = () => {
         try {
           const data = await getUserProfile(user.uid);
           if (data) {
-            setNombre(data.name || "");
-            setEdad(data.age?.toString() || "");
-            setGenero(data.gender || "");
-            setBio(data.bio || "");
-            setOrientacionSexual(data.sexualOrientation || "");
-            setIntereses(data.interests || []);
-            setImageUrls(data.images || []);
-            setPais(data.location?.country || "");
-            setProvincia(data.location?.state || "");
-            setCiudad(data.location?.city || "");
+            setUserData({
+              name: data.name || "",
+              gender: data.gender || "",
+              bio: data.bio || "",
+              sexualOrientation: data.sexualOrientation || "",
+              interests: data.interests || [],
+              images: data.images || [],
+              location: {
+                country: data.location?.country || "",
+                state: data.location?.state || "",
+                city: data.location?.city || ""
+              }
+            });
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -65,86 +70,98 @@ const EditProfile = () => {
     fetchUserData();
   }, [user]);
 
-  const handleInterestClick = (interest) => {
-    if (intereses.includes(interest)) {
-      setIntereses(intereses.filter(i => i !== interest));
-    } else {
-      if (intereses.length < 5) {
-        setIntereses([...intereses, interest]);
-      } else {
-        alert("Máximo 5 intereses");
-      }
-    }
+  const openModal = (modalName) => {
+    setTempData({ ...userData }); // Copy current data to temp
+    setActiveModal(modalName);
   };
 
-  const handleImagesChange = (urls) => {
-    if (urls.length <= 9) {
-      setImageUrls(urls);
-    } else {
-      alert("Máximo 9 imágenes permitidas");
-    }
+  const closeModal = () => {
+    setActiveModal(null);
+    setTempData({});
   };
 
-  const handleLocationChange = (location) => {
-    setPais(location.country || "");
-    setProvincia(location.state || "");
-    setCiudad(location.city || "");
-  };
-
-  const handleSave = async () => {
-    if (!nombre || !edad || !genero) {
-      alert("Por favor completa los campos obligatorios: Nombre, Edad y Género");
-      return;
-    }
-
+  const handleSaveChanges = async () => {
     setSaving(true);
     try {
-      await updateUserProfile(user.uid, {
-        name: nombre,
-        age: parseInt(edad),
-        gender: genero,
-        bio: bio,
-        sexualOrientation: orientacionSexual,
-        interests: intereses,
-        images: imageUrls,
-        location: {
-          country: pais,
-          state: provincia,
-          city: ciudad
-        }
-      });
+      // Prepare update object based on active modal
+      let updateData = {};
 
-      alert("Perfil actualizado exitosamente");
-      navigate("/profile");
+      if (activeModal === 'basic') {
+        if (!tempData.name || !tempData.gender) {
+          alert("Nombre y Género son obligatorios");
+          setSaving(false);
+          return;
+        }
+        updateData = {
+          name: tempData.name,
+          gender: tempData.gender,
+          sexualOrientation: tempData.sexualOrientation,
+          location: tempData.location
+        };
+      } else if (activeModal === 'bio') {
+        updateData = { bio: tempData.bio };
+      } else if (activeModal === 'interests') {
+        updateData = { interests: tempData.interests };
+      }
+
+      await updateUserProfile(user.uid, updateData);
+
+      // Update local state
+      setUserData(prev => ({ ...prev, ...updateData }));
+      closeModal();
+
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Error al actualizar el perfil. Inténtalo de nuevo.");
+      alert("Error al guardar cambios");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCancel = () => {
-    navigate("/profile");
+  // Handlers for Temp Data
+  const handleTempChange = (field, value) => {
+    setTempData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleTempLocationChange = (location) => {
+    setTempData(prev => ({ ...prev, location }));
+  };
+
+  const handleTempInterestClick = (interest) => {
+    const currentInterests = tempData.interests || [];
+    if (currentInterests.includes(interest)) {
+      handleTempChange('interests', currentInterests.filter(i => i !== interest));
+    } else {
+      if (currentInterests.length < 8) {
+        handleTempChange('interests', [...currentInterests, interest]);
+      } else {
+        alert("Máximo 8 intereses");
+      }
+    }
+  };
+
+  // Direct Image Update (No Modal needed for this as per previous logic, or keep it separate)
+  const handleImagesChange = (urls) => {
+    if (urls.length <= 9) {
+      setUserData(prev => ({ ...prev, images: urls }));
+    } else {
+      alert("Máximo 9 imágenes permitidas");
+    }
+  };
+
+  const handleDirectImageUpdate = async (newImages) => {
+    try {
+      await updateUserProfile(user.uid, { images: newImages });
+    } catch (error) {
+      console.error("Error updating images:", error);
+    }
   };
 
   if (loading) {
     return (
       <BaseLayout showTabs={true} maxWidth="mobile">
-        <div style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "50vh"
-        }}>
-          <div className="spinner" style={{
-            width: "40px",
-            height: "40px",
-            border: "4px solid rgba(255,255,255,0.1)",
-            borderLeftColor: "var(--primary-color)",
-            borderRadius: "50%",
-            animation: "spin 1s linear infinite"
-          }}></div>
+        <div className="loading-container">
+          <div className="spinner"></div>
         </div>
       </BaseLayout>
     );
@@ -170,134 +187,190 @@ const EditProfile = () => {
   };
 
   return (
-    <BaseLayout showTabs={true} maxWidth="mobile">
+    <BaseLayout showTabs={false} maxWidth="mobile" title="Editar Perfil">
       <div className="edit-profile-container">
-        {/* Header */}
-        <div className="edit-profile-header">
-          <button className="back-button" onClick={handleCancel}>
-            ← Volver
-          </button>
-          <h1>Editar Perfil</h1>
-        </div>
 
-        {/* Section 1: Basic Info */}
-        <div className="edit-section">
-          <h2>📋 Información Básica</h2>
-
-          <div className="form-group">
-            <label>Nombre *</label>
-            <Input
-              type="text"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              placeholder="Tu nombre"
-            />
+        {/* 1. Photos Section (Direct Edit) */}
+        <div className="edit-box photos-box">
+          <div className="box-header">
+            <h2>📷 Fotos ({userData.images.length}/9)</h2>
           </div>
-
-          <div className="form-group">
-            <label>Edad *</label>
-            <Input
-              type="number"
-              value={edad}
-              onChange={(e) => setEdad(e.target.value)}
-              placeholder="Tu edad"
-              min="18"
-              max="100"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Género *</label>
-            <select
-              value={genero}
-              onChange={(e) => setGenero(e.target.value)}
-              style={selectStyle}
-            >
-              <option value="">Selecciona tu género</option>
-              {genderData.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Ubicación</label>
-            <LocationSelector
-              onLocationChange={handleLocationChange}
-              initialLocation={{ pais, provincia, ciudad }}
+          <div className="box-content">
+            <UpdateMultipleImagesWithCrop
+              uid={user.uid}
+              onImagesChange={handleImagesChange}
+              onDirectUpdate={handleDirectImageUpdate}
+              initialImages={userData.images}
+              maxImages={9}
             />
           </div>
         </div>
 
-        {/* Section 2: About Me */}
-        <div className="edit-section">
-          <h2>💭 Sobre Mí</h2>
-
-          <div className="form-group">
-            <label>Biografía</label>
-            <TextArea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Cuéntanos sobre ti..."
-              rows={4}
-            />
+        {/* 2. Basic Info Summary Box */}
+        <div className="edit-box summary-box" onClick={() => openModal('basic')}>
+          <div className="box-header">
+            <h2>📋 Información Básica</h2>
+            <span className="edit-icon">✏️</span>
           </div>
-
-          <div className="form-group">
-            <label>Orientación Sexual</label>
-            <select
-              value={orientacionSexual}
-              onChange={(e) => setOrientacionSexual(e.target.value)}
-              style={selectStyle}
-            >
-              <option value="">Selecciona tu orientación</option>
-              {orientationData.map((o) => (
-                <option key={o} value={o}>{o}</option>
-              ))}
-            </select>
+          <div className="box-content summary-content">
+            <div className="summary-item">
+              <span className="label">Nombre:</span>
+              <span className="value">{userData.name}</span>
+            </div>
+            <div className="summary-item">
+              <span className="label">Género:</span>
+              <span className="value">{userData.gender}</span>
+            </div>
+            <div className="summary-item">
+              <span className="label">Ubicación:</span>
+              <span className="value">
+                {userData.location.city ? `${userData.location.city}, ${userData.location.state}` : "No definida"}
+              </span>
+            </div>
           </div>
+        </div>
 
-          <div className="form-group">
-            <label>Intereses (máximo 5)</label>
-            <div className="interests-grid">
-              {interestsData.map((interest) => (
-                <button
-                  key={interest}
-                  className={`interest-btn ${intereses.includes(interest) ? 'selected' : ''}`}
-                  onClick={() => handleInterestClick(interest)}
-                  type="button"
-                >
-                  {interest}
-                </button>
+        {/* 3. Bio Summary Box */}
+        <div className="edit-box summary-box" onClick={() => openModal('bio')}>
+          <div className="box-header">
+            <h2>💭 Sobre Mí</h2>
+            <span className="edit-icon">✏️</span>
+          </div>
+          <div className="box-content summary-content">
+            <p className="bio-preview">
+              {userData.bio || "¡Cuéntanos algo sobre ti! Toca para editar."}
+            </p>
+          </div>
+        </div>
+
+        {/* 4. Interests Summary Box */}
+        <div className="edit-box summary-box" onClick={() => openModal('interests')}>
+          <div className="box-header">
+            <h2>✨ Intereses ({userData.interests.length}/8)</h2>
+            <span className="edit-icon">✏️</span>
+          </div>
+          <div className="box-content summary-content">
+            <div className="interests-preview">
+              {userData.interests.length > 0 ? (
+                userData.interests.map(interest => (
+                  <span key={interest} className="interest-tag-preview">{interest}</span>
+                ))
+              ) : (
+                <span className="placeholder-text">Toca para seleccionar intereses</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="global-actions">
+          <Button onClick={() => navigate("/profile")} variant="secondary">
+            ⬅️ Volver al Perfil
+          </Button>
+        </div>
+
+        {/* --- MODALS --- */}
+
+        {/* Basic Info Modal */}
+        <Modal isOpen={activeModal === 'basic'} onClose={closeModal} title="Editar Información Básica">
+          <div className="modal-form-content">
+            <div className="form-group">
+              <label>Nombre *</label>
+              <Input
+                type="text"
+                value={tempData.name || ""}
+                onChange={(e) => handleTempChange('name', e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Género *</label>
+              <select
+                value={tempData.gender || ""}
+                onChange={(e) => handleTempChange('gender', e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">Selecciona</option>
+                {genderData.map(g => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Orientación Sexual</label>
+              <select
+                value={tempData.sexualOrientation || ""}
+                onChange={(e) => handleTempChange('sexualOrientation', e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">Selecciona</option>
+                {orientationData.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Ubicación</label>
+              <LocationSelector
+                onLocationChange={handleTempLocationChange}
+                initialLocation={tempData.location || {}}
+              />
+            </div>
+            <div className="modal-actions">
+              <Button onClick={handleSaveChanges} disabled={saving}>
+                {saving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Bio Modal */}
+        <Modal isOpen={activeModal === 'bio'} onClose={closeModal} title="Editar Biografía">
+          <div className="modal-form-content">
+            <div className="form-group">
+              <label>Biografía (máx 500 caracteres)</label>
+              <TextArea
+                value={tempData.bio || ""}
+                onChange={(e) => handleTempChange('bio', e.target.value)}
+                placeholder="Escribe aquí..."
+                maxLength={500}
+                className="bio-textarea-fixed"
+              />
+              <div className="char-count">{(tempData.bio || "").length}/500</div>
+            </div>
+            <div className="modal-actions">
+              <Button onClick={handleSaveChanges} disabled={saving}>
+                {saving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Interests Modal */}
+        <Modal isOpen={activeModal === 'interests'} onClose={closeModal} title="Editar Intereses">
+          <div className="modal-form-content">
+            <div className="interests-categories-modal">
+              {Object.entries(interestsDataRaw).map(([category, items]) => (
+                <div key={category} className="interest-category">
+                  <h3>{category}</h3>
+                  <div className="interests-grid-small">
+                    {items.map((item) => (
+                      <button
+                        key={item.nombre}
+                        className={`interest-tag ${(tempData.interests || []).includes(item.nombre) ? 'selected' : ''}`}
+                        onClick={() => handleTempInterestClick(item.nombre)}
+                        type="button"
+                      >
+                        <span className="emoji">{item.emoji}</span>
+                        <span className="name">{item.nombre}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
-            <p className="interest-count">{intereses.length}/5 seleccionados</p>
+            <div className="modal-actions sticky-footer">
+              <Button onClick={handleSaveChanges} disabled={saving}>
+                {saving ? "Guardando..." : `Guardar (${(tempData.interests || []).length}/8)`}
+              </Button>
+            </div>
           </div>
-        </div>
+        </Modal>
 
-        {/* Section 3: Photos */}
-        <div className="edit-section">
-          <h2>📷 Fotos ({imageUrls.length}/9)</h2>
-          <p className="section-description">
-            Puedes subir hasta 9 fotos para tu perfil
-          </p>
-          <UpdateMultipleImagesWithCrop
-            uid={user.uid}
-            onImagesChange={handleImagesChange}
-            initialImages={imageUrls}
-            maxImages={9}
-          />
-        </div>
-
-        {/* Action Buttons */}
-        <div className="action-buttons">
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? "Guardando..." : "💾 Guardar Cambios"}
-          </Button>
-          <Button onClick={handleCancel} variant="secondary" disabled={saving}>
-            ❌ Cancelar
-          </Button>
-        </div>
       </div>
     </BaseLayout>
   );

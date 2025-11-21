@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import { createUserProfile } from "../api/user";
+import { createUserProfile, createPrivateUserData } from "../api/user";
+import { calculateAge, getMaxBirthDate, getMinBirthDate, validateBirthDate } from "../utils/dateUtils";
 import BaseLayout from "../components/Layout/BaseLayout";
 import Input from "../components/UI/Input";
 import Button from "../components/UI/Button";
@@ -54,12 +55,19 @@ const CreateProfile = () => {
         e.preventDefault();
         if (!user) return;
 
+        // Validate birth date
+        const validation = validateBirthDate(fechaNacimiento);
+        if (!validation.isValid) {
+            alert(validation.error);
+            return;
+        }
+
         setIsLoading(true);
         try {
+            // Save public profile data
             await createUserProfile(user.uid, {
                 name: nombre,
-                birthdate: fechaNacimiento,
-                age: parseInt(edad),
+                age: calculateAge(fechaNacimiento),
                 gender: genero,
                 sexualOrientation: orientacionSexual,
                 bio: bio,
@@ -71,7 +79,13 @@ const CreateProfile = () => {
                 },
                 uid: user.uid,
                 images: imageUrls,
-                CreationDate: new Date()
+                createdAt: new Date()
+            });
+
+            // Save private data (birthDate)
+            await createPrivateUserData(user.uid, {
+                email: user.email,
+                birthDate: fechaNacimiento
             });
 
             navigate("/feed");
@@ -116,21 +130,14 @@ const CreateProfile = () => {
                     type="date"
                     placeholder="Fecha de nacimiento"
                     value={fechaNacimiento || ""}
-                    max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
+                    max={getMaxBirthDate()}
+                    min={getMinBirthDate()}
                     onChange={(e) => {
                         const fecha = e.target.value;
                         setFechaNacimiento(fecha);
 
                         if (fecha) {
-                            const hoy = new Date();
-                            const nacimiento = new Date(fecha);
-                            let edadCalculada = hoy.getFullYear() - nacimiento.getFullYear();
-                            const m = hoy.getMonth() - nacimiento.getMonth();
-
-                            if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
-                                edadCalculada--;
-                            }
-
+                            const edadCalculada = calculateAge(fecha);
                             setEdad(edadCalculada);
                         } else {
                             setEdad("");

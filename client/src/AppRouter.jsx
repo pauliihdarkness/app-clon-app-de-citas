@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import CreateProfile from "./pages/CreateProfile";
+import Settings from "./pages/Settings";
+import AccountInfo from "./pages/AccountInfo";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
 
 const AppRouter = () => {
@@ -41,6 +43,16 @@ const AppRouter = () => {
                 <Route path="/create-profile" element={
                     <ProtectedRoute>
                         <CreateProfile />
+                    </ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                    <ProtectedRoute>
+                        <Settings />
+                    </ProtectedRoute>
+                } />
+                <Route path="/account-info" element={
+                    <ProtectedRoute>
+                        <AccountInfo />
                     </ProtectedRoute>
                 } />
                 <Route path="*" element={<NotFound />} />

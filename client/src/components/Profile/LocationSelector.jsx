@@ -5,6 +5,8 @@ import localizations from "../../assets/data/Localizations-AR.json";
 import { getInitialLocation } from "../../utils/geolocation";
 import "../../assets/styles/global.css";
 
+import "./LocationSelector.css";
+
 const LocationSelector = ({ onLocationChange, initialLocation }) => {
     const [pais] = useState("Argentina"); // Por ahora fijo en Argentina
     const [provincia, setProvincia] = useState(initialLocation?.provincia || "");
@@ -66,37 +68,27 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
     };
 
     return (
-        <div className="glass" style={{ padding: "1.5rem", borderRadius: "16px", display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <h3 style={{ fontSize: "1.1rem", color: "var(--primary-color)" }}>📍 Ubicación</h3>
+        <div className="location-selector-container">
+            <h3 className="location-title">📍 Ubicación</h3>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <label style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Provincia</label>
+            <div className="location-field">
+                <label className="location-label">Provincia</label>
                 <select
                     value={provincia}
                     onChange={e => {
                         setProvincia(e.target.value);
                         setCiudad(""); // Resetear ciudad al cambiar provincia
                     }}
-                    style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        borderRadius: "var(--border-radius)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        background: "rgba(255, 255, 255, 0.05)",
-                        color: "white",
-                        fontSize: "1rem",
-                        outline: "none",
-                        cursor: "pointer"
-                    }}
+                    className="location-select"
                 >
-                    <option value="" style={{ color: "#333" }}>Selecciona una provincia</option>
+                    <option value="">Selecciona una provincia</option>
                     {provincias.map(p => (
-                        <option key={p} value={p} style={{ color: "#333" }}>{p}</option>
+                        <option key={p} value={p}>{p}</option>
                     ))}
                 </select>
             </div>
 
-            <div style={{ position: "relative" }}>
+            <div className="city-input-wrapper">
                 <Input
                     type="text"
                     placeholder={provincia ? "Escribe tu ciudad..." : "Primero selecciona una provincia"}
@@ -105,38 +97,16 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
                     disabled={!provincia}
                     icon={<span>🏙️</span>}
                     onFocus={() => ciudad && setSugerencias(s => s) && setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Delay para permitir click
                 />
 
                 {showSuggestions && sugerencias.length > 0 && (
-                    <ul style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        background: "#1E1E1E",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "8px",
-                        padding: "0.5rem",
-                        margin: "0.25rem 0 0 0",
-                        listStyle: "none",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        zIndex: 10
-                    }}>
+                    <ul className="suggestions-list">
                         {sugerencias.map((s, i) => (
                             <li
                                 key={i}
                                 onClick={() => handleSelectCity(s)}
-                                style={{
-                                    padding: "0.5rem 1rem",
-                                    cursor: "pointer",
-                                    borderRadius: "4px",
-                                    transition: "background 0.2s",
-                                    color: "white"
-                                }}
-                                onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.1)"}
-                                onMouseLeave={(e) => e.target.style.background = "transparent"}
+                                className="suggestion-item"
                             >
                                 {s}
                             </li>
@@ -145,7 +115,7 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
                 )}
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div className="geo-button-wrapper">
                 <div style={{ flex: 1 }}>
                     <Button
                         type="button"
@@ -160,7 +130,7 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
             </div>
 
             {geoError && (
-                <span className="fade-in" style={{ color: "#FF4B4B", fontSize: "0.9rem", textAlign: "center" }}>
+                <span className="geo-error">
                     {geoError}
                 </span>
             )}

@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,15 +35,6 @@ const Profile = () => {
 
     fetchUserData();
   }, [user]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/login");
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
-  };
 
   const handleEditProfile = () => {
     navigate("/profile/edit");
@@ -122,8 +113,19 @@ const Profile = () => {
   const photos = userData?.images || [];
   const hasPhotos = photos.length > 0;
 
+  const headerActions = (
+    <>
+      <button onClick={handleEditProfile} className="header-btn" aria-label="Editar Perfil">
+        ✏️
+      </button>
+      <button onClick={() => navigate("/settings")} className="header-btn" aria-label="Configuración">
+        ⚙️
+      </button>
+    </>
+  );
+
   return (
-    <BaseLayout showTabs={true} maxWidth="mobile">
+    <BaseLayout showTabs={true} maxWidth="mobile" title="Mi Perfil" headerActions={headerActions}>
       <div className="profile-container">
         {/* Image Carousel */}
         <div className="photo-carousel">
@@ -192,24 +194,18 @@ const Profile = () => {
             </div>
           )}
 
-          {/* Details */}
-          <div className="profile-section">
-            <h3>ℹ️ Detalles</h3>
-            <div className="details-grid">
-              {userData?.gender && (
-                <div className="detail-item">
-                  <span className="detail-label">Género</span>
-                  <span className="detail-value">{userData.gender}</span>
-                </div>
-              )}
-              {userData?.sexualOrientation && (
+          {/* More About Me - Only Sexual Orientation */}
+          {userData?.sexualOrientation && (
+            <div className="profile-section">
+              <h3>ℹ️ Más sobre mí</h3>
+              <div className="details-grid">
                 <div className="detail-item">
                   <span className="detail-label">Orientación</span>
                   <span className="detail-value">{userData.sexualOrientation}</span>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Interests */}
           {userData?.interests && userData.interests.length > 0 && (
@@ -224,16 +220,6 @@ const Profile = () => {
               </div>
             </div>
           )}
-
-          {/* Action Buttons */}
-          <div className="action-buttons">
-            <Button onClick={handleEditProfile}>
-              ✏️ Editar Perfil
-            </Button>
-            <Button onClick={handleLogout} variant="secondary">
-              🚪 Cerrar Sesión
-            </Button>
-          </div>
 
           {/* Footer */}
           <div className="profile-footer">
