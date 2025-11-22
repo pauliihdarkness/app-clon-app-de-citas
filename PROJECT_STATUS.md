@@ -3,7 +3,7 @@
 ## 🏷️ Versión Actual
 
 **Versión:** `0.8.0-beta`  
-**Nombre en Código:** "Velocity"  
+**Nombre en Código:** "App de Citas"  
 **Fecha de Release:** 22 de noviembre de 2025  
 **Estado:** Beta Privada
 
@@ -276,7 +276,7 @@ Aplicación 123/
 
 ## 👥 Equipo
 
-**Desarrollador Principal:** Paulii Darkness Dev  
+**Desarrollador Principal:** Pauliih Darkness Dev  
 **Proyecto:** App de Citas  
 **Inicio:** Noviembre 2025  
 **Estado:** Beta Privada

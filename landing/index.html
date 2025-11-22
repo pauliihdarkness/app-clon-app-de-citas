@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>App de Citas Experimental | Herramienta Educativa Queer y Abierta</title>
+    <meta name="title" content="App de Citas Experimental | Herramienta Educativa Queer y Abierta">
+    <meta name="description"
+        content="Proyecto educativo queer para aprender cómo se construyen (y protegen) apps de citas. Open source, ético, centrado en seguridad y privacidad. No es un producto, es una herramienta de aprendizaje.">
+    <meta name="keywords"
+        content="app de citas educativa, queer tech, seguridad digital, privacidad, open source, react, firebase, aprendizaje, ético">
+    <meta name="author" content="Pauliih Darkness Dev">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://Pauliihhdarkness.github.io/app-clon-app-de-citas/">
+    <meta property="og:title" content="App de Citas Experimental | Herramienta Educativa Queer">
+    <meta property="og:description"
+        content="Construimos —desde la disidencia— una app de citas pensada para aprender cómo funciona, cómo se protege y cómo se rompe una plataforma que maneja datos sensibles.">
+    <meta property="og:image" content="https://Pauliihhdarkness.github.io/app-clon-app-de-citas/landing/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="App de Citas Experimental | Herramienta Educativa Queer">
+    <meta property="twitter:description"
+        content="No es un producto. Es una herramienta educativa abierta para aprender seguridad digital desde la disidencia.">
+
+    <!-- Favicon & Theme -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#FE3C72">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://Pauliihhdarkness.github.io/app-clon-app-de-citas/">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background"></div>
+        <div class="container">
+            <div class="hero-content">
+                <span class="badge experimental">⚡ Experimental · Queer · Ético</span>
+                <h1 class="hero-title">
+                    App de Citas Experimental<br>
+                    <span class="gradient-text">para Aprender Seguridad Digital</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Una herramienta queer, ética y abierta para estudiar cómo se construyen<br>
+                    (y cómo se protegen) las apps de citas.
+                </p>
+                <div class="hero-cta">
+                    <a href="https://github.com/Pauliihhdarkness/app-clon-app-de-citas" target="_blank"
+                        class="btn btn-primary">
+                        📚 Ver Repo & Documentación
+                    </a>
+                    <a href="#demo" class="btn btn-secondary">
+                        🔧 Probar Demo
+                    </a>
+                </div>
+                <p class="hero-disclaimer">
+                    No es un producto comercial. Es una herramienta educativa abierta.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Section -->
+    <section class="why-section">
+        <div class="container">
+            <h2 class="section-title">¿Por qué existe este proyecto?</h2>
+
+            <div class="why-content">
+                <div class="why-text">
+                    <p class="lead">
+                        Muchas apps de citas exponen datos sensibles sin querer.<br>
+                        Las comunidades queer suelen ser las más vulneradas digitalmente.
+                    </p>
+                    <p>
+                        Este proyecto nace para <strong>aprender juntes</strong> cómo construir plataformas
+                        más seguras, más conscientes y más responsables.
+                    </p>
+                    <div class="principles">
+                        <div class="principle">
+                            <span class="principle-icon">🏳️‍🌈</span>
+                            <div>
+                                <h3>Queer</h3>
+                                <p>Pensado desde y para la disidencia</p>
+                            </div>
+                        </div>
+                        <div class="principle">
+                            <span class="principle-icon">🔒</span>
+                            <div>
+                                <h3>Seguro</h3>
+                                <p>Privacidad y protección de datos sensibles</p>
+                            </div>
+                        </div>
+                        <div class="principle">
+                            <span class="principle-icon">📖</span>
+                            <div>
+                                <h3>Educativo</h3>
+                                <p>Para aprender, no para vender</p>
+                            </div>
+                        </div>
+                        <div class="principle">
+                            <span class="principle-icon">💜</span>
+                            <div>
+                                <h3>Ético</h3>
+                                <p>No monetiza. No captura datos propios</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Learn Section -->
+    <section class="learn-section">
+        <div class="container">
+            <h2 class="section-title">¿Qué podés aprender acá?</h2>
+            <p class="section-subtitle">Un proyecto real para estudiar seguridad y desarrollo consciente</p>
+
+            <div class="learn-grid">
+                <div class="learn-card">
+                    <span class="learn-icon">🏗️</span>
+                    <h3>Arquitectura Real</h3>
+                    <p>React + Firebase + Cloudinary en producción</p>
+                </div>
+
+                <div class="learn-card highlight">
+                    <span class="learn-icon">🔐</span>
+                    <h3>Separación de Datos</h3>
+                    <p>Cómo proteger datos sensibles vs públicos</p>
+                </div>
+
+                <div class="learn-card">
+                    <span class="learn-icon">🛡️</span>
+                    <h3>Buenas Prácticas</h3>
+                    <p>Seguridad, autenticación y reglas de Firestore</p>
+                </div>
+
+                <div class="learn-card">
+                    <span class="learn-icon">🖼️</span>
+                    <h3>Manejo de Imágenes</h3>
+                    <p>Optimización, crop y almacenamiento seguro</p>
+                </div>
+
+                <div class="learn-card">
+                    <span class="learn-icon">⚡</span>
+                    <h3>Optimización</h3>
+                    <p>Feed con batch loading, caché y prefetch</p>
+                </div>
+
+                <div class="learn-card highlight">
+                    <span class="learn-icon">🚨</span>
+                    <h3>Vulnerabilidades</h3>
+                    <p>Cómo evitar problemas típicos en apps de citas</p>
+                </div>
+
+                <div class="learn-card">
+                    <span class="learn-icon">💬</span>
+                    <h3>Features Reales</h3>
+                    <p>Feed, matches, chat y notificaciones</p>
+                </div>
+
+                <div class="learn-card highlight">
+                    <span class="learn-icon">🌈</span>
+                    <h3>Desarrollo Consciente</h3>
+                    <p>Pensar software desde el cuidado y la disidencia</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stack Section -->
+    <section class="stack-section">
+        <div class="container">
+            <h2 class="section-title">Stack del Proyecto</h2>
+            <div class="stack-grid">
+                <div class="stack-item">
+                    <div class="stack-logo">⚛️</div>
+                    <div class="stack-name">React 18</div>
+                    <div class="stack-desc">Frontend moderno</div>
+                </div>
+                <div class="stack-item">
+                    <div class="stack-logo">⚡</div>
+                    <div class="stack-name">Vite</div>
+                    <div class="stack-desc">Build ultrarrápido</div>
+                </div>
+                <div class="stack-item">
+                    <div class="stack-logo">🔥</div>
+                    <div class="stack-name">Firebase</div>
+                    <div class="stack-desc">Auth + Firestore</div>
+                </div>
+                <div class="stack-item">
+                    <div class="stack-logo">☁️</div>
+                    <div class="stack-name">Cloudinary</div>
+                    <div class="stack-desc">Imágenes</div>
+                </div>
+                <div class="stack-item">
+                    <div class="stack-logo">🟢</div>
+                    <div class="stack-name">Node.js</div>
+                    <div class="stack-desc">Backend worker</div>
+                </div>
+                <div class="stack-item">
+                    <div class="stack-logo">🎨</div>
+                    <div class="stack-name">CSS3</div>
+                    <div class="stack-desc">UI Glassmorphism</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Audience Section -->
+    <section class="audience-section">
+        <div class="container">
+            <h2 class="section-title">¿A quién está dirigido?</h2>
+            <div class="audience-grid">
+                <div class="audience-card">
+                    <span class="audience-emoji">🏳️‍🌈</span>
+                    <h3>Devs Queer</h3>
+                    <p>Que quieren aprender y construir desde la disidencia</p>
+                </div>
+                <div class="audience-card">
+                    <span class="audience-emoji">👩‍💻</span>
+                    <h3>Estudiantes</h3>
+                    <p>Aprendiendo frontend, backend o seguridad</p>
+                </div>
+                <div class="audience-card">
+                    <span class="audience-emoji">🔍</span>
+                    <h3>Curiosxs</h3>
+                    <p>Que quieren entender cómo funciona una app real</p>
+                </div>
+                <div class="audience-card">
+                    <span class="audience-emoji">🛡️</span>
+                    <h3>Interesadxs en Seguridad</h3>
+                    <p>Que buscan casos de estudio reales</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress Section -->
+    <section class="progress-section">
+        <div class="container">
+            <h2 class="section-title">Estado del Proyecto</h2>
+            <p class="section-subtitle">Progreso actual - Versión 0.8.0 Beta</p>
+
+            <div class="progress-overview">
+                <div class="progress-stat">
+                    <div class="stat-circle">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" class="stat-bg"></circle>
+                            <circle cx="50" cy="50" r="45" class="stat-fill" style="--progress: 75">
+                            </circle>
+                        </svg>
+                        <div class="stat-number">75%</div>
+                    </div>
+                    <div class="stat-label">Completado</div>
+                </div>
+            </div>
+
+            <div class="progress-grid">
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <span class="progress-icon">🔐</span>
+                        <h3>Autenticación</h3>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="--progress: 85%">
+                            <span class="progress-text">85%</span>
+                        </div>
+                    </div>
+                    <ul class="feature-list">
+                        <li>✅ Login Email/Google</li>
+                        <li>✅ Rutas protegidas</li>
+                        <li>⏳ Recuperación de contraseña</li>
+                    </ul>
+                </div>
+
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <span class="progress-icon">👤</span>
+                        <h3>Perfiles</h3>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="--progress: 90%">
+                            <span class="progress-text">90%</span>
+                        </div>
+                    </div>
+                    <ul class="feature-list">
+                        <li>✅ Creación completa</li>
+                        <li>✅ Edición con modales</li>
+                        <li>✅ Hasta 9 fotos</li>
+                    </ul>
+                </div>
+
+                <div class="progress-card highlight">
+                    <div class="progress-header">
+                        <span class="progress-icon">🔥</span>
+                        <h3>Feed Optimizado</h3>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="--progress: 95%">
+                            <span class="progress-text">95%</span>
+                        </div>
+                    </div>
+                    <ul class="feature-list">
+                        <li>✅ Batch loading</li>
+                        <li>✅ Caché local</li>
+                        <li>✅ 60% más rápido</li>
+                    </ul>
+                </div>
+
+                <div class="progress-card highlight">
+                    <div class="progress-header">
+                        <span class="progress-icon">❤️</span>
+                        <h3>Matches</h3>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="--progress: 90%">
+                            <span class="progress-text">90%</span>
+                        </div>
+                    </div>
+                    <ul class="feature-list">
+                        <li>✅ Detección automática</li>
+                        <li>✅ Backend Node.js</li>
+                        <li>✅ Tiempo real</li>
+                    </ul>
+                </div>
+
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <span class="progress-icon">💬</span>
+                        <h3>Chat</h3>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="--progress: 0%">
+                            <span class="progress-text">0%</span>
+                        </div>
+                    </div>
+                    <ul class="feature-list">
+                        <li>⏳ En desarrollo</li>
+                        <li>⏳ Próxima versión</li>
+                        <li>⏳ v0.9.0</li>
+                    </ul>
+                </div>
+
+                <div class="progress-card highlight">
+                    <div class="progress-header">
+                        <span class="progress-icon">🖥️</span>
+                        <h3>Backend</h3>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="--progress: 70%">
+                            <span class="progress-text">70%</span>
+                        </div>
+                    </div>
+                    <ul class="feature-list">
+                        <li>✅ Node.js + Express</li>
+                        <li>✅ Worker de matches</li>
+                        <li>✅ Auth middleware</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Changelog Section -->
+    <section class="changelog-section">
+        <div class="container">
+            <h2 class="section-title">Últimas Actualizaciones</h2>
+            <div class="timeline">
+                <div class="timeline-item completed">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3>v0.8.0 - Velocity</h3>
+                        <p class="timeline-date">22 de noviembre de 2025</p>
+                        <ul>
+                            <li>✅ Feed optimizado con batch loading</li>
+                            <li>✅ Backend Node.js con worker de matches</li>
+                            <li>✅ Caché local con IndexedDB</li>
+                            <li>✅ Índices compuestos en Firestore</li>
+                            <li>✅ Reducción del 60% en lecturas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item active">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3>v0.9.0 - Connect</h3>
+                        <p class="timeline-date">Próximamente - Diciembre 2025</p>
+                        <ul>
+                            <li>💬 Chat en tiempo real</li>
+                            <li>📱 Página de Matches</li>
+                            <li>🔔 Notificaciones push</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3>v1.0.0 - Launch</h3>
+                        <p class="timeline-date">Enero 2026</p>
+                        <ul>
+                            <li>🎯 Filtros avanzados</li>
+                            <li>⭐ Super Like</li>
+                            <li>📊 Analytics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="changelog-cta">
+                <a href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/CHANGELOG.md" target="_blank"
+                    class="btn btn-secondary">Ver Changelog Completo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Open Source Section -->
+    <section class="open-section">
+        <div class="container">
+            <div class="open-content">
+                <h2>Abierto y Libre</h2>
+                <p class="open-lead">
+                    El proyecto es <strong>público</strong>.<br>
+                    Podés usarlo, clonarlo, romperlo, estudiarlo o mejorarlo.
+                </p>
+                <p class="open-note">
+                    Solo tenés que agregar tus propias credenciales<br>
+                    (Firebase, Cloudinary) y está listo para experimentar.
+                </p>
+                <div class="open-cta">
+                    <a href="https://github.com/Pauliihdarkness/app-clon-app-de-citas" target="_blank"
+                        class="btn btn-primary">
+                        🔓 Ver en GitHub
+                    </a>
+                    <a href="https://github.com/Pauliihdarkness/app-clon-app-de-citas#readme" target="_blank"
+                        class="btn btn-secondary">
+                        📖 Leer Documentación
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <h2 class="section-title">Probar la Demo</h2>
+            <div class="demo-content">
+                <div class="demo-warning">
+                    <span class="warning-icon">⚠️</span>
+                    <div>
+                        <h3>Advertencia Educativa</h3>
+                        <p>
+                            Esta es una <strong>herramienta de aprendizaje</strong>, no un producto
+                            comercial.<br>
+                            No uses datos reales. No esperes soporte de producto.<br>
+                            Es un espacio seguro para experimentar y romper cosas.
+                        </p>
+                    </div>
+                </div>
+                <div class="demo-steps">
+                    <h3>Para probar con tus credenciales:</h3>
+                    <ol>
+                        <li>Clona el repositorio</li>
+                        <li>Crea tu proyecto en Firebase</li>
+                        <li>Agrega tus credenciales en <code>.env</code></li>
+                        <li>Despliega las reglas de seguridad</li>
+                        <li>¡Experimenta!</li>
+                    </ol>
+                    <a href="https://github.com/Pauliihdarkness/app-clon-app-de-citas#readme" target="_blank"
+                        class="btn btn-primary">
+                        Ver Guía Completa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>App de Citas Experimental</h3>
+                    <p>Herramienta educativa queer y abierta</p>
+                    <p class="footer-disclaimer">
+                        ⚠️ No es un producto comercial
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <h4>Enlaces</h4>
+                    <a href="https://github.com/Pauliihdarkness/app-clon-app-de-citas" target="_blank">GitHub</a>
+                    <a href="https://github.com/Pauliihdarkness/app-clon-app-de-citas#readme">Documentación</a>
+                    <a href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/PROJECT_STATUS.md">Estado del
+                        Proyecto</a>
+                    <a href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/CHANGELOG.md">Changelog</a>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contacto</h4>
+                    <p>Pauliih Darkness Dev</p>
+                    <a href="https://github.com/Pauliihdarkness" target="_blank">@Pauliihhdarkness</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>
+                    Hecho con 💜 desde la disidencia<br>
+                    <small>Proyecto educativo · Open Source · No comercial</small>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

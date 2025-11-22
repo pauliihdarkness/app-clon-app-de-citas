@@ -362,7 +362,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 ---
 
 <div align="center">
-    <sub>Hecho con 💜 por Pauliih Darkness Dev</sub>
+    <sub>Hecho con 💜 por Pauliihh Darkness Dev</sub>
     <br>
     <sub>Noviembre 2025</sub>
 </div>
