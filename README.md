@@ -24,6 +24,9 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
   - Información Básica (nombre, género, orientación, ubicación)
   - Biografía (máx 500 caracteres con contador)
   - Intereses (máx 8, organizados por categorías con emojis)
+  - Estilo de Vida (bebida, tabaco, ejercicio, zodiaco, altura)
+  - Información Profesional (ocupación, empresa, educación)
+  - Intenciones (qué busco)
 - ✅ **Galería de Fotos**: Subida de hasta 9 fotos con:
   - Crop interactivo con `react-easy-crop`
   - Optimización automática en Cloudinary
@@ -33,6 +36,20 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
   - Edad calculada automáticamente
   - No editable después del registro (seguridad)
 - ✅ **Visualización de Perfil**: Carrusel de fotos con gestos táctiles
+
+### 🔥 Feed y Descubrimiento
+- ✅ **Feed de Usuarios**: Visualización de perfiles con sistema de tarjetas
+- ✅ **UserCard Component**: Diseño glassmorphism con foto, info y tags
+- ✅ **Navegación**: Botones Like (💚) y Pass (❌)
+- ✅ **Filtrado Inteligente**: Usuarios ya vistos no se repiten
+- ✅ **Estado Vacío**: Mensaje "Estás al día" cuando no hay más usuarios
+
+### ❤️ Sistema de Likes y Matches
+- ✅ **Registro de Likes**: Guardado en Firestore con timestamp
+- ✅ **Registro de Passes**: Sistema de dislikes persistente
+- ✅ **Detección Automática de Matches**: Cuando hay like mutuo
+- ✅ **Notificación de Match**: Overlay animado celebratorio
+- ✅ **Colecciones Firestore**: `likes` y `matches` implementadas
 
 ### 🎨 UI/UX Premium
 - ✅ **Diseño Glassmorphism**: Transparencias, desenfoques y gradientes modernos
@@ -48,7 +65,7 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 - ✅ **Separación de Datos**: Públicos vs Privados en Firestore
 - ✅ **Fecha de Nacimiento Protegida**: Almacenada en subcolección privada
 - ✅ **Validaciones Robustas**: Edad mínima 18 años, formatos de datos
-- ✅ **Reglas de Firestore**: Protección a nivel de base de datos
+- ✅ **Reglas de Firestore**: Protección completa para users, likes y matches
 - ✅ **Variables de Entorno**: Credenciales sensibles fuera del código
 
 ### 📍 Geolocalización
@@ -138,11 +155,14 @@ client/src/
 ├── api/                    # Conexiones a Firebase y Cloudinary
 │   ├── firebase.js         # Configuración de Firebase
 │   ├── user.js             # API de usuarios (CRUD)
+│   ├── likes.js            # API de likes y matches
 │   └── cloudinary.js       # Utilidades de Cloudinary
 ├── assets/                 # Recursos estáticos
 │   └── data/               # JSON de datos (géneros, orientaciones, intereses)
 ├── components/             # Componentes reutilizables
-│   ├── Layout/             # BaseLayout, TabNavigation, ProtectedRoute
+│   ├── Feed/               # UserCard
+│   ├── Layout/             # BaseLayout, ProtectedRoute
+│   ├── Navigation/         # TabNavigation
 │   ├── Profile/            # LocationSelector, UpdateMultipleImagesWithCrop
 │   └── UI/                 # Button, Input, TextArea, Modal
 ├── context/                # Contextos de React
@@ -156,10 +176,13 @@ client/src/
 │   ├── EditProfile.jsx     # Edición de perfil (modales)
 │   ├── Settings.jsx        # Configuración
 │   ├── AccountInfo.jsx     # Información de cuenta
-│   ├── Feed.jsx            # Feed de usuarios (pendiente)
+│   ├── Feed.jsx            # Feed de usuarios con likes/passes
 │   └── Chat.jsx            # Chat (pendiente)
 ├── utils/                  # Funciones de utilidad
-│   └── dateUtils.js        # Cálculo y validación de fechas
+│   ├── dateUtils.js        # Cálculo y validación de fechas
+│   ├── geolocation.js      # Utilidades de geolocalización
+│   ├── formatters.js       # Formateadores de texto
+│   └── validators.js       # Validadores de formularios
 └── AppRouter.jsx           # Configuración de rutas
 ```
 
@@ -171,7 +194,9 @@ Ver documentación completa en [`docs/firestore-structure.md`](./docs/firestore-
 ```javascript
 {
   uid, name, age, gender, sexualOrientation,
-  bio, interests[], images[], location{}, createdAt
+  bio, interests[], images[], location{},
+  lifestyle{}, job{}, searchIntent,
+  createdAt
 }
 ```
 
@@ -182,17 +207,32 @@ Ver documentación completa en [`docs/firestore-structure.md`](./docs/firestore-
 }
 ```
 
+### Colección `likes/{likeId}`
+```javascript
+{
+  fromUserId, toUserId, type, createdAt
+}
+```
+
+### Colección `matches/{matchId}`
+```javascript
+{
+  user1Id, user2Id, createdAt
+}
+```
+
 ## 🎯 Próximas Funcionalidades
 
 ### En Desarrollo
-- [ ] **Feed de Usuarios**: Sistema de swipe cards
-- [ ] **Sistema de Likes**: Registrar likes/dislikes
-- [ ] **Matches**: Detectar likes mutuos
+- [ ] **Página de Matches**: Visualizar lista de matches activos
 - [ ] **Chat en Tiempo Real**: Mensajería entre matches
-- [ ] **Notificaciones**: Alertas de matches y mensajes
+- [ ] **Notificaciones Push**: Alertas de matches y mensajes
 
 ### Mejoras Planificadas
+- [ ] Animaciones de swipe en Feed
 - [ ] Filtros de búsqueda (edad, distancia, género)
+- [ ] Super Like destacado
+- [ ] Deshacer último swipe
 - [ ] Recuperación de contraseña
 - [ ] Verificación de email
 - [ ] Cambio de contraseña
