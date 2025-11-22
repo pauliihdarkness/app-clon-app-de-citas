@@ -230,4 +230,4 @@
 
 ---
 
-**Última actualización**: 21 de noviembre de 2025da
+**Última actualización**: 21 de noviembre de 2025
