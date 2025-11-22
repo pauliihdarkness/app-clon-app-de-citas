@@ -1,16 +1,21 @@
+/* ============================================
+   VARIABLES CSS (Design Tokens)
+   ============================================ */
+
 :root {
-    /* Palette */
+    /* Color Palette */
     --primary-color: #FE3C72;
     --secondary-color: #FF7854;
     --accent-color: #FFC107;
     --text-color: #FFFFFF;
     --text-secondary: #B0B0B0;
     --background-color: #0F0F15;
-    /* Darker, richer background */
 
     /* Gradients */
     --primary-gradient: linear-gradient(135deg, #FE3C72 0%, #FF7854 100%);
     --hover-gradient: linear-gradient(135deg, #FF5D8F 0%, #FF9574 100%);
+
+    /* Glassmorphism */
     --glass-bg: rgba(255, 255, 255, 0.05);
     --glass-border: rgba(255, 255, 255, 0.1);
 
@@ -22,9 +27,14 @@
     /* Spacing & Layout */
     --border-radius: 16px;
     --padding: 1rem;
+
+    /* Typography */
     --font-family: 'Outfit', 'Segoe UI', sans-serif;
-    /* Modern font */
 }
+
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
 
 * {
     margin: 0;
@@ -44,7 +54,32 @@ body {
     overflow-x: hidden;
 }
 
-/* Glassmorphism Utilities */
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+h1,
+h2,
+h3 {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--secondary-color);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Glassmorphism Effect */
 .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -53,7 +88,29 @@ body {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* Animations */
+/* Container Layouts (Mobile-First) */
+.container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.container--mobile {
+    max-width: var(--max-width-mobile);
+}
+
+.container--tablet {
+    max-width: var(--max-width-tablet);
+}
+
+.container--full {
+    max-width: 100%;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -76,47 +133,11 @@ body {
     }
 }
 
+/* Animation Utility Classes */
 .fade-in {
     animation: fadeIn 0.5s ease-out forwards;
 }
 
 .slide-up {
     animation: slideUp 0.6s ease-out forwards;
-}
-
-/* Typography */
-h1,
-h2,
-h3 {
-    font-weight: 700;
-    letter-spacing: -0.5px;
-}
-
-a {
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-a:hover {
-    color: var(--secondary-color);
-}
-
-/* Container Layouts for Mobile-First */
-.container {
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.container--mobile {
-    max-width: var(--max-width-mobile);
-}
-
-.container--tablet {
-    max-width: var(--max-width-tablet);
-}
-
-.container--full {
-    max-width: 100%;
 }

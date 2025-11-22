@@ -17,14 +17,10 @@ export const saveLike = async (fromUserId, toUserId) => {
             createdAt: serverTimestamp()
         });
 
-        // Verificar si hay match mutuo
-        const isMatch = await checkMutualLike(fromUserId, toUserId);
+        // La lógica de match ahora se maneja en el backend (Render)
+        // El cliente escuchará cambios en la colección 'matches'
 
-        if (isMatch) {
-            await createMatch(fromUserId, toUserId);
-        }
-
-        return { success: true, isMatch };
+        return { success: true };
     } catch (error) {
         console.error("Error saving like:", error);
         throw error;

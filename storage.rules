@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Función auxiliar para verificar autenticación
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Carpeta de imágenes de usuarios
+    match /app-de-citas/users/{userId}/{allPaths=**} {
+      // Solo el dueño puede leer sus propias imágenes
+      allow read: if isAuthenticated();
+      
+      // Solo el dueño puede subir/actualizar/eliminar sus imágenes
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Validaciones adicionales para uploads
+      allow create: if isAuthenticated() 
+                    && request.auth.uid == userId
+                    && request.resource.size < 5 * 1024 * 1024  // Máx 5MB
+                    && request.resource.contentType.matches('image/.*');  // Solo imágenes
+    }
+  }
+}

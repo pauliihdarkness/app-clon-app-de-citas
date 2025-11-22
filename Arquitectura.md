@@ -19,8 +19,11 @@ graph TD
   A[React App (Vite)] -->|Firebase SDK| B[Firebase Auth]
   A -->|Firestore SDK| C[Firestore Database]
   A -->|Upload Widget| D[Cloudinary]
-  C -->|Reglas de Seguridad| E[Datos Públicos/Privados]
-  D -->|CDN| F[Imágenes Optimizadas]
+  E[Node.js Backend] -->|Admin SDK| C
+  E -->|Express| F[Keep-Alive / API]
+  C -->|Events| E
+  C -->|Reglas de Seguridad| G[Datos Públicos/Privados]
+  D -->|CDN| H[Imágenes Optimizadas]
 ```
 
 ---
@@ -104,6 +107,22 @@ chats/{chatId}
     - senderId, text, createdAt
     - read, readAt
 ```
+
+---
+
+## 🖥️ Arquitectura Backend (Node.js)
+
+El backend actúa como un **Worker** que complementa al frontend. No es una API REST tradicional para todo, sino un procesador de eventos.
+
+### Componentes
+1.  **Match Worker**: Escucha la colección `likes`. Cuando detecta un nuevo like, verifica reciprocidad y crea el match.
+2.  **Express Server**: Mantiene el servicio "despierto" en Render con un endpoint `/` y expone rutas protegidas `/api` para futuras funcionalidades.
+3.  **Firebase Admin SDK**: Otorga privilegios de superusuario al backend para escribir en colecciones protegidas.
+
+### Seguridad
+- **Middleware de Autenticación**: Verifica tokens de Firebase (ID Tokens) en las rutas `/api`.
+- **CORS**: Restringido a dominios permitidos (`ALLOWED_ORIGINS`).
+- **Variables de Entorno**: Credenciales sensibles fuera del código.
 
 ---
 

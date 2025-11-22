@@ -12,6 +12,7 @@ import CreateProfile from "./pages/CreateProfile";
 import Settings from "./pages/Settings";
 import AccountInfo from "./pages/AccountInfo";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
+import { FeedProvider } from "./context/FeedContext";
 
 const AppRouter = () => {
     return (
@@ -22,7 +23,9 @@ const AppRouter = () => {
                 <Route path="/register" element={<Register />} />
                 <Route path="/feed" element={
                     <ProtectedRoute>
-                        <Feed />
+                        <FeedProvider initialFilters={{ genders: ["female", "male", "other"] }}>
+                            <Feed />
+                        </FeedProvider>
                     </ProtectedRoute>
                 } />
                 <Route path="/profile" element={

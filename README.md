@@ -37,8 +37,11 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
   - No editable después del registro (seguridad)
 - ✅ **Visualización de Perfil**: Carrusel de fotos con gestos táctiles
 
-### 🔥 Feed y Descubrimiento
-- ✅ **Feed de Usuarios**: Visualización de perfiles con sistema de tarjetas
+### 🔥 Feed y Descubrimiento (Optimizado)
+- ✅ **Batch Loading**: Carga de perfiles en lotes de 15-25 usuarios
+- ✅ **Caché Local**: Sistema de caché con Map + IndexedDB (localforage)
+- ✅ **Prefetch Inteligente**: Carga anticipada cuando quedan < 5 perfiles
+- ✅ **Queries Optimizadas**: Uso de `getDocs` con paginación (`startAfter`)
 - ✅ **UserCard Component**: Diseño glassmorphism con foto, info y tags
 - ✅ **Navegación**: Botones Like (💚) y Pass (❌)
 - ✅ **Filtrado Inteligente**: Usuarios ya vistos no se repiten
@@ -47,9 +50,11 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 ### ❤️ Sistema de Likes y Matches
 - ✅ **Registro de Likes**: Guardado en Firestore con timestamp
 - ✅ **Registro de Passes**: Sistema de dislikes persistente
-- ✅ **Detección Automática de Matches**: Cuando hay like mutuo
-- ✅ **Notificación de Match**: Overlay animado celebratorio
+- ✅ **Detección Automática de Matches**: Worker en backend (Node.js)
+- ✅ **Notificación de Match en Tiempo Real**: Listener con `onSnapshot`
+- ✅ **Overlay Animado**: Celebración visual cuando hay match
 - ✅ **Colecciones Firestore**: `likes` y `matches` implementadas
+- ✅ **Índices Compuestos**: Queries optimizadas para matches rápidos
 
 ### 🎨 UI/UX Premium
 - ✅ **Diseño Glassmorphism**: Transparencias, desenfoques y gradientes modernos
@@ -81,13 +86,18 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 - **React Router DOM** - Navegación SPA
 - **CSS3 Moderno** - Variables, Flexbox, Grid, Glassmorphism
 
-### Backend (Serverless)
+### Backend
+- **Node.js + Express** - Servidor backend para workers y API
+- **Firebase Admin SDK** - Operaciones privilegiadas en Firestore
 - **Firebase Authentication** - Gestión de usuarios
-- **Firestore Database** - Base de datos NoSQL en tiempo real
+- **Firestore Database** - Base de datos NoSQL con índices compuestos
 - **Cloudinary** - Almacenamiento y optimización de imágenes
 
 ### Utilidades y Librerías
 - **react-easy-crop** - Recorte de imágenes interactivo
+- **localforage** - Caché persistente con IndexedDB
+- **cors** - Middleware de seguridad CORS
+- **dotenv** - Gestión de variables de entorno
 - **date-fns** - Manipulación de fechas (utilidades personalizadas)
 
 ## 🚀 Instalación y Configuración
@@ -106,13 +116,19 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
    cd app-de-citas
    ```
 
-2. **Instalar dependencias**
+2. **Instalar dependencias del cliente**
    ```bash
    cd client
    npm install
    ```
 
-3. **Configurar Variables de Entorno**
+3. **Instalar dependencias del servidor**
+   ```bash
+   cd ../server
+   npm install
+   ```
+
+4. **Configurar Variables de Entorno del Cliente**
    
    Crea un archivo `.env` en la carpeta `client`:
 
@@ -130,35 +146,66 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
    VITE_CLOUDINARY_UPLOAD_PRESET=tu_upload_preset
    ```
 
-4. **Configurar Firebase**
+5. **Configurar Variables de Entorno del Servidor**
+   
+   Crea un archivo `.env` en la carpeta `server`:
+
+   ```env
+   # Firebase Admin SDK
+   FIREBASE_PROJECT_ID=tu_project_id
+   FIREBASE_CLIENT_EMAIL=tu_client_email@app.iam.gserviceaccount.com
+   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+   
+   # CORS (dominios permitidos separados por comas)
+   ALLOWED_ORIGINS=http://localhost:5173,https://tu-app.vercel.app
+   ```
+
+6. **Configurar Firebase**
    - Crear proyecto en [Firebase Console](https://console.firebase.google.com/)
    - Habilitar Authentication (Email/Password y Google)
    - Crear base de datos Firestore
-   - Copiar credenciales al archivo `.env`
+   - Descargar Service Account Key (Project Settings > Service Accounts)
+   - Copiar credenciales a los archivos `.env` correspondientes
+   - Desplegar índices: `firebase deploy --only firestore:indexes`
+   - Desplegar reglas: `firebase deploy --only firestore:rules`
 
-5. **Configurar Cloudinary**
+7. **Configurar Cloudinary**
    - Crear cuenta en [Cloudinary](https://cloudinary.com/)
    - Crear upload preset sin firma
-   - Copiar cloud name y preset al archivo `.env`
+   - Copiar cloud name y preset al archivo `.env` del cliente
 
-6. **Ejecutar en desarrollo**
+8. **Ejecutar en desarrollo**
+   
+   **Terminal 1 - Cliente:**
    ```bash
+   cd client
    npm run dev
    ```
+   
+   **Terminal 2 - Servidor:**
+   ```bash
+   cd server
+   npm start
+   ```
 
-   La aplicación estará disponible en `http://localhost:5173`
+   - Cliente: `http://localhost:5173`
+   - Servidor: `http://localhost:3000`
 
 ## 📂 Estructura del Proyecto
 
 ```
 client/src/
 ├── api/                    # Conexiones a Firebase y Cloudinary
+│   ├── firebase/
+│   │   └── feed.js         # Queries optimizadas del feed
 │   ├── firebase.js         # Configuración de Firebase
 │   ├── user.js             # API de usuarios (CRUD)
-│   ├── likes.js            # API de likes y matches
+│   ├── likes.js            # API de likes (sin lógica de matches)
 │   └── cloudinary.js       # Utilidades de Cloudinary
 ├── assets/                 # Recursos estáticos
-│   └── data/               # JSON de datos (géneros, orientaciones, intereses)
+│   ├── data/               # JSON de datos (géneros, orientaciones, intereses)
+│   └── styles/
+│       └── global.css      # Estilos globales y variables CSS
 ├── components/             # Componentes reutilizables
 │   ├── Feed/               # UserCard
 │   ├── Layout/             # BaseLayout, ProtectedRoute
@@ -166,7 +213,9 @@ client/src/
 │   ├── Profile/            # LocationSelector, UpdateMultipleImagesWithCrop
 │   └── UI/                 # Button, Input, TextArea, Modal
 ├── context/                # Contextos de React
-│   └── AuthContext.jsx     # Contexto de autenticación
+│   ├── AuthContext.jsx     # Contexto de autenticación
+│   ├── FeedContext.jsx     # Contexto del feed (batch loading)
+│   └── UserCache.js        # Sistema de caché local
 ├── pages/                  # Vistas principales
 │   ├── Home.jsx            # Página de inicio
 │   ├── Login.jsx           # Inicio de sesión
@@ -176,7 +225,7 @@ client/src/
 │   ├── EditProfile.jsx     # Edición de perfil (modales)
 │   ├── Settings.jsx        # Configuración
 │   ├── AccountInfo.jsx     # Información de cuenta
-│   ├── Feed.jsx            # Feed de usuarios con likes/passes
+│   ├── Feed.jsx            # Feed optimizado con listeners
 │   └── Chat.jsx            # Chat (pendiente)
 ├── utils/                  # Funciones de utilidad
 │   ├── dateUtils.js        # Cálculo y validación de fechas
@@ -184,6 +233,15 @@ client/src/
 │   ├── formatters.js       # Formateadores de texto
 │   └── validators.js       # Validadores de formularios
 └── AppRouter.jsx           # Configuración de rutas
+
+server/
+├── middleware/
+│   └── auth.js             # Middleware de autenticación Firebase
+├── workers/
+│   └── matchWorker.js      # Worker de detección de matches
+├── firebase.js             # Configuración Firebase Admin SDK
+├── index.js                # Punto de entrada del servidor
+└── package.json
 ```
 
 ## 📊 Estructura de Datos
@@ -217,8 +275,40 @@ Ver documentación completa en [`docs/firestore-structure.md`](./docs/firestore-
 ### Colección `matches/{matchId}`
 ```javascript
 {
-  user1Id, user2Id, createdAt
+  users: [userId1, userId2],  // Array para queries con array-contains
+  createdAt,
+  lastMessage: null,
+  lastMessageTime: null
 }
+```
+
+## 🚀 Deployment
+
+### Frontend (Vercel/Netlify)
+```bash
+cd client
+npm run build
+# Desplegar carpeta dist/
+```
+
+### Backend (Render)
+1. Crear nuevo Web Service en Render
+2. Conectar repositorio
+3. Configurar:
+   - Root Directory: `server`
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+4. Agregar variables de entorno desde `.env`
+5. Configurar UptimeRobot para keep-alive (ping cada 5 min)
+
+### Firebase
+```bash
+# Desplegar índices
+firebase deploy --only firestore:indexes
+
+# Desplegar reglas de seguridad
+firebase deploy --only firestore:rules
+firebase deploy --only storage
 ```
 
 ## 🎯 Próximas Funcionalidades
@@ -226,7 +316,7 @@ Ver documentación completa en [`docs/firestore-structure.md`](./docs/firestore-
 ### En Desarrollo
 - [ ] **Página de Matches**: Visualizar lista de matches activos
 - [ ] **Chat en Tiempo Real**: Mensajería entre matches
-- [ ] **Notificaciones Push**: Alertas de matches y mensajes
+- [ ] **Notificaciones Push**: Alertas de matches y mensajes (FCM)
 
 ### Mejoras Planificadas
 - [ ] Animaciones de swipe en Feed
@@ -252,6 +342,8 @@ Ver documentación completa en [`docs/firestore-structure.md`](./docs/firestore-
 ## 📝 Documentación Adicional
 
 - [Arquitectura del Proyecto](./Arquitectura.md)
+- [Configuración del Backend](./Backend-Config.md)
+- [Configuración de Firebase](./FIREBASE_SETUP.md)
 - [Estructura de Firestore](./docs/firestore-structure.md)
 - [Requisitos del Proyecto](./Requisitos.md)
 - [Lista de Tareas](./Lista%20de%20tareas.md)
@@ -270,7 +362,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 ---
 
 <div align="center">
-    <sub>Hecho con 💜 por Paulii Darkness Dev</sub>
+    <sub>Hecho con 💜 por Pauliih Darkness Dev</sub>
     <br>
     <sub>Noviembre 2025</sub>
 </div>

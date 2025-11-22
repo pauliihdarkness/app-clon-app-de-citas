@@ -1,82 +1,91 @@
 import React, { useState, useEffect } from "react";
 import BaseLayout from "../components/Layout/BaseLayout";
 import { useAuth } from "../context/AuthContext";
-import { getFeedUsers } from "../api/user";
+import { useFeed } from "../context/FeedContext";
 import { saveLike, savePass } from "../api/likes";
 import UserCard from "../components/Feed/UserCard";
+import { collection, query, where, onSnapshot, orderBy, limit } from "firebase/firestore";
+import { db } from "../api/firebase"; // Ensure this path is correct
 import "./Feed.css";
 
 const Feed = () => {
   const { user } = useAuth();
-  const [users, setUsers] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { stack, loadBatch, popProfile } = useFeed();
   const [showMatchNotification, setShowMatchNotification] = useState(false);
   const [matchedUser, setMatchedUser] = useState(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      if (user) {
-        try {
-          setLoading(true);
-          const feedUsers = await getFeedUsers(user.uid);
-          setUsers(feedUsers);
-        } catch (err) {
-          console.error("Error fetching feed:", err);
-          setError("Error al cargar usuarios. Intenta de nuevo.");
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
+    // Initial load
+    loadBatch().finally(() => setIsInitialLoading(false));
+  }, []);
 
-    fetchUsers();
+  // Listen for new matches
+  useEffect(() => {
+    if (!user) return;
+
+    // Listen for matches where current user is in the 'users' array
+    // Note: This requires a composite index or simple array-contains query
+    const q = query(
+      collection(db, "matches"),
+      where("users", "array-contains", user.uid),
+      orderBy("createdAt", "desc"),
+      limit(1)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const matchData = change.doc.data();
+          // Check if this match is recent (created in the last 10 seconds) to avoid showing old matches
+          const createdAt = matchData.createdAt?.toDate();
+          if (createdAt && (Date.now() - createdAt.getTime() < 10000)) {
+            // Find the OTHER user in the match to display their name
+            const otherUserId = matchData.users.find(id => id !== user.uid);
+            // For now, we might not have the other user's name immediately available if not in stack
+            // We can use a generic message or try to find it in the stack/cache
+            // Simple version:
+            setMatchedUser({ name: "Alguien" }); // You might want to fetch the user details here
+            setShowMatchNotification(true);
+            setTimeout(() => {
+              setShowMatchNotification(false);
+              setMatchedUser(null);
+            }, 3000);
+          }
+        }
+      });
+    });
+
+    return () => unsubscribe();
   }, [user]);
 
   const handleLike = async () => {
-    const currentUser = users[currentIndex];
+    const currentUser = stack[0];
     if (!currentUser || !user) return;
 
     try {
-      const result = await saveLike(user.uid, currentUser.uid);
-
-      if (result.isMatch) {
-        // Mostrar notificación de match
-        setMatchedUser(currentUser);
-        setShowMatchNotification(true);
-
-        // Ocultar notificación después de 3 segundos
-        setTimeout(() => {
-          setShowMatchNotification(false);
-          setMatchedUser(null);
-        }, 3000);
-      }
-
-      nextUser();
+      // Optimistic update: remove user immediately
+      popProfile();
+      await saveLike(user.uid, currentUser.id);
     } catch (err) {
       console.error("Error saving like:", err);
     }
   };
 
   const handlePass = async () => {
-    const currentUser = users[currentIndex];
+    const currentUser = stack[0];
     if (!currentUser || !user) return;
 
     try {
-      await savePass(user.uid, currentUser.uid);
-      nextUser();
+      popProfile();
+      await savePass(user.uid, currentUser.id);
     } catch (err) {
       console.error("Error saving pass:", err);
     }
   };
 
-  const nextUser = () => {
-    setCurrentIndex((prev) => prev + 1);
-  };
-
-  const currentUser = users[currentIndex];
-  const isFinished = !loading && currentIndex >= users.length;
+  const currentUser = stack[0];
+  const isFinished = !isInitialLoading && stack.length === 0;
 
   return (
     <BaseLayout showTabs={true} maxWidth="mobile" title="Descubre">
@@ -87,24 +96,14 @@ const Feed = () => {
             <div className="match-content">
               <div className="match-icon">🎉</div>
               <h3>¡Es un Match!</h3>
-              <p>Tú y {matchedUser.name} se gustaron mutuamente</p>
+              <p>¡Has hecho match!</p>
             </div>
           </div>
         )}
 
         <div className="feed-content">
-          {loading ? (
+          {isInitialLoading ? (
             <div className="spinner"></div>
-          ) : error ? (
-            <div className="feed-error">
-              <p>{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="feed-retry-btn"
-              >
-                Reintentar
-              </button>
-            </div>
           ) : isFinished ? (
             <div className="feed-finished">
               <div className="finished-icon">🎉</div>
@@ -112,6 +111,9 @@ const Feed = () => {
               <p className="finished-text">
                 Vuelve más tarde para ver nuevos perfiles.
               </p>
+              <button onClick={() => loadBatch({ reset: true })} className="feed-retry-btn">
+                Recargar
+              </button>
             </div>
           ) : (
             <UserCard

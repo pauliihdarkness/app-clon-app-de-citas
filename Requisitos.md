@@ -11,6 +11,19 @@
 - [x] Rutas protegidas (ProtectedRoute)
 - [x] Redirección inteligente según estado de autenticación
 - [ ] Recuperación de contraseña
+# 📋 Requisitos del Proyecto - App de Citas
+
+## 🔐 Autenticación y Seguridad
+
+### Autenticación
+- [x] Registro con email y contraseña
+- [x] Registro con Google OAuth
+- [x] Login con email y contraseña
+- [x] Login con Google OAuth
+- [x] Gestión de sesiones con Firebase Auth
+- [x] Rutas protegidas (ProtectedRoute)
+- [x] Redirección inteligente según estado de autenticación
+- [ ] Recuperación de contraseña
 - [ ] Cambio de contraseña
 - [ ] Verificación de email
 - [ ] Autenticación de dos factores (2FA)
@@ -24,8 +37,17 @@
 - [x] Reglas de seguridad de Firestore implementadas
 - [x] Variables de entorno para credenciales sensibles
 - [ ] Encriptación de datos sensibles
-- [ ] Sistema de reportes de usuarios
-- [ ] Sistema de bloqueo de usuarios
+- [x] Carga de perfiles en batches (15-25 usuarios)
+- [x] Implementación de caché local (UserCache con Map + IndexedDB)
+- [x] Uso de `getDocs` (fetch puntual) en lugar de `onSnapshot` para el feed
+- [x] Evitar lecturas duplicadas con UserCache global
+- [x] Filtrado con queries indexadas (índices compuestos) y paginación con `startAfter`
+- [x] Delegar detección de matches a Backend (Worker) para minimizar lecturas
+- [x] Prefetch de perfiles en background (cuando cache < 5)
+- [x] Exclusión de perfiles ya vistos (client-side filtering)
+- [x] Índices compuestos desplegados en Firebases
+- [x] Sistema de reportes de usuarios
+- [x] Sistema de bloqueo de usuarios
 
 ---
 
@@ -118,7 +140,7 @@
 
 ---
 
-## � Base de Datos (Firestore)
+## 📊 Base de Datos (Firestore)
 
 ### Colecciones Implementadas
 - [x] `users/{userId}` - Datos públicos del perfil
@@ -128,17 +150,23 @@
 - [x] Prevención de edición de birthDate
 
 ### Colecciones Pendientes
-- [ ] `likes/{likeId}` - Registro de likes/dislikes
-- [ ] `matches/{matchId}` - Matches mutuos
+- [x] `likes/{likeId}` - Registro de likes/dislikes
+- [x] `matches/{matchId}` - Matches mutuos
 - [ ] `chats/{chatId}` - Conversaciones
 - [ ] `chats/{chatId}/messages/{messageId}` - Mensajes
-- [ ] Índices compuestos para consultas optimizadas
+- [x] Índices compuestos para consultas optimizadas
 
 ---
 
-## 🖼️ Gestión de Imágenes (Cloudinary)
+## 🖥️ Backend (Node.js + Express)
 
-- [x] Integración con Cloudinary
+- [x] Servidor Express para Keep-Alive
+- [x] Worker de Matches (escucha eventos de Firestore)
+- [x] Middleware de Autenticación (Firebase Admin)
+- [x] Configuración CORS segura
+- [x] Variables de entorno (.env)
+- [x] Estructura modular (workers, middleware, api)
+
 - [x] Upload Widget configurado
 - [x] Preset sin firma
 - [x] Carpeta organizada por usuario
@@ -154,8 +182,10 @@
 
 - [x] README.md completo con todas las características
 - [x] Arquitectura.md con flujos de datos actualizados
+- [x] Backend-Config.md con guía de configuración
+- [x] FIREBASE_SETUP.md con pasos de despliegue
 - [x] Documentación de estructura de Firestore (firestore-structure.md)
-- [x] Reglas de seguridad documentadas
+- [x] Reglas de seguridad documentadas y desplegadas
 - [x] Comentarios en código
 - [x] Variables de entorno documentadas
 - [ ] Guía de contribución
@@ -176,7 +206,11 @@
 
 ## 🚀 Deployment y DevOps
 
-- [ ] Deploy en Vercel/Firebase Hosting
+- [x] Configuración de Firebase (firebase.json)
+- [x] Índices de Firestore desplegados
+- [x] Reglas de seguridad desplegadas
+- [ ] Deploy en Vercel/Netlify (Frontend)
+- [ ] Deploy en Render (Backend)
 - [ ] CI/CD con GitHub Actions
 - [ ] Environments (dev, staging, production)
 - [ ] Monitoreo de errores (Sentry)
@@ -185,7 +219,7 @@
 
 ---
 
-## � Páginas Legales
+## 📄 Páginas Legales
 
 - [ ] Términos y Condiciones
 - [ ] Política de Privacidad
@@ -208,26 +242,17 @@
 
 ---
 
-## � Resumen de Progreso
+## 📋 Resumen de Progreso
 
-### ✅ Completado (~60%)
+### ✅ Completado (~75%)
 - Autenticación completa
 - Gestión de perfiles completa
+- Feed optimizado con batch loading y caché
+- Sistema de likes y matches con backend
+- Backend Node.js con workers
 - UI/UX base implementada
 - Configuración básica
-- Documentación actualizada
-- Sistema de fecha de nacimiento seguro
+- Firebase configurado y desplegado
+- Documentación completa actualizada
 
-### 🚧 En Desarrollo (~5%)
-- Testing del sistema actual
-
-### ❌ Pendiente (~35%)
-- Feed de usuarios
-- Sistema de likes/matches
-- Chat en tiempo real
-- Notificaciones
-- Funcionalidades avanzadas
-
----
-
-**Última actualización**: 21 de noviembre de 2025
+**Última actualización**: 22 de noviembre de 2025
