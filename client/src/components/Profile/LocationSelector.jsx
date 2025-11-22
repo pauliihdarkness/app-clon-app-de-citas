@@ -129,6 +129,11 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
                 </div>
             </div>
 
+            <p className="location-privacy-note">
+                Nota: La ubicación obtenida es aproximada (relativa) y no se guarda tu geolocalización exacta.
+                No se actualizará automáticamente a menos que vuelvas a pulsar el botón.
+            </p>
+
             {geoError && (
                 <span className="geo-error">
                     {geoError}
@@ -139,3 +144,4 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
 };
 
 export default LocationSelector;
+

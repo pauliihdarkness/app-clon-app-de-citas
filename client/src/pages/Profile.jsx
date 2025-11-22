@@ -194,15 +194,89 @@ const Profile = () => {
             </div>
           )}
 
-          {/* More About Me - Only Sexual Orientation */}
-          {userData?.sexualOrientation && (
+          {/* More About Me - Sexual Orientation & Search Intent */}
+          {(userData?.sexualOrientation || userData?.searchIntent) && (
             <div className="profile-section">
               <h3>ℹ️ Más sobre mí</h3>
               <div className="details-grid">
-                <div className="detail-item">
-                  <span className="detail-label">Orientación</span>
-                  <span className="detail-value">{userData.sexualOrientation}</span>
-                </div>
+                {userData.sexualOrientation && (
+                  <div className="detail-item">
+                    <span className="detail-label">Orientación</span>
+                    <span className="detail-value">{userData.sexualOrientation}</span>
+                  </div>
+                )}
+                {userData.searchIntent && (
+                  <div className="detail-item">
+                    <span className="detail-label">Busco</span>
+                    <span className="detail-value">{userData.searchIntent}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Lifestyle Section */}
+          {userData?.lifestyle && Object.values(userData.lifestyle).some(val => val) && (
+            <div className="profile-section">
+              <h3>🍷 Estilo de Vida</h3>
+              <div className="details-grid">
+                {userData.lifestyle.height && (
+                  <div className="detail-item">
+                    <span className="detail-label">Altura</span>
+                    <span className="detail-value">{userData.lifestyle.height} cm</span>
+                  </div>
+                )}
+                {userData.lifestyle.zodiac && (
+                  <div className="detail-item">
+                    <span className="detail-label">Zodiaco</span>
+                    <span className="detail-value">{userData.lifestyle.zodiac}</span>
+                  </div>
+                )}
+                {userData.lifestyle.drink && (
+                  <div className="detail-item">
+                    <span className="detail-label">Bebida</span>
+                    <span className="detail-value">{userData.lifestyle.drink}</span>
+                  </div>
+                )}
+                {userData.lifestyle.smoke && (
+                  <div className="detail-item">
+                    <span className="detail-label">Tabaco</span>
+                    <span className="detail-value">{userData.lifestyle.smoke}</span>
+                  </div>
+                )}
+                {userData.lifestyle.workout && (
+                  <div className="detail-item">
+                    <span className="detail-label">Ejercicio</span>
+                    <span className="detail-value">{userData.lifestyle.workout}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Job Section */}
+          {userData?.job && (userData.job.title || userData.job.company || userData.job.education) && (
+            <div className="profile-section">
+              <h3>💼 Profesional</h3>
+              <div className="details-grid">
+                {userData.job.title && (
+                  <div className="detail-item">
+                    <span className="detail-label">Ocupación</span>
+                    <span className="detail-value">{userData.job.title}</span>
+                  </div>
+                )}
+                {userData.job.company && (
+                  <div className="detail-item">
+                    <span className="detail-label">Empresa</span>
+                    <span className="detail-value">{userData.job.company}</span>
+                  </div>
+                )}
+                {userData.job.education && (
+                  <div className="detail-item">
+                    <span className="detail-label">Educación</span>
+                    <span className="detail-value">{userData.job.education}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

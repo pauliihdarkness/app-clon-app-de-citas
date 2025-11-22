@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getUserProfile, updateUserProfile } from "../api/user";
@@ -17,12 +17,21 @@ import "./EditProfile.css";
 const genderData = genderDataRaw.identidades_genero;
 const orientationData = orientationDataRaw.orientaciones_sexuales;
 
+const lifestyleOptions = {
+  drink: ["Frecuentemente", "Socialmente", "Raramente", "Nunca"],
+  smoke: ["Fumador", "Socialmente", "No fumador"],
+  workout: ["Diario", "Frecuentemente", "A veces", "Nunca"],
+  zodiac: ["Aries", "Tauro", "Géminis", "Cáncer", "Leo", "Virgo", "Libra", "Escorpio", "Sagitario", "Capricornio", "Acuario", "Piscis"],
+  searchIntent: ["Relación seria", "Algo casual", "Amistad", "No sé todavía"],
+  education: ["Secundaria", "Universitario", "Posgrado", "Otro"]
+};
+
 const EditProfile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState(null); // 'basic', 'bio', 'interests'
+  const [activeModal, setActiveModal] = useState(null); // 'basic', 'bio', 'interests', 'lifestyle', 'job', 'intentions'
 
   // Data states (Source of Truth)
   const [userData, setUserData] = useState({
@@ -32,7 +41,10 @@ const EditProfile = () => {
     sexualOrientation: "",
     interests: [],
     images: [],
-    location: { country: "", state: "", city: "" }
+    location: { country: "", state: "", city: "" },
+    lifestyle: { drink: "", smoke: "", workout: "", zodiac: "", height: "" },
+    job: { title: "", company: "", education: "" },
+    searchIntent: ""
   });
 
   // Temp states for editing (Modals)
@@ -56,7 +68,20 @@ const EditProfile = () => {
                 country: data.location?.country || "",
                 state: data.location?.state || "",
                 city: data.location?.city || ""
-              }
+              },
+              lifestyle: {
+                drink: data.lifestyle?.drink || "",
+                smoke: data.lifestyle?.smoke || "",
+                workout: data.lifestyle?.workout || "",
+                zodiac: data.lifestyle?.zodiac || "",
+                height: data.lifestyle?.height || ""
+              },
+              job: {
+                title: data.job?.title || "",
+                company: data.job?.company || "",
+                education: data.job?.education || ""
+              },
+              searchIntent: data.searchIntent || ""
             });
           }
         } catch (error) {
@@ -102,6 +127,12 @@ const EditProfile = () => {
         updateData = { bio: tempData.bio };
       } else if (activeModal === 'interests') {
         updateData = { interests: tempData.interests };
+      } else if (activeModal === 'lifestyle') {
+        updateData = { lifestyle: tempData.lifestyle };
+      } else if (activeModal === 'job') {
+        updateData = { job: tempData.job };
+      } else if (activeModal === 'intentions') {
+        updateData = { searchIntent: tempData.searchIntent };
       }
 
       await updateUserProfile(user.uid, updateData);
@@ -123,6 +154,16 @@ const EditProfile = () => {
     setTempData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleTempNestedChange = (parent, field, value) => {
+    setTempData(prev => ({
+      ...prev,
+      [parent]: {
+        ...prev[parent],
+        [field]: value
+      }
+    }));
+  };
+
   const handleTempLocationChange = (location) => {
     setTempData(prev => ({ ...prev, location }));
   };
@@ -141,13 +182,13 @@ const EditProfile = () => {
   };
 
   // Direct Image Update (No Modal needed for this as per previous logic, or keep it separate)
-  const handleImagesChange = (urls) => {
+  const handleImagesChange = useCallback((urls) => {
     if (urls.length <= 9) {
       setUserData(prev => ({ ...prev, images: urls }));
     } else {
       alert("Máximo 9 imágenes permitidas");
     }
-  };
+  }, []);
 
   const handleDirectImageUpdate = async (newImages) => {
     try {
@@ -166,25 +207,6 @@ const EditProfile = () => {
       </BaseLayout>
     );
   }
-
-  const selectStyle = {
-    width: "100%",
-    padding: "12px 16px",
-    borderRadius: "var(--border-radius)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    background: "rgba(255, 255, 255, 0.05)",
-    color: "white",
-    fontSize: "1rem",
-    outline: "none",
-    transition: "all 0.3s ease",
-    cursor: "pointer",
-    appearance: "none",
-    backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 12px center",
-    backgroundSize: "12px",
-    paddingRight: "36px"
-  };
 
   return (
     <BaseLayout showTabs={false} maxWidth="mobile" title="Editar Perfil">
@@ -262,6 +284,51 @@ const EditProfile = () => {
           </div>
         </div>
 
+        {/* 5. Lifestyle Summary Box */}
+        <div className="edit-box summary-box" onClick={() => openModal('lifestyle')}>
+          <div className="box-header">
+            <h2>🍷 Estilo de Vida</h2>
+            <span className="edit-icon">✏️</span>
+          </div>
+          <div className="box-content summary-content">
+            <div className="summary-item">
+              <span className="label">Altura:</span>
+              <span className="value">{userData.lifestyle.height ? `${userData.lifestyle.height} cm` : "-"}</span>
+            </div>
+            <div className="summary-item">
+              <span className="label">Zodiaco:</span>
+              <span className="value">{userData.lifestyle.zodiac || "-"}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 6. Job Summary Box */}
+        <div className="edit-box summary-box" onClick={() => openModal('job')}>
+          <div className="box-header">
+            <h2>💼 Información Profesional</h2>
+            <span className="edit-icon">✏️</span>
+          </div>
+          <div className="box-content summary-content">
+            <div className="summary-item">
+              <span className="label">Ocupación:</span>
+              <span className="value">{userData.job.title || "-"}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 7. Intentions Summary Box */}
+        <div className="edit-box summary-box" onClick={() => openModal('intentions')}>
+          <div className="box-header">
+            <h2>❤️ Qué busco</h2>
+            <span className="edit-icon">✏️</span>
+          </div>
+          <div className="box-content summary-content">
+            <p className="bio-preview">
+              {userData.searchIntent || "Selecciona qué estás buscando..."}
+            </p>
+          </div>
+        </div>
+
         <div className="global-actions">
           <Button onClick={() => navigate("/profile")} variant="secondary">
             ⬅️ Volver al Perfil
@@ -286,7 +353,7 @@ const EditProfile = () => {
               <select
                 value={tempData.gender || ""}
                 onChange={(e) => handleTempChange('gender', e.target.value)}
-                style={selectStyle}
+                className="custom-select"
               >
                 <option value="">Selecciona</option>
                 {genderData.map(g => <option key={g} value={g}>{g}</option>)}
@@ -297,7 +364,7 @@ const EditProfile = () => {
               <select
                 value={tempData.sexualOrientation || ""}
                 onChange={(e) => handleTempChange('sexualOrientation', e.target.value)}
-                style={selectStyle}
+                className="custom-select"
               >
                 <option value="">Selecciona</option>
                 {orientationData.map(o => <option key={o} value={o}>{o}</option>)}
@@ -366,6 +433,132 @@ const EditProfile = () => {
             <div className="modal-actions sticky-footer">
               <Button onClick={handleSaveChanges} disabled={saving}>
                 {saving ? "Guardando..." : `Guardar (${(tempData.interests || []).length}/8)`}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Lifestyle Modal */}
+        <Modal isOpen={activeModal === 'lifestyle'} onClose={closeModal} title="Estilo de Vida">
+          <div className="modal-form-content">
+            <div className="form-group">
+              <label>Altura (cm)</label>
+              <Input
+                type="number"
+                value={tempData.lifestyle?.height || ""}
+                onChange={(e) => handleTempNestedChange('lifestyle', 'height', e.target.value)}
+                placeholder="Ej: 175"
+              />
+            </div>
+            <div className="form-group">
+              <label>Signo Zodiacal</label>
+              <select
+                value={tempData.lifestyle?.zodiac || ""}
+                onChange={(e) => handleTempNestedChange('lifestyle', 'zodiac', e.target.value)}
+                className="custom-select"
+              >
+                <option value="">Selecciona</option>
+                {lifestyleOptions.zodiac.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Bebida</label>
+              <select
+                value={tempData.lifestyle?.drink || ""}
+                onChange={(e) => handleTempNestedChange('lifestyle', 'drink', e.target.value)}
+                className="custom-select"
+              >
+                <option value="">Selecciona</option>
+                {lifestyleOptions.drink.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Tabaco</label>
+              <select
+                value={tempData.lifestyle?.smoke || ""}
+                onChange={(e) => handleTempNestedChange('lifestyle', 'smoke', e.target.value)}
+                className="custom-select"
+              >
+                <option value="">Selecciona</option>
+                {lifestyleOptions.smoke.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Ejercicio</label>
+              <select
+                value={tempData.lifestyle?.workout || ""}
+                onChange={(e) => handleTempNestedChange('lifestyle', 'workout', e.target.value)}
+                className="custom-select"
+              >
+                <option value="">Selecciona</option>
+                {lifestyleOptions.workout.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="modal-actions">
+              <Button onClick={handleSaveChanges} disabled={saving}>
+                {saving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Job Modal */}
+        <Modal isOpen={activeModal === 'job'} onClose={closeModal} title="Información Profesional">
+          <div className="modal-form-content">
+            <div className="form-group">
+              <label>Ocupación / Puesto</label>
+              <Input
+                type="text"
+                value={tempData.job?.title || ""}
+                onChange={(e) => handleTempNestedChange('job', 'title', e.target.value)}
+                placeholder="Ej: Desarrollador de Software"
+              />
+            </div>
+            <div className="form-group">
+              <label>Empresa / Institución</label>
+              <Input
+                type="text"
+                value={tempData.job?.company || ""}
+                onChange={(e) => handleTempNestedChange('job', 'company', e.target.value)}
+                placeholder="Ej: Google"
+              />
+            </div>
+            <div className="form-group">
+              <label>Educación</label>
+              <select
+                value={tempData.job?.education || ""}
+                onChange={(e) => handleTempNestedChange('job', 'education', e.target.value)}
+                className="custom-select"
+              >
+                <option value="">Selecciona</option>
+                {lifestyleOptions.education.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="modal-actions">
+              <Button onClick={handleSaveChanges} disabled={saving}>
+                {saving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Intentions Modal */}
+        <Modal isOpen={activeModal === 'intentions'} onClose={closeModal} title="Qué busco">
+          <div className="modal-form-content">
+            <div className="form-group">
+              <label>Estoy buscando...</label>
+              <select
+                value={tempData.searchIntent || ""}
+                onChange={(e) => handleTempChange('searchIntent', e.target.value)}
+                className="custom-select"
+              >
+                <option value="">Selecciona</option>
+                {lifestyleOptions.searchIntent.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="modal-actions">
+              <Button onClick={handleSaveChanges} disabled={saving}>
+                {saving ? "Guardando..." : "Guardar"}
               </Button>
             </div>
           </div>

@@ -48,7 +48,7 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ci
         <div className="header-right">
           {headerActions ? (
             headerActions
-          ) : (
+          ) : location.pathname === '/feed' ? (
             <>
               <button onClick={handleFilters} className="header-btn" aria-label="Filtros">
                 ⚡
@@ -58,7 +58,7 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ci
                 <span className="badge"></span>
               </button>
             </>
-          )}
+          ) : null}
         </div>
       </header>
 
