@@ -34,7 +34,9 @@ client/src/
  │   ├── user.js            # API de usuarios (CRUD)
  │   └── cloudinary.js      # Utilidades Cloudinary
  ├── components/            # Componentes reutilizables
- │   ├── Layout/            # BaseLayout, TabNavigation, ProtectedRoute
+ │   ├── Auth/              # Componentes de autenticación
+ │   ├── Layout/            # BaseLayout, ProtectedRoute
+ │   ├── Navigation/        # TabNavigation
  │   ├── Profile/           # LocationSelector, UpdateMultipleImagesWithCrop
  │   └── UI/                # Button, Input, TextArea, Modal
  ├── context/               # Contextos de React
@@ -49,9 +51,13 @@ client/src/
  │   ├── Settings.jsx       # Configuración
  │   ├── AccountInfo.jsx    # Información de cuenta
  │   ├── Feed.jsx           # Feed de usuarios (pendiente)
- │   └── Chat.jsx           # Chat (pendiente)
+ │   ├── Chat.jsx           # Chat (pendiente)
+ │   └── NotFound.jsx       # Página 404
  ├── utils/                 # Funciones de utilidad
- │   └── dateUtils.js       # Cálculo y validación de fechas
+ │   ├── dateUtils.js       # Cálculo y validación de fechas
+ │   ├── geolocation.js     # Utilidades de geolocalización
+ │   ├── formatters.js      # Formateadores de texto
+ │   └── validators.js      # Validadores de formularios
  ├── assets/                # Recursos estáticos
  │   └── data/              # JSON (géneros, orientaciones, intereses)
  ├── App.jsx

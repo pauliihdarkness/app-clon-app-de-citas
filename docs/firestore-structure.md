@@ -22,6 +22,25 @@ Almacena la información **pública** del perfil de usuario que es visible para 
   // Perfil
   bio: string,                    // Biografía del usuario (máx 500 caracteres)
   interests: string[],            // Array de intereses (máx 8)
+
+  // Estilo de Vida
+  lifestyle: {
+    drink: string,                // "Frecuentemente", "Socialmente", etc.
+    smoke: string,                // "Fumador", "No fumador", etc.
+    workout: string,              // "Diario", "A veces", etc.
+    zodiac: string,               // Signo zodiacal
+    height: string                // Altura en cm
+  },
+
+  // Información Profesional
+  job: {
+    title: string,                // Ocupación / Puesto
+    company: string,              // Empresa
+    education: string             // Nivel educativo
+  },
+
+  // Intenciones
+  searchIntent: string,           // "Relación seria", "Algo casual", etc.
   
   // Multimedia
   images: string[],               // URLs de imágenes de Cloudinary (máx 9)
