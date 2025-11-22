@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, limit, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import { calculateAge } from "../utils/dateUtils";
 
@@ -61,4 +61,32 @@ export const updatePrivateUserData = async (userId, privateData) => {
   if (Object.keys(allowedData).length > 0) {
     await updateDoc(doc(db, "users", userId, "private", "data"), allowedData);
   }
+};
+
+// Obtener usuarios para el feed (excluyendo al usuario actual y usuarios ya vistos)
+export const getFeedUsers = async (currentUserId) => {
+  // Nota: En una app real, esto debería ser una query paginada y filtrada en el backend.
+  // Para este MVP, traemos una colección limitada y filtramos en cliente.
+
+  // Importar dinámicamente para evitar dependencia circular
+  const { getInteractedUserIds } = await import("./likes");
+
+  // Obtener usuarios con los que ya hubo interacción
+  const interactedUserIds = await getInteractedUserIds(currentUserId);
+
+  const usersRef = collection(db, "users");
+  const q = query(usersRef, limit(50)); // Aumentamos el límite para compensar el filtrado
+
+  const querySnapshot = await getDocs(q);
+  const users = [];
+
+  querySnapshot.forEach((doc) => {
+    const userId = doc.id;
+    // Excluir: usuario actual y usuarios ya vistos
+    if (userId !== currentUserId && !interactedUserIds.includes(userId)) {
+      users.push({ uid: userId, ...doc.data() });
+    }
+  });
+
+  return users;
 };

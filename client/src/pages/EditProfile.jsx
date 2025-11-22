@@ -19,10 +19,10 @@ const orientationData = orientationDataRaw.orientaciones_sexuales;
 
 const lifestyleOptions = {
   drink: ["Frecuentemente", "Socialmente", "Raramente", "Nunca"],
-  smoke: ["Fumador", "Socialmente", "No fumador"],
+  smoke: ["Fumo", "Socialmente", "No fumo"],
   workout: ["Diario", "Frecuentemente", "A veces", "Nunca"],
   zodiac: ["Aries", "Tauro", "Géminis", "Cáncer", "Leo", "Virgo", "Libra", "Escorpio", "Sagitario", "Capricornio", "Acuario", "Piscis"],
-  searchIntent: ["Relación seria", "Algo casual", "Amistad", "No sé todavía"],
+  searchIntent: ["Relación seria", "Algo casual", "Amistad", "No sé todavía", "Otro"],
   education: ["Secundaria", "Universitario", "Posgrado", "Otro"]
 };
 

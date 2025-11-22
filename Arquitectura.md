@@ -204,26 +204,70 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Función auxiliar para verificar autenticación
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Función auxiliar para verificar si es el dueño
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
     // Colección de usuarios (pública)
     match /users/{userId} {
-      // Cualquier usuario autenticado puede leer perfiles
-      allow read: if request.auth != null;
+      // Cualquier usuario autenticado puede leer perfiles públicos
+      allow read: if isAuthenticated();
       
       // Solo el dueño puede crear/actualizar su perfil
-      allow create, update: if request.auth != null 
-                            && request.auth.uid == userId;
+      allow create, update: if isOwner(userId);
+      
+      // Solo el dueño puede eliminar su perfil
+      allow delete: if isOwner(userId);
       
       // Subcolección privada
       match /private/data {
         // Solo el dueño puede leer/escribir sus datos privados
-        allow read, write: if request.auth != null 
-                           && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
         
         // Prevenir edición de birthDate después de la creación
-        allow update: if request.auth.uid == userId 
+        allow update: if isOwner(userId) 
                       && (!request.resource.data.keys().hasAny(['birthDate']) 
                           || request.resource.data.birthDate == resource.data.birthDate);
       }
+    }
+    
+    // Colección de likes
+    match /likes/{likeId} {
+      // Cualquier usuario autenticado puede leer likes
+      allow read: if isAuthenticated();
+      
+      // Solo se puede crear un like si el usuario autenticado es quien lo da
+      allow create: if isAuthenticated() 
+                    && request.auth.uid == request.resource.data.fromUserId;
+      
+      // Solo el creador puede eliminar su like
+      allow delete: if isAuthenticated() 
+                    && request.auth.uid == resource.data.fromUserId;
+      
+      // No se permite actualizar likes
+      allow update: if false;
+    }
+    
+    // Colección de matches
+    match /matches/{matchId} {
+      // Solo los usuarios involucrados pueden leer el match
+      allow read: if isAuthenticated() 
+                  && (request.auth.uid == resource.data.user1Id 
+                      || request.auth.uid == resource.data.user2Id);
+      
+      // Solo se puede crear un match automáticamente
+      allow create: if isAuthenticated()
+                    && (request.auth.uid == request.resource.data.user1Id 
+                        || request.auth.uid == request.resource.data.user2Id);
+      
+      // Los matches no se pueden actualizar ni eliminar
+      allow update, delete: if false;
     }
   }
 }
