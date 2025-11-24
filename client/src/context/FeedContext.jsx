@@ -4,7 +4,7 @@ import { setUserCached } from "./UserCache";
 
 const FeedContext = createContext();
 
-export function FeedProvider({ children, initialFilters, pageSize = 15 }) {
+export function FeedProvider({ children, initialFilters, pageSize = 15, userId }) {
   const [stack, setStack] = useState([]); // perfiles listos para mostrar
   const lastDocRef = useRef(null);
   const loadingRef = useRef(false);
@@ -21,10 +21,12 @@ export function FeedProvider({ children, initialFilters, pageSize = 15 }) {
       const { docs, lastDoc } = await getProfilesBatch({
         filters: filtersRef.current,
         pageSize,
-        lastDoc: lastDocRef.current
+        lastDoc: lastDocRef.current,
+        userId // CRITICAL: Pass userId to filter out own profile
       });
 
       const profiles = docs.map(d => ({ id: d.id, ...d.data() }));
+
       // cache individual users
       await Promise.all(profiles.map(p => setUserCached(p.id, p)));
       setStack(prev => [...prev, ...profiles]);

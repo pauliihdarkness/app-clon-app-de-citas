@@ -91,9 +91,7 @@ Almacena información **privada y sensible** del usuario que NO es visible para 
 
 ---
 
-## 🔮 Colecciones Futuras (Pendientes de Implementación)
-
-### 📁 `likes` (Colección)
+##  `likes` (Colección)
 
 Almacena los "me gusta" y "no me gusta" entre usuarios.
 
@@ -101,7 +99,7 @@ Almacena los "me gusta" y "no me gusta" entre usuarios.
 {
   fromUserId: string,             // Usuario que da el like/dislike
   toUserId: string,               // Usuario que recibe el like/dislike
-  type: "like" | "dislike",       // Tipo de interacción
+  type: "like" | "pass",          // Tipo de interacción
   createdAt: timestamp            // Fecha de la interacción
 }
 ```
@@ -112,63 +110,40 @@ Almacena los "me gusta" y "no me gusta" entre usuarios.
 
 ---
 
-### 📁 `matches` (Colección)
+## 📁 `matches` (Colección)
 
-Almacena los matches (likes mutuos) entre usuarios.
+Almacena los matches (likes mutuos) entre usuarios y contiene la subcolección de mensajes.
 
 ```javascript
 {
-  user1Id: string,                // ID del primer usuario (orden alfabético)
-  user2Id: string,                // ID del segundo usuario (orden alfabético)
+  users: string[],                // Array con los 2 UIDs de los participantes [uid1, uid2]
   createdAt: timestamp,           // Fecha del match
-  lastMessageAt: timestamp,       // Última vez que hubo un mensaje (opcional)
-  unreadCount: {                  // Mensajes no leídos por usuario
-    [userId]: number
-  }
+  lastMessage: string | null,     // Último mensaje enviado (preview)
+  lastMessageTime: timestamp | null // Timestamp del último mensaje
 }
 ```
 
 **Índices necesarios:**
-- `user1Id` + `user2Id` (compuesto, único)
-- `user1Id` + `lastMessageAt`
-- `user2Id` + `lastMessageAt`
+- `users` (array-contains) para buscar matches de un usuario
 
----
+### 📁 `matches/{matchId}/messages` (Subcolección)
 
-### 📁 `chats` (Colección)
-
-Almacena las conversaciones entre matches.
-
-#### Documento: `chats/{chatId}`
-
-```javascript
-{
-  matchId: string,                // ID del match asociado
-  participants: string[],         // Array con los 2 UIDs de los participantes
-  lastMessage: string,            // Último mensaje enviado (preview)
-  lastMessageAt: timestamp,       // Timestamp del último mensaje
-  lastMessageBy: string           // UID del usuario que envió el último mensaje
-}
-```
-
-#### Subcolección: `chats/{chatId}/messages`
+Almacena el historial de chat de cada match.
 
 ```javascript
 {
   senderId: string,               // UID del usuario que envió el mensaje
   text: string,                   // Contenido del mensaje
-  createdAt: timestamp,           // Timestamp del mensaje
-  read: boolean,                  // Si el mensaje fue leído
-  readAt: timestamp               // Timestamp de lectura (opcional)
+  timestamp: timestamp            // Fecha y hora del mensaje
 }
 ```
 
 **Índices necesarios:**
-- `createdAt` (descendente) para ordenar mensajes
+- `timestamp` (ascendente) para ordenar mensajes
 
 ---
 
-## 🔐 Reglas de Seguridad de Firestore
+## � Reglas de Seguridad de Firestore
 
 ### Reglas Actuales Recomendadas
 
@@ -189,63 +164,47 @@ service cloud.firestore {
     
     // Colección de usuarios (pública)
     match /users/{userId} {
-      // Cualquier usuario autenticado puede leer perfiles públicos
       allow read: if isAuthenticated();
-      
-      // Solo el dueño puede crear/actualizar su perfil
       allow create, update: if isOwner(userId);
-      
-      // Solo el dueño puede eliminar su perfil
       allow delete: if isOwner(userId);
       
       // Subcolección privada
       match /private/data {
-        // Solo el dueño puede leer/escribir sus datos privados
         allow read, write: if isOwner(userId);
-        
-        // Prevenir edición de birthDate después de la creación
         allow update: if isOwner(userId) 
                       && (!request.resource.data.keys().hasAny(['birthDate']) 
                           || request.resource.data.birthDate == resource.data.birthDate);
       }
     }
     
-    // Colección de likes (futuro)
+    // Colección de likes
     match /likes/{likeId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.fromUserId;
       allow delete: if isAuthenticated() && request.auth.uid == resource.data.fromUserId;
     }
     
-    // Colección de matches (futuro)
+    // Colección de matches
     match /matches/{matchId} {
       allow read: if isAuthenticated() 
-                  && (request.auth.uid == resource.data.user1Id 
-                      || request.auth.uid == resource.data.user2Id);
-      allow create: if isAuthenticated();
-    }
-    
-    // Colección de chats (futuro)
-    match /chats/{chatId} {
-      allow read: if isAuthenticated() 
-                  && request.auth.uid in resource.data.participants;
-      allow create, update: if isAuthenticated() 
-                            && request.auth.uid in request.resource.data.participants;
+                  && request.auth.uid in resource.data.users;
+      allow create: if isAuthenticated(); // Creado por backend (admin sdk) pero mantenemos por si acaso
       
+      // Subcolección de mensajes
       match /messages/{messageId} {
         allow read: if isAuthenticated() 
-                    && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+                    && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
         allow create: if isAuthenticated() 
-                      && request.auth.uid == request.resource.data.senderId;
+                      && request.auth.uid == request.resource.data.senderId
+                      && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
       }
     }
   }
 }
-```
 
 ---
 
-## 📊 Diagrama de Relaciones
+## �📊 Diagrama de Relaciones
 
 ```
 users (collection)
@@ -255,20 +214,16 @@ users (collection)
 │       └── data (document)
 │           └── email, birthDate, authMethod
 │
-likes (collection) [FUTURO]
+likes (collection)
 ├── {likeId}
 │   └── fromUserId, toUserId, type
 │
-matches (collection) [FUTURO]
+matches (collection)
 ├── {matchId}
-│   └── user1Id, user2Id, createdAt
-│
-chats (collection) [FUTURO]
-├── {chatId}
-│   ├── matchId, participants, lastMessage
+│   ├── users, lastMessage, lastMessageTime
 │   └── messages (subcollection)
 │       └── {messageId}
-│           └── senderId, text, createdAt, read
+│           └── senderId, text, timestamp
 ```
 
 ---

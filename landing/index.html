@@ -257,17 +257,17 @@
     <section class="progress-section">
         <div class="container">
             <h2 class="section-title">Estado del Proyecto</h2>
-            <p class="section-subtitle">Progreso actual - Versión 0.8.0 Beta</p>
+            <p class="section-subtitle">Progreso actual - Versión 0.9.0 Beta</p>
 
             <div class="progress-overview">
                 <div class="progress-stat">
                     <div class="stat-circle">
                         <svg viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="45" class="stat-bg"></circle>
-                            <circle cx="50" cy="50" r="45" class="stat-fill" style="--progress: 75">
+                            <circle cx="50" cy="50" r="45" class="stat-fill" style="--progress: 85">
                             </circle>
                         </svg>
-                        <div class="stat-number">75%</div>
+                        <div class="stat-number">85%</div>
                     </div>
                     <div class="stat-label">Completado</div>
                 </div>
@@ -280,14 +280,14 @@
                         <h3>Autenticación</h3>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar" style="--progress: 85%">
-                            <span class="progress-text">85%</span>
+                        <div class="progress-bar" style="--progress: 90%">
+                            <span class="progress-text">90%</span>
                         </div>
                     </div>
                     <ul class="feature-list">
                         <li>✅ Login Email/Google</li>
                         <li>✅ Rutas protegidas</li>
-                        <li>⏳ Recuperación de contraseña</li>
+                        <li>✅ Gestión de sesiones</li>
                     </ul>
                 </div>
 
@@ -297,8 +297,8 @@
                         <h3>Perfiles</h3>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar" style="--progress: 90%">
-                            <span class="progress-text">90%</span>
+                        <div class="progress-bar" style="--progress: 95%">
+                            <span class="progress-text">95%</span>
                         </div>
                     </div>
                     <ul class="feature-list">
@@ -314,13 +314,13 @@
                         <h3>Feed Optimizado</h3>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar" style="--progress: 95%">
-                            <span class="progress-text">95%</span>
+                        <div class="progress-bar" style="--progress: 100%">
+                            <span class="progress-text">100%</span>
                         </div>
                     </div>
                     <ul class="feature-list">
-                        <li>✅ Batch loading</li>
-                        <li>✅ Caché local</li>
+                        <li>✅ Batch loading & Caché</li>
+                        <li>✅ Filtro de auto-perfil</li>
                         <li>✅ 60% más rápido</li>
                     </ul>
                 </div>
@@ -331,8 +331,8 @@
                         <h3>Matches</h3>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar" style="--progress: 90%">
-                            <span class="progress-text">90%</span>
+                        <div class="progress-bar" style="--progress: 100%">
+                            <span class="progress-text">100%</span>
                         </div>
                     </div>
                     <ul class="feature-list">
@@ -342,36 +342,36 @@
                     </ul>
                 </div>
 
-                <div class="progress-card">
+                <div class="progress-card highlight">
                     <div class="progress-header">
                         <span class="progress-icon">💬</span>
                         <h3>Chat</h3>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar" style="--progress: 0%">
-                            <span class="progress-text">0%</span>
+                        <div class="progress-bar" style="--progress: 90%">
+                            <span class="progress-text">90%</span>
                         </div>
                     </div>
                     <ul class="feature-list">
-                        <li>⏳ En desarrollo</li>
-                        <li>⏳ Próxima versión</li>
-                        <li>⏳ v0.9.0</li>
+                        <li>✅ Mensajería Real-time</li>
+                        <li>✅ UI Full Screen</li>
+                        <li>✅ Badges de no leídos</li>
                     </ul>
                 </div>
 
-                <div class="progress-card highlight">
+                <div class="progress-card">
                     <div class="progress-header">
                         <span class="progress-icon">🖥️</span>
                         <h3>Backend</h3>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar" style="--progress: 70%">
-                            <span class="progress-text">70%</span>
+                        <div class="progress-bar" style="--progress: 85%">
+                            <span class="progress-text">85%</span>
                         </div>
                     </div>
                     <ul class="feature-list">
                         <li>✅ Node.js + Express</li>
-                        <li>✅ Worker de matches</li>
+                        <li>✅ Socket.IO Server</li>
                         <li>✅ Auth middleware</li>
                     </ul>
                 </div>
@@ -393,8 +393,6 @@
                             <li>✅ Feed optimizado con batch loading</li>
                             <li>✅ Backend Node.js con worker de matches</li>
                             <li>✅ Caché local con IndexedDB</li>
-                            <li>✅ Índices compuestos en Firestore</li>
-                            <li>✅ Reducción del 60% en lecturas</li>
                         </ul>
                     </div>
                 </div>
@@ -403,11 +401,12 @@
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h3>v0.9.0 - Connect</h3>
-                        <p class="timeline-date">Próximamente - Diciembre 2025</p>
+                        <p class="timeline-date">24 de Noviembre 2025</p>
                         <ul>
-                            <li>💬 Chat en tiempo real</li>
-                            <li>📱 Página de Matches</li>
-                            <li>🔔 Notificaciones push</li>
+                            <li>💬 Chat en tiempo real (Socket.IO)</li>
+                            <li>📱 UI de Chat y Matches renovada</li>
+                            <li>�️ Feed seguro (filtro anti auto-like)</li>
+                            <li>🔔 Indicadores de mensajes no leídos</li>
                         </ul>
                     </div>
                 </div>
@@ -426,8 +425,8 @@
                 </div>
             </div>
             <div class="changelog-cta">
-                <a href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/CHANGELOG.md" target="_blank"
-                    class="btn btn-secondary">Ver Changelog Completo</a>
+                <a href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/CHANGELOG.md"
+                    target="_blank" class="btn btn-secondary">Ver Changelog Completo</a>
             </div>
         </div>
     </section>
@@ -509,9 +508,11 @@
                     <h4>Enlaces</h4>
                     <a href="https://github.com/Pauliihdarkness/app-clon-app-de-citas" target="_blank">GitHub</a>
                     <a href="https://github.com/Pauliihdarkness/app-clon-app-de-citas#readme">Documentación</a>
-                    <a href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/PROJECT_STATUS.md">Estado del
+                    <a href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/PROJECT_STATUS.md">Estado
+                        del
                         Proyecto</a>
-                    <a href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/CHANGELOG.md">Changelog</a>
+                    <a
+                        href="https://github.com/pauliihdarkness/app-clon-app-de-citas/blob/main/CHANGELOG.md">Changelog</a>
                 </div>
                 <div class="footer-contact">
                     <h4>Contacto</h4>

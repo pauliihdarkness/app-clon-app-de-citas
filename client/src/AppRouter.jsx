@@ -5,6 +5,7 @@ import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import Chat from "./pages/Chat";
+import MatchesList from "./pages/MatchesList";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -13,6 +14,20 @@ import Settings from "./pages/Settings";
 import AccountInfo from "./pages/AccountInfo";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
 import { FeedProvider } from "./context/FeedContext";
+import { useAuth } from "./context/AuthContext";
+
+// Wrapper to provide userId to FeedProvider
+const FeedWithProvider = () => {
+    const { user } = useAuth();
+    return (
+        <FeedProvider
+            initialFilters={{ genders: ["female", "male", "other"] }}
+            userId={user?.uid}
+        >
+            <Feed />
+        </FeedProvider>
+    );
+};
 
 const AppRouter = () => {
     return (
@@ -23,12 +38,15 @@ const AppRouter = () => {
                 <Route path="/register" element={<Register />} />
                 <Route path="/feed" element={
                     <ProtectedRoute>
-                        <FeedProvider initialFilters={{ genders: ["female", "male", "other"] }}>
-                            <Feed />
-                        </FeedProvider>
+                        <FeedWithProvider />
                     </ProtectedRoute>
                 } />
                 <Route path="/profile" element={
+                    <ProtectedRoute>
+                        <Profile />
+                    </ProtectedRoute>
+                } />
+                <Route path="/profile/:userId" element={
                     <ProtectedRoute>
                         <Profile />
                     </ProtectedRoute>
@@ -39,6 +57,11 @@ const AppRouter = () => {
                     </ProtectedRoute>
                 } />
                 <Route path="/chat" element={
+                    <ProtectedRoute>
+                        <MatchesList />
+                    </ProtectedRoute>
+                } />
+                <Route path="/chat/:matchId" element={
                     <ProtectedRoute>
                         <Chat />
                     </ProtectedRoute>

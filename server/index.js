@@ -3,6 +3,9 @@ import { startMatchWorker } from "./workers/matchWorker.js";
 import express from "express";
 import cors from "cors";
 import { verifyToken } from "./middleware/auth.js";
+import { createServer } from "http"; // Import http
+import { setupSocket } from "./socket/socketHandler.js"; // Import socket handler
+import matchesRouter from "./routes/matches.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +25,12 @@ app.use(cors({
 })); // Enable CORS with restrictions
 app.use(express.json()); // Parse JSON bodies
 
+// Create HTTP server
+const httpServer = createServer(app);
+
+// Setup Socket.io
+setupSocket(httpServer, allowedOrigins);
+
 console.log("🚀 Server starting...");
 
 // Start background workers
@@ -32,9 +41,17 @@ app.get("/", (req, res) => {
     res.send("I am alive! 🤖");
 });
 
+// Public API Routes
+app.use("/api/matches", matchesRouter);
+
+
+
+// ... (previous imports)
+
 // Protected Routes (Example)
 // Any route under /api will require a valid Firebase token
 app.use("/api", verifyToken);
+
 
 app.get("/api/status", (req, res) => {
     res.json({
@@ -44,6 +61,7 @@ app.get("/api/status", (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
+// Listen on httpServer instead of app
+httpServer.listen(PORT, () => {
     console.log(`🌍 Web server listening on port ${PORT}`);
 });

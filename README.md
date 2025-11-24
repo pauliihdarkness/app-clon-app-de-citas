@@ -66,12 +66,21 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 - ✅ **Página de Settings**: Configuración centralizada con navegación clara
 - ✅ **Información de Cuenta**: Visualización de datos privados (email, fecha de nacimiento)
 
+### 💬 Chat y Mensajería (Nuevo)
+- ✅ **Chat en Tiempo Real**: Mensajería instantánea con Socket.IO
+- ✅ **UI de Chat Premium**: Diseño full-screen sin distracciones
+- ✅ **Navegación Fluida**: Acceso directo a perfiles desde el chat
+- ✅ **Lista de Matches**: Vista moderna con badges de mensajes no leídos
+- ✅ **Timestamps Inteligentes**: Formato relativo para mejor lectura
+- ✅ **Indicadores de Estado**: Visualización de estado online/offline
+
 ### 🔒 Seguridad y Privacidad
 - ✅ **Separación de Datos**: Públicos vs Privados en Firestore
 - ✅ **Fecha de Nacimiento Protegida**: Almacenada en subcolección privada
 - ✅ **Validaciones Robustas**: Edad mínima 18 años, formatos de datos
 - ✅ **Reglas de Firestore**: Protección completa para users, likes y matches
 - ✅ **Variables de Entorno**: Credenciales sensibles fuera del código
+- ✅ **Feed Seguro**: Filtro crítico para evitar auto-likes
 
 ### 📍 Geolocalización
 - ✅ Selector de ubicación con autocompletado
@@ -85,6 +94,7 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 - **Vite 5** - Build tool ultrarrápido
 - **React Router DOM** - Navegación SPA
 - **CSS3 Moderno** - Variables, Flexbox, Grid, Glassmorphism
+- **Socket.IO Client** - Comunicación en tiempo real
 
 ### Backend
 - **Node.js + Express** - Servidor backend para workers y API
@@ -92,6 +102,7 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 - **Firebase Authentication** - Gestión de usuarios
 - **Firestore Database** - Base de datos NoSQL con índices compuestos
 - **Cloudinary** - Almacenamiento y optimización de imágenes
+- **Socket.IO Server** - Servidor de WebSocket
 
 ### Utilidades y Librerías
 - **react-easy-crop** - Recorte de imágenes interactivo
@@ -140,6 +151,7 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
    VITE_FIREBASE_STORAGE_BUCKET=tu_project.appspot.com
    VITE_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
    VITE_FIREBASE_APP_ID=tu_app_id
+   VITE_API_URL=http://localhost:3000
 
    # Cloudinary Configuration
    VITE_CLOUDINARY_CLOUD_NAME=tu_cloud_name
@@ -226,7 +238,8 @@ client/src/
 │   ├── Settings.jsx        # Configuración
 │   ├── AccountInfo.jsx     # Información de cuenta
 │   ├── Feed.jsx            # Feed optimizado con listeners
-│   └── Chat.jsx            # Chat (pendiente)
+│   ├── MatchesList.jsx     # Lista de conversaciones
+│   └── Chat.jsx            # Chat en tiempo real
 ├── utils/                  # Funciones de utilidad
 │   ├── dateUtils.js        # Cálculo y validación de fechas
 │   ├── geolocation.js      # Utilidades de geolocalización
@@ -314,8 +327,6 @@ firebase deploy --only storage
 ## 🎯 Próximas Funcionalidades
 
 ### En Desarrollo
-- [ ] **Página de Matches**: Visualizar lista de matches activos
-- [ ] **Chat en Tiempo Real**: Mensajería entre matches
 - [ ] **Notificaciones Push**: Alertas de matches y mensajes (FCM)
 
 ### Mejoras Planificadas

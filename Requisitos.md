@@ -62,6 +62,70 @@
 - [x] Modal de Biografía con contador de caracteres (máx 500)
 - [x] Secciones organizadas (Bio, Más sobre mí, Intereses)
 - [x] Botones de acción en header (Editar, Configuración)
+# 📋 Requisitos del Proyecto - App de Citas
+
+## 🔐 Autenticación y Seguridad
+
+### Autenticación
+- [x] Registro con email y contraseña
+- [x] Registro con Google OAuth
+- [x] Login con email y contraseña
+- [x] Login con Google OAuth
+- [x] Gestión de sesiones con Firebase Auth
+- [x] Rutas protegidas (ProtectedRoute)
+- [x] Redirección inteligente según estado de autenticación
+- [ ] Recuperación de contraseña
+# 📋 Requisitos del Proyecto - App de Citas
+
+## 🔐 Autenticación y Seguridad
+
+### Autenticación
+- [x] Registro con email y contraseña
+- [x] Registro con Google OAuth
+- [x] Login con email y contraseña
+- [x] Login con Google OAuth
+- [x] Gestión de sesiones con Firebase Auth
+- [x] Rutas protegidas (ProtectedRoute)
+- [x] Redirección inteligente según estado de autenticación
+- [ ] Recuperación de contraseña
+- [ ] Cambio de contraseña
+- [ ] Verificación de email
+- [ ] Autenticación de dos factores (2FA)
+
+### Seguridad y Privacidad
+- [x] Sistema de fecha de nacimiento seguro (almacenado en colección privada)
+- [x] Cálculo automático de edad desde fecha de nacimiento
+- [x] Validación de edad mínima (18 años)
+- [x] Fecha de nacimiento no editable después del registro
+- [x] Separación de datos públicos y privados en Firestore
+- [x] Reglas de seguridad de Firestore implementadas
+- [x] Variables de entorno para credenciales sensibles
+- [ ] Encriptación de datos sensibles
+- [x] Carga de perfiles en batches (15-25 usuarios)
+- [x] Implementación de caché local (UserCache con Map + IndexedDB)
+- [x] Uso de `getDocs` (fetch puntual) en lugar de `onSnapshot` para el feed
+- [x] Evitar lecturas duplicadas con UserCache global
+- [x] Filtrado con queries indexadas (índices compuestos) y paginación con `startAfter`
+- [x] Delegar detección de matches a Backend (Worker) para minimizar lecturas
+- [x] Prefetch de perfiles en background (cuando cache < 5)
+- [x] Exclusión de perfiles ya vistos (client-side filtering)
+- [x] Índices compuestos desplegados en Firebases
+- [x] Sistema de reportes de usuarios
+- [x] Sistema de bloqueo de usuarios
+
+---
+
+## 👤 Gestión de Perfiles
+
+### Creación y Edición
+- [x] Crear perfil completo al registrarse
+- [x] Subir hasta 9 fotos con crop interactivo
+- [x] Guardar URLs optimizadas de las fotos en Firestore
+- [x] Editar perfil con sistema de modales por secciones
+- [x] Modal de Información Básica (nombre, género, orientación, ubicación)
+- [x] Modal de Biografía con contador de caracteres (máx 500)
+- [x] Secciones organizadas (Bio, Más sobre mí, Intereses)
+- [x] Botones de acción en header (Editar, Configuración)
 - [ ] Ver perfiles de otros usuarios
 - [ ] Indicador de última conexión
 - [ ] Indicador de distancia
@@ -73,14 +137,14 @@
 - [x] Página de Configuración (Settings)
 - [x] Página de Información de Cuenta
 - [x] Visualización de datos privados (email, fecha de nacimiento, edad)
-- [ ] Lista de conversaciones
-- [ ] Chat individual en tiempo real
-- [ ] Envío de mensajes de texto
+- [x] Lista de conversaciones (MatchesList)
+- [x] Chat individual en tiempo real
+- [x] Envío de mensajes de texto
 - [ ] Envío de imágenes
-- [ ] Indicador de mensajes no leídos
+- [x] Indicador de mensajes no leídos
 - [ ] Indicador de "escribiendo..."
 - [ ] Marca de mensaje leído
-- [ ] Timestamp de mensajes
+- [x] Timestamp de mensajes
 - [ ] Eliminar conversación
 - [ ] Reportar conversación
 
@@ -152,8 +216,8 @@
 ### Colecciones Pendientes
 - [x] `likes/{likeId}` - Registro de likes/dislikes
 - [x] `matches/{matchId}` - Matches mutuos
-- [ ] `chats/{chatId}` - Conversaciones
-- [ ] `chats/{chatId}/messages/{messageId}` - Mensajes
+- [x] `chats/{chatId}` - Conversaciones
+- [x] `chats/{chatId}/messages/{messageId}` - Mensajes
 - [x] Índices compuestos para consultas optimizadas
 
 ---
@@ -244,15 +308,16 @@
 
 ## 📋 Resumen de Progreso
 
-### ✅ Completado (~75%)
+### ✅ Completado (~85%)
 - Autenticación completa
 - Gestión de perfiles completa
 - Feed optimizado con batch loading y caché
 - Sistema de likes y matches con backend
 - Backend Node.js con workers
 - UI/UX base implementada
+- Chat y Mensajería en tiempo real
 - Configuración básica
 - Firebase configurado y desplegado
 - Documentación completa actualizada
 
-**Última actualización**: 22 de noviembre de 2025
+**Última actualización**: 24 de noviembre de 2025

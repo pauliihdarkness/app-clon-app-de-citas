@@ -111,6 +111,14 @@ const AccountInfo = () => {
                             <span className="info-label">Email</span>
                             <span className="info-value">{accountData.email}</span>
                         </div>
+                        <div className="info-item">
+                            <span className="info-label">User ID (UID)</span>
+                            <span className="info-value" style={{
+                                fontSize: "0.85rem",
+                                fontFamily: "monospace",
+                                wordBreak: "break-all"
+                            }}>{user?.uid}</span>
+                        </div>
                         {accountData.createdAt && (
                             <div className="info-item">
                                 <span className="info-label">Miembro desde</span>

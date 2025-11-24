@@ -1,10 +1,18 @@
 import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, limit, getDocs } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import { db } from "./firebase";
 import { calculateAge } from "../utils/dateUtils";
 
 // Crear perfil
 export const createUserProfile = async (userId, profileData) => {
-  await setDoc(doc(db, "users", userId), profileData, { merge: true });
+  // Add required fields for Feed queries
+  const completeProfileData = {
+    ...profileData,
+    active: true,  // User is active by default
+    popularity: 0, // Initial popularity score
+  };
+
+  await setDoc(doc(db, "users", userId), completeProfileData, { merge: true });
 };
 
 // Leer perfil
@@ -14,11 +22,22 @@ export const getUserProfile = async (userId) => {
 
   const userData = docSnap.data();
 
-  // Get birth date from private collection to calculate age
-  const privateData = await getPrivateUserData(userId);
-  if (privateData?.birthDate) {
-    userData.age = calculateAge(privateData.birthDate);
+  // Only read private data if requesting the current authenticated user's profile
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
+
+  if (currentUser && currentUser.uid === userId) {
+    // Get birth date from private collection to calculate age for current user
+    try {
+      const privateData = await getPrivateUserData(userId);
+      if (privateData?.birthDate) {
+        userData.age = calculateAge(privateData.birthDate);
+      }
+    } catch (error) {
+      console.warn(`Could not fetch private data for user ${userId}:`, error);
+    }
   }
+  // For other users, age should already be in the public profile
 
   return userData;
 };

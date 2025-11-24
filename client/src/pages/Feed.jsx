@@ -5,7 +5,7 @@ import { useFeed } from "../context/FeedContext";
 import { saveLike, savePass } from "../api/likes";
 import UserCard from "../components/Feed/UserCard";
 import { collection, query, where, onSnapshot, orderBy, limit } from "firebase/firestore";
-import { db } from "../api/firebase"; // Ensure this path is correct
+import { db } from "../api/firebase";
 import "./Feed.css";
 
 const Feed = () => {
@@ -24,8 +24,6 @@ const Feed = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Listen for matches where current user is in the 'users' array
-    // Note: This requires a composite index or simple array-contains query
     const q = query(
       collection(db, "matches"),
       where("users", "array-contains", user.uid),
@@ -37,15 +35,10 @@ const Feed = () => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const matchData = change.doc.data();
-          // Check if this match is recent (created in the last 10 seconds) to avoid showing old matches
           const createdAt = matchData.createdAt?.toDate();
           if (createdAt && (Date.now() - createdAt.getTime() < 10000)) {
-            // Find the OTHER user in the match to display their name
             const otherUserId = matchData.users.find(id => id !== user.uid);
-            // For now, we might not have the other user's name immediately available if not in stack
-            // We can use a generic message or try to find it in the stack/cache
-            // Simple version:
-            setMatchedUser({ name: "Alguien" }); // You might want to fetch the user details here
+            setMatchedUser({ name: "Alguien" });
             setShowMatchNotification(true);
             setTimeout(() => {
               setShowMatchNotification(false);
@@ -63,8 +56,15 @@ const Feed = () => {
     const currentUser = stack[0];
     if (!currentUser || !user) return;
 
+    console.log("💖 Like action:", {
+      fromUserId: user.uid,
+      toUserId: currentUser.id,
+      currentUserName: currentUser.name,
+      loggedInUserUid: user.uid,
+      areTheSame: user.uid === currentUser.id
+    });
+
     try {
-      // Optimistic update: remove user immediately
       popProfile();
       await saveLike(user.uid, currentUser.id);
     } catch (err) {
@@ -90,7 +90,6 @@ const Feed = () => {
   return (
     <BaseLayout showTabs={true} maxWidth="mobile" title="Descubre">
       <div className="feed-container">
-        {/* Match Notification */}
         {showMatchNotification && matchedUser && (
           <div className="match-notification">
             <div className="match-content">

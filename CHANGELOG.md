@@ -5,6 +5,25 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.9.0-beta] - 2025-11-24
+
+### 🎉 Añadido
+- **Chat UI Rediseñado**: Layout de pantalla completa, sin headers duplicados
+- **Navegación en Chat**: Avatares y nombres clickables que llevan al perfil
+- **MatchesList UI**: Diseño consistente con Chat, badges de mensajes no leídos
+- **Badges de Notificación**: Punto rojo para mensajes nuevos (sin números)
+- **Timestamps**: Formato relativo (Ahora, 5m, 2h) en lista de matches
+
+### 🐛 Corregido
+- **Feed Self-Profile**: Filtro crítico para evitar que el propio usuario aparezca en su feed
+- **Chat Layout**: Eliminado BaseLayout redundante en Chat
+- **Consola**: Limpieza de logs de debug en Chat y MatchesList
+- **Timestamps**: Corrección de formato de hora en mensajes individuales
+
+### 🔄 Cambiado
+- **AppRouter**: Wrapper `FeedWithProvider` para inyectar userId al contexto
+- **FeedContext**: Actualizado para recibir y usar userId en filtros
+
 ## [0.8.0-beta] - 2025-11-22
 
 ### 🎉 Añadido

@@ -58,12 +58,31 @@ service cloud.firestore {
       allow read: if isAuthenticated() 
                   && request.auth.uid in resource.data.users;
       
-      // Los matches solo pueden ser creados por el backend o por los usuarios involucrados
+      // Los matches pueden ser creados por el backend o por los usuarios involucrados
       allow create: if isAuthenticated()
                     && request.auth.uid in request.resource.data.users;
       
-      // Los matches no se pueden actualizar ni eliminar manualmente
-      allow update, delete: if false;
+      // Permitir actualizar lastMessage y lastMessageTime (para el backend)
+      allow update: if isAuthenticated()
+                    && request.auth.uid in resource.data.users;
+      
+      // Los matches no se pueden eliminar manualmente
+      allow delete: if false;
+      
+      // Subcolección de mensajes
+      match /messages/{messageId} {
+        // Solo los usuarios del match pueden leer los mensajes
+        allow read: if isAuthenticated()
+                    && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
+        
+        // Solo los usuarios del match pueden crear mensajes
+        allow create: if isAuthenticated()
+                      && request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users
+                      && request.auth.uid == request.resource.data.senderId;
+        
+        // No se pueden actualizar ni eliminar mensajes
+        allow update, delete: if false;
+      }
     }
   }
 }
