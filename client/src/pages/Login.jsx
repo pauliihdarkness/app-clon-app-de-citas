@@ -25,9 +25,19 @@ const Login = () => {
 
           if (userData) {
             // Validar campos requeridos
-            if (userData.name && userData.age && userData.gender && userData.birthdate && userData.CreationDate) {
+            // Se usa createdAt (nuevo) o CreationDate (legacy)
+            // No se chequea birthdate porque puede ser privado, pero se chequea age que se calcula si existe birthdate
+            const hasRequiredFields = userData.name &&
+              userData.age &&
+              userData.gender &&
+              userData.images && userData.images.length > 0 &&
+              userData.location && userData.location.city &&
+              (userData.createdAt || userData.CreationDate);
+
+            if (hasRequiredFields) {
               navigate("/feed");
             } else {
+              console.log("Perfil incompleto, redirigiendo a completar:", userData);
               navigate("/create-profile");
             }
           } else {
@@ -105,7 +115,7 @@ const Login = () => {
 
   return (
     <div style={{
-      minHeight: "100vh",
+      minHeight: "100dvh",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",

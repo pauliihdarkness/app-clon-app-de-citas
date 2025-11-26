@@ -1,5 +1,7 @@
 .public-profile-container {
     min-height: 100vh;
+    /* Fallback */
+    min-height: 100dvh;
     background: var(--background-color);
     color: var(--text-color);
     padding-bottom: 80px;

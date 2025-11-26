@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
             return res.json([]);
         }
 
-        const matches = matchesSnapshot.docs.map(doc => {
+        const matches = matchesSnapshot.docs.map((doc) => {
             const data = doc.data();
 
             console.log(`🔍 Processing match ${doc.id}:`, {
@@ -39,13 +39,18 @@ router.get("/", async (req, res) => {
 
             console.log(`   → otherUserId: ${otherUserId}`);
 
+            // Read cached unreadCount (no expensive query needed!)
+            const unreadCount = data.unreadCount?.[userId] || 0;
+
             return {
                 id: doc.id,
                 users: data.users || [],
                 otherUserId, // ID of the other person in the match
                 lastMessage: data.lastMessage || "",
                 lastMessageTime: data.lastMessageTime ? data.lastMessageTime.toDate().toISOString() : null,
-                createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null
+                createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
+                matchedAt: data.matchedAt ? data.matchedAt.toDate().toISOString() : null,
+                unreadCount // Cached value from match document
             };
         });
 
@@ -98,6 +103,32 @@ router.get("/:matchId/messages", async (req, res) => {
     } catch (error) {
         console.error("❌ Error fetching messages:", error);
         res.status(500).json({ error: "Failed to fetch messages" });
+    }
+});
+
+// POST /api/matches/:matchId/mark-read - Mark all messages as read for current user
+router.post("/:matchId/mark-read", async (req, res) => {
+    try {
+        const { matchId } = req.params;
+        const { userId } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({ error: "userId is required in request body" });
+        }
+
+        const matchRef = db.collection("matches").doc(matchId);
+
+        // Reset unreadCount for this user to 0
+        await matchRef.update({
+            [`unreadCount.${userId}`]: 0
+        });
+
+        console.log(`✅ Marked messages as read for user ${userId} in match ${matchId}`);
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error("❌ Error marking messages as read:", error);
+        res.status(500).json({ error: "Failed to mark messages as read" });
     }
 });
 

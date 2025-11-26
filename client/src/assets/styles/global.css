@@ -51,6 +51,8 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     min-height: 100vh;
+    /* Fallback */
+    min-height: 100dvh;
     overflow-x: hidden;
 }
 

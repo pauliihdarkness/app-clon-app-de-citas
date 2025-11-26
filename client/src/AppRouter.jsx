@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
@@ -14,6 +14,7 @@ import CreateProfile from "./pages/CreateProfile";
 import Settings from "./pages/Settings";
 import AccountInfo from "./pages/AccountInfo";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
+import SplashScreen from "./components/Layout/SplashScreen";
 import { FeedProvider } from "./context/FeedContext";
 import { useAuth } from "./context/AuthContext";
 
@@ -31,10 +32,16 @@ const FeedWithProvider = () => {
 };
 
 const AppRouter = () => {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+        return <SplashScreen />;
+    }
+
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={user ? <Navigate to="/feed" replace /> : <Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/feed" element={

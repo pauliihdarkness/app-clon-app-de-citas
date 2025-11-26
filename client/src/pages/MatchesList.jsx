@@ -8,7 +8,6 @@ const MatchesList = () => {
     const { user } = useAuth();
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,7 +15,7 @@ const MatchesList = () => {
             if (!user) return;
 
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/matches?userId=${user.uid}`);
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/matches?userId=${user.uid}`);
                 if (response.ok) {
                     const data = await response.json();
 
@@ -53,14 +52,24 @@ const MatchesList = () => {
         fetchMatches();
     }, [user]);
 
-    // Filter matches based on search query
-    const filteredMatches = matches.filter(match => {
-        if (!searchQuery.trim()) return true;
-        const query = searchQuery.toLowerCase();
-        const name = match.otherUser?.name?.toLowerCase() || "";
-        const lastMessage = match.lastMessage?.toLowerCase() || "";
-        return name.includes(query) || lastMessage.includes(query);
-    });
+    // Separar matches nuevos (sin mensajes) de conversaciones activas
+    const newMatches = matches
+        .filter(match => !match.lastMessageTime)
+        .sort((a, b) => {
+            // Ordenar por fecha de match (más reciente primero)
+            const timeA = a.matchedAt ? new Date(a.matchedAt).getTime() : 0;
+            const timeB = b.matchedAt ? new Date(b.matchedAt).getTime() : 0;
+            return timeB - timeA;
+        });
+
+    const activeChats = matches
+        .filter(match => match.lastMessageTime)
+        .sort((a, b) => {
+            // Ordenar por último mensaje (más reciente primero)
+            const timeA = new Date(a.lastMessageTime).getTime();
+            const timeB = new Date(b.lastMessageTime).getTime();
+            return timeB - timeA;
+        });
 
     const formatTime = (isoString) => {
         if (!isoString) return "";
@@ -81,7 +90,7 @@ const MatchesList = () => {
     if (loading) {
         return (
             <div style={{
-                height: "100vh",
+                height: "100dvh",
                 display: "flex",
                 flexDirection: "column",
                 background: "var(--bg-primary)"
@@ -129,7 +138,7 @@ const MatchesList = () => {
 
     return (
         <div style={{
-            height: "100vh",
+            height: "100dvh",
             display: "flex",
             flexDirection: "column",
             background: "var(--bg-primary)",
@@ -145,259 +154,273 @@ const MatchesList = () => {
             }}>
                 <h1 style={{
                     fontSize: "1.5rem",
-                    margin: "0 0 1rem 0",
+                    margin: 0,
                     background: "var(--primary-gradient)",
                     WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent"
+                    WebkitTextFillColor: "transparent",
+                    fontWeight: "700"
                 }}>
-                    💬 Mensajes
+                    Mensajes
                 </h1>
-
-                {/* Search Bar */}
-                <div style={{
-                    position: "relative",
-                    display: "flex",
-                    alignItems: "center"
-                }}>
-                    <span style={{
-                        position: "absolute",
-                        left: "1rem",
-                        fontSize: "1.2rem",
-                        opacity: 0.5,
-                        pointerEvents: "none"
-                    }}>🔍</span>
-                    <input
-                        type="text"
-                        placeholder="Buscar conversaciones..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        style={{
-                            width: "100%",
-                            padding: "0.75rem 3rem 0.75rem 3rem",
-                            borderRadius: "12px",
-                            border: "1px solid var(--glass-border)",
-                            background: "rgba(255, 255, 255, 0.05)",
-                            color: "white",
-                            fontSize: "1rem",
-                            outline: "none",
-                            transition: "all 0.2s ease"
-                        }}
-                        onFocus={(e) => {
-                            e.target.style.borderColor = "var(--primary-color)";
-                            e.target.style.background = "rgba(255, 255, 255, 0.08)";
-                        }}
-                        onBlur={(e) => {
-                            e.target.style.borderColor = "var(--glass-border)";
-                            e.target.style.background = "rgba(255, 255, 255, 0.05)";
-                        }}
-                    />
-                    {searchQuery && (
-                        <button
-                            onClick={() => setSearchQuery("")}
-                            style={{
-                                position: "absolute",
-                                right: "0.75rem",
-                                background: "rgba(255, 255, 255, 0.1)",
-                                border: "none",
-                                borderRadius: "50%",
-                                width: "24px",
-                                height: "24px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                color: "white",
-                                fontSize: "0.9rem",
-                                transition: "all 0.2s ease"
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
-                            }}
-                        >
-                            ✕
-                        </button>
-                    )}
-                </div>
             </div>
 
-            {/* Messages list */}
+            {/* Content */}
             <div style={{
                 flex: 1,
                 overflowY: "auto",
-                padding: "1rem"
+                overflowX: "hidden"
             }}>
-                {matches.length === 0 ? (
+                {/* New Matches - Instagram Stories Style */}
+                {newMatches.length > 0 && (
                     <div style={{
-                        textAlign: "center",
-                        padding: "3rem 1rem",
-                        background: "var(--glass-bg)",
-                        borderRadius: "16px",
-                        border: "1px solid var(--glass-border)"
+                        padding: "1rem 0",
+                        borderBottom: "1px solid var(--glass-border)",
+                        background: "var(--glass-bg)"
                     }}>
-                        <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>💬</p>
-                        <h2 style={{ marginBottom: "0.5rem" }}>No tienes conversaciones</h2>
-                        <p style={{ color: "var(--text-secondary)" }}>
-                            Cuando hagas match con alguien, aparecerá aquí
-                        </p>
-                    </div>
-                ) : filteredMatches.length === 0 ? (
-                    <div style={{
-                        textAlign: "center",
-                        padding: "3rem 1rem",
-                        background: "var(--glass-bg)",
-                        borderRadius: "16px",
-                        border: "1px solid var(--glass-border)"
-                    }}>
-                        <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔍</p>
-                        <h2 style={{ marginBottom: "0.5rem" }}>Sin resultados</h2>
-                        <p style={{ color: "var(--text-secondary)" }}>
-                            No se encontraron conversaciones con "{searchQuery}"
-                        </p>
-                    </div>
-                ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        {filteredMatches.map((match, index) => {
-                            const otherUser = match.otherUser;
-                            const displayName = otherUser?.name || "Usuario";
-                            const displayImage = otherUser?.images?.[0] || null;
-                            const hasUnread = match.unreadCount > 0; // Asumiendo que el backend provee esto
-
-                            return (
+                        <div style={{
+                            display: "flex",
+                            gap: "1rem",
+                            overflowX: "auto",
+                            padding: "0 1rem",
+                            scrollbarWidth: "none",
+                            msOverflowStyle: "none"
+                        }} className="hide-scrollbar">
+                            {newMatches.map((match) => (
                                 <div
                                     key={match.id}
                                     onClick={() => navigate(`/chat/${match.id}`)}
                                     style={{
-                                        background: "var(--glass-bg)",
-                                        borderRadius: "16px",
-                                        border: "1px solid var(--glass-border)",
-                                        padding: "1rem",
-                                        cursor: "pointer",
-                                        transition: "all 0.3s ease",
                                         display: "flex",
+                                        flexDirection: "column",
                                         alignItems: "center",
-                                        gap: "1rem",
-                                        animation: `slideIn 0.3s ease ${index * 0.05}s both`,
-                                        position: "relative"
+                                        gap: "0.5rem",
+                                        cursor: "pointer",
+                                        minWidth: "70px",
+                                        transition: "transform 0.2s"
                                     }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = "translateY(-2px)";
-                                        e.currentTarget.style.borderColor = "var(--primary-color)";
-                                        e.currentTarget.style.boxShadow = "0 8px 24px rgba(254, 60, 114, 0.2)";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = "translateY(0)";
-                                        e.currentTarget.style.borderColor = "var(--glass-border)";
-                                        e.currentTarget.style.boxShadow = "none";
-                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
                                 >
-                                    {/* Avatar with gradient border */}
-                                    <div style={{ position: "relative" }}>
+                                    <div style={{
+                                        width: "70px",
+                                        height: "70px",
+                                        borderRadius: "50%",
+                                        background: "linear-gradient(45deg, var(--primary-color), var(--secondary-color))",
+                                        padding: "3px",
+                                        position: "relative"
+                                    }}>
                                         <div style={{
-                                            width: "64px",
-                                            height: "64px",
+                                            width: "100%",
+                                            height: "100%",
                                             borderRadius: "50%",
-                                            background: "var(--primary-gradient)",
-                                            padding: "3px",
-                                            flexShrink: 0
+                                            overflow: "hidden",
+                                            border: "3px solid var(--bg-primary)"
                                         }}>
-                                            <div style={{
-                                                width: "100%",
-                                                height: "100%",
-                                                borderRadius: "50%",
-                                                background: displayImage ? `url(${displayImage})` : "var(--primary-gradient)",
-                                                backgroundSize: "cover",
-                                                backgroundPosition: "center",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                fontSize: "1.5rem"
-                                            }}>
-                                                {!displayImage && "👤"}
-                                            </div>
+                                            <img
+                                                src={match.otherUser?.images?.[0] || "https://via.placeholder.com/70"}
+                                                alt={match.otherUser?.name || "Usuario"}
+                                                style={{
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    objectFit: "cover"
+                                                }}
+                                            />
                                         </div>
-                                        {/* Unread indicator - red dot */}
-                                        {hasUnread && (
+                                        {/* Unread Badge - Red Dot */}
+                                        {match.unreadCount > 0 && (
                                             <div style={{
                                                 position: "absolute",
-                                                top: "0",
-                                                right: "0",
+                                                top: "-2px",
+                                                right: "-2px",
+                                                background: "#ef4444",
+                                                borderRadius: "50%",
                                                 width: "16px",
                                                 height: "16px",
-                                                borderRadius: "50%",
-                                                background: "#EF4444",
-                                                border: "3px solid var(--bg-primary)",
+                                                border: "2px solid var(--bg-primary)",
                                                 boxShadow: "0 0 8px rgba(239, 68, 68, 0.6)"
                                             }}></div>
                                         )}
-                                    </div>
-
-                                    {/* Content */}
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.25rem" }}>
-                                            <h3 style={{
-                                                margin: 0,
-                                                fontSize: "1.15rem",
-                                                fontWeight: hasUnread ? "700" : "600",
-                                                color: "white"
-                                            }}>
-                                                {displayName}
-                                            </h3>
-                                            {match.lastMessageTime && (
-                                                <span style={{
-                                                    fontSize: "0.85rem",
-                                                    color: hasUnread ? "var(--primary-color)" : "var(--text-secondary)",
-                                                    flexShrink: 0,
-                                                    marginLeft: "0.5rem",
-                                                    fontWeight: hasUnread ? "600" : "500"
-                                                }}>
-                                                    {formatTime(match.lastMessageTime)}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p style={{
-                                            margin: 0,
-                                            color: hasUnread ? "white" : "var(--text-secondary)",
-                                            fontSize: "0.95rem",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            whiteSpace: "nowrap",
-                                            fontWeight: hasUnread ? "500" : "400"
+                                        {/* New Match Badge */}
+                                        <div style={{
+                                            position: "absolute",
+                                            bottom: "0",
+                                            right: "0",
+                                            background: "linear-gradient(135deg, #FF6B9D, #C471ED)",
+                                            borderRadius: "50%",
+                                            width: "24px",
+                                            height: "24px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            border: "2px solid var(--bg-primary)",
+                                            fontSize: "0.7rem"
                                         }}>
-                                            {match.lastMessage || "Inicia la conversación 💬"}
-                                        </p>
+                                            ✨
+                                        </div>
                                     </div>
-
-                                    {/* Chevron icon */}
-                                    <div style={{
-                                        color: "var(--text-secondary)",
-                                        fontSize: "1.2rem",
-                                        transition: "transform 0.2s ease"
+                                    <span style={{
+                                        fontSize: "0.75rem",
+                                        color: "white",
+                                        fontWeight: "500",
+                                        maxWidth: "70px",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                        textAlign: "center"
                                     }}>
-                                        ›
-                                    </div>
+                                        {match.otherUser?.name || "Usuario"}
+                                    </span>
                                 </div>
-                            );
-                        })}
+                            ))}
+                        </div>
                     </div>
                 )}
+
+                {/* Active Conversations */}
+                {activeChats.length > 0 ? (
+                    <div>
+                        {activeChats.map((match) => (
+                            <div
+                                key={match.id}
+                                onClick={() => navigate(`/chat/${match.id}`)}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "1rem",
+                                    padding: "1rem",
+                                    cursor: "pointer",
+                                    borderBottom: "1px solid var(--glass-border)",
+                                    transition: "background 0.2s",
+                                    background: match.unreadCount > 0 ? "rgba(254, 60, 114, 0.05)" : "transparent"
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = "var(--glass-bg)"}
+                                onMouseLeave={(e) => e.currentTarget.style.background = match.unreadCount > 0 ? "rgba(254, 60, 114, 0.05)" : "transparent"}
+                            >
+                                {/* Avatar */}
+                                <div style={{
+                                    position: "relative",
+                                    flexShrink: 0
+                                }}>
+                                    <div style={{
+                                        width: "60px",
+                                        height: "60px",
+                                        borderRadius: "50%",
+                                        overflow: "hidden",
+                                        border: "2px solid var(--glass-border)"
+                                    }}>
+                                        <img
+                                            src={match.otherUser?.images?.[0] || "https://via.placeholder.com/60"}
+                                            alt={match.otherUser?.name || "Usuario"}
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                objectFit: "cover"
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Content */}
+                                <div style={{
+                                    flex: 1,
+                                    minWidth: 0,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "0.25rem"
+                                }}>
+                                    <div style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        gap: "0.5rem"
+                                    }}>
+                                        <span style={{
+                                            fontSize: "1rem",
+                                            fontWeight: match.unreadCount > 0 ? "700" : "600",
+                                            color: "white",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap"
+                                        }}>
+                                            {match.otherUser?.name || "Usuario"}
+                                        </span>
+                                        <div style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.5rem",
+                                            flexShrink: 0
+                                        }}>
+                                            <span style={{
+                                                fontSize: "0.75rem",
+                                                color: "var(--text-secondary)"
+                                            }}>
+                                                {formatTime(match.lastMessageTime)}
+                                            </span>
+                                            {match.unreadCount > 0 && (
+                                                <div style={{
+                                                    background: "#ef4444",
+                                                    borderRadius: "50%",
+                                                    width: "10px",
+                                                    height: "10px",
+                                                    flexShrink: 0
+                                                }}></div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <p style={{
+                                        margin: 0,
+                                        fontSize: "0.875rem",
+                                        color: match.unreadCount > 0 ? "white" : "var(--text-secondary)",
+                                        fontWeight: match.unreadCount > 0 ? "500" : "400",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap"
+                                    }}>
+                                        {match.lastMessage || "Inicia una conversación"}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : newMatches.length === 0 ? (
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "3rem 2rem",
+                        textAlign: "center",
+                        gap: "1rem"
+                    }}>
+                        <div style={{
+                            fontSize: "4rem",
+                            opacity: 0.5
+                        }}>💬</div>
+                        <h3 style={{
+                            fontSize: "1.25rem",
+                            fontWeight: "600",
+                            color: "white",
+                            margin: 0
+                        }}>
+                            No tienes conversaciones
+                        </h3>
+                        <p style={{
+                            fontSize: "0.9rem",
+                            color: "var(--text-secondary)",
+                            margin: 0,
+                            maxWidth: "300px"
+                        }}>
+                            Cuando hagas match con alguien, podrás empezar a chatear aquí
+                        </p>
+                    </div>
+                ) : null}
             </div>
 
-            {/* Tab Navigation */}
             <TabNavigation />
 
             <style>{`
-                @keyframes slideIn {
-                    from {
-                        opacity: 0;
-                        transform: translateY(10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
                 }
             `}</style>
         </div>

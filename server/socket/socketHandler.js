@@ -30,20 +30,33 @@ export const setupSocket = (server, allowedOrigins) => {
             try {
                 // Assuming roomId is the matchId
                 const matchRef = db.collection("matches").doc(roomId);
+
+                // Get match data to find the recipient
+                const matchDoc = await matchRef.get();
+                const matchData = matchDoc.data();
+                const recipientId = matchData?.users?.find(id => id !== author);
+
                 const messagesRef = matchRef.collection("messages");
 
                 await messagesRef.add({
                     senderId: author, // data.author should be the userId
                     text: message,
                     timestamp: admin.firestore.FieldValue.serverTimestamp(),
-                    // You might want to add more fields here like 'read' status
+                    read: false // New messages start as unread
                 });
 
-                // Update last message in the match document
-                await matchRef.update({
+                // Update last message and increment unreadCount for recipient
+                const updateData = {
                     lastMessage: message,
                     lastMessageTime: admin.firestore.FieldValue.serverTimestamp(),
-                });
+                };
+
+                // Increment unreadCount for the recipient
+                if (recipientId) {
+                    updateData[`unreadCount.${recipientId}`] = admin.firestore.FieldValue.increment(1);
+                }
+
+                await matchRef.update(updateData);
 
                 console.log(`✅ Message saved to Firestore for room ${roomId}`);
 

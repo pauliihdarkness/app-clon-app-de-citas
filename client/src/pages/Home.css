@@ -1,5 +1,7 @@
 .home-container {
     min-height: 100vh;
+    /* Fallback */
+    min-height: 100dvh;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     overflow-x: hidden;
 }
@@ -7,6 +9,8 @@
 /* Hero Section */
 .hero-section {
     min-height: 100vh;
+    /* Fallback */
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
