@@ -1,8 +1,10 @@
 .feed-container {
-    padding: 1rem;
-    height: calc(100vh - 80px);
+    padding: 0;
+    height: calc(100vh - 60px - 70px); /* altura total - header - tabnav */
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
 
 .feed-content {
@@ -11,6 +13,9 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 .feed-error {

@@ -22,14 +22,14 @@
 | 👤 Perfiles | 90% | ✅ Funcional |
 | 🔥 Feed | 95% | ✅ Optimizado |
 | ❤️ Likes/Matches | 90% | ✅ Funcional |
-| 💬 Chat | 0% | ⏳ Pendiente |
+| 💬 Chat | 90% | ✅ Funcional |
 | 🔔 Notificaciones | 0% | ⏳ Pendiente |
 | 🎨 UI/UX | 80% | ✅ Funcional |
 | 🖥️ Backend | 70% | ✅ Funcional |
 | 🔒 Seguridad | 85% | ✅ Funcional |
 | 📚 Documentación | 95% | ✅ Completa |
 
-**Progreso Total:** 75% completado
+**Progreso Total:** 85% completado
 
 ---
 
@@ -41,6 +41,7 @@
 - ✅ **Prefetch Inteligente**: Carga anticipada cuando quedan < 5 perfiles
 - ✅ **Queries Optimizadas**: Uso de `getDocs` con paginación (`startAfter`)
 - ✅ **Reducción de Lecturas**: ~70% menos lecturas de Firestore vs versión anterior
+- ✅ **Filtrado de Interacciones**: Exclusión automática de usuarios con Like/Pass previo
 
 ### 🖥️ Backend Node.js (NUEVO)
 - ✅ **Worker de Matches**: Detección automática de matches en tiempo real
@@ -59,7 +60,7 @@
 - ✅ **Arquitectura.md**: Diagramas y flujos actualizados con backend
 - ✅ **Backend-Config.md**: Guía de configuración del servidor
 - ✅ **FIREBASE_SETUP.md**: Pasos de despliegue de Firebase
-- ✅ **Requisitos.md**: Checklist actualizado (75% completado)
+- ✅ **Requisitos.md**: Checklist actualizado (85% completado)
 
 ---
 
@@ -86,7 +87,7 @@
 
 ## 🎯 Funcionalidades Implementadas
 
-### ✅ Completadas (75%)
+### ✅ Completadas (85%)
 
 #### Autenticación (85%)
 - ✅ Registro con Email/Password
@@ -106,7 +107,7 @@
 - ✅ Información básica, bio, intereses
 - ✅ Lifestyle, trabajo, intenciones
 
-#### Feed (95%)
+#### Feed (100%)
 - ✅ Visualización de perfiles con tarjetas
 - ✅ Batch loading optimizado
 - ✅ Caché local persistente
@@ -122,6 +123,14 @@
 - ✅ Notificación en tiempo real
 - ✅ Overlay animado de match
 - ✅ Colecciones optimizadas
+
+#### Chat (90%)
+- ✅ Chat individual en tiempo real (Socket.io)
+- ✅ Historial de mensajes
+- ✅ Indicador de estado online
+- ✅ Envío de mensajes de texto
+- ⏳ Envío de imágenes (pendiente)
+- ⏳ Notificaciones push (pendiente)
 
 #### Backend (70%)
 - ✅ Servidor Express
@@ -142,9 +151,8 @@
 - ⏳ PWA (pendiente)
 
 ### ⏳ En Desarrollo (0%)
-- ⏳ Chat en tiempo real
 - ⏳ Notificaciones push (FCM)
-- ⏳ Página de Matches
+- ⏳ Página de Matches (Mejoras UI)
 
 ### 📋 Planificadas (Futuro)
 - Filtros de búsqueda avanzados

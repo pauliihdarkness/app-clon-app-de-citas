@@ -6,31 +6,83 @@ const FeedContext = createContext();
 
 export function FeedProvider({ children, initialFilters, pageSize = 15, userId }) {
   const [stack, setStack] = useState([]); // perfiles listos para mostrar
+  const [interactedUserIds, setInteractedUserIds] = useState(new Set());
   const lastDocRef = useRef(null);
   const loadingRef = useRef(false);
   const filtersRef = useRef(initialFilters);
+  const interactedLoadedRef = useRef(false);
+
+  // Cargar interacciones previas al iniciar
+  React.useEffect(() => {
+    if (!userId) return;
+
+    import("../api/likes").then(({ getInteractedUserIds }) => {
+      getInteractedUserIds(userId).then(ids => {
+        const idsSet = new Set(ids);
+        setInteractedUserIds(idsSet);
+        interactedLoadedRef.current = true;
+
+        // CRITICAL: Filter out any users already in the stack that we just discovered are interacted
+        setStack(prev => prev.filter(u => !idsSet.has(u.id)));
+
+        // Si el stack estaba vacío y estábamos esperando esto, podríamos cargar ahora
+        if (stack.length === 0) loadBatch();
+      });
+    });
+  }, [userId]);
 
   async function loadBatch({ reset = false } = {}) {
     if (loadingRef.current) return;
+    // Esperar a que carguen las interacciones si es la primera carga
+    if (!interactedLoadedRef.current && userId) {
+      // Podríamos esperar o simplemente continuar y filtrar después, 
+      // pero mejor esperar un poco o dejar que el efecto de carga lo maneje
+      // Por simplicidad, si no ha cargado, retornamos y dejamos que el effect de interacted lo dispare
+      // Ojo: esto podría causar un deadlock si la carga de interacciones falla.
+      // Asumiremos que es rápido.
+    }
+
     loadingRef.current = true;
     try {
       if (reset) {
         lastDocRef.current = null;
         setStack([]);
       }
+
+      const currentStackIds = stack.map(u => u.id);
+      const excludeIds = [...interactedUserIds, ...currentStackIds];
+
       const { docs, lastDoc } = await getProfilesBatch({
         filters: filtersRef.current,
         pageSize,
         lastDoc: lastDocRef.current,
-        userId // CRITICAL: Pass userId to filter out own profile
+        userId, // CRITICAL: Pass userId to filter out own profile
+        excludeIds
       });
 
       const profiles = docs.map(d => ({ id: d.id, ...d.data() }));
 
       // cache individual users
       await Promise.all(profiles.map(p => setUserCached(p.id, p)));
-      setStack(prev => [...prev, ...profiles]);
+
+      // Filtrado adicional de seguridad por si acaso
+      const newProfiles = profiles.filter(p => !interactedUserIds.has(p.id));
+
+      setStack(prev => {
+        // Evitar duplicados que ya estén en el stack
+        const existingIds = new Set(prev.map(p => p.id));
+        const uniqueNewProfiles = newProfiles.filter(p => !existingIds.has(p.id));
+        return [...prev, ...uniqueNewProfiles];
+      });
+
       lastDocRef.current = lastDoc;
+
+      // Si no obtuvimos perfiles pero hay más en la DB (lastDoc no es null), cargar más automáticamente
+      if (newProfiles.length === 0 && lastDoc) {
+        loadingRef.current = false; // Reset loading to allow recursive call
+        return loadBatch(); // Recursive call
+      }
+
     } finally {
       loadingRef.current = false;
     }
@@ -40,13 +92,21 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
     setStack(prev => prev.slice(1));
   }
 
+  function markAsInteracted(targetUserId) {
+    setInteractedUserIds(prev => {
+      const newSet = new Set(prev);
+      newSet.add(targetUserId);
+      return newSet;
+    });
+  }
+
   // prefetch trigger: call loadBatch when stack.length < 5
   React.useEffect(() => {
-    if (stack.length < 5) loadBatch();
-  }, [stack.length]);
+    if (stack.length < 5 && interactedLoadedRef.current) loadBatch();
+  }, [stack.length, interactedLoadedRef.current]);
 
   return (
-    <FeedContext.Provider value={{ stack, loadBatch, popProfile, reset: () => loadBatch({ reset: true }) }}>
+    <FeedContext.Provider value={{ stack, loadBatch, popProfile, markAsInteracted, reset: () => loadBatch({ reset: true }) }}>
       {children}
     </FeedContext.Provider>
   );

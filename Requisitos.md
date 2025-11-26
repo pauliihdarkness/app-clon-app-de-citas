@@ -153,11 +153,11 @@
 ## 🔔 Notificaciones
 
 - [ ] Notificaciones push
-- [ ] Notificación de nuevo match
+- [x] Notificación de nuevo match
 - [ ] Notificación de nuevo mensaje
 - [ ] Notificación de nuevo like
 - [ ] Configuración de preferencias de notificaciones
-- [ ] Notificaciones en la app
+- [x] Notificaciones en la app
 - [ ] Badge de contador en tabs
 
 ---
@@ -319,5 +319,6 @@
 - Configuración básica
 - Firebase configurado y desplegado
 - Documentación completa actualizada
+
 
 **Última actualización**: 24 de noviembre de 2025

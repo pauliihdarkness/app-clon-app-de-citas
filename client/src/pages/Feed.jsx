@@ -10,7 +10,7 @@ import "./Feed.css";
 
 const Feed = () => {
   const { user } = useAuth();
-  const { stack, loadBatch, popProfile } = useFeed();
+  const { stack, loadBatch, popProfile, markAsInteracted } = useFeed();
   const [showMatchNotification, setShowMatchNotification] = useState(false);
   const [matchedUser, setMatchedUser] = useState(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -56,15 +56,8 @@ const Feed = () => {
     const currentUser = stack[0];
     if (!currentUser || !user) return;
 
-    console.log("💖 Like action:", {
-      fromUserId: user.uid,
-      toUserId: currentUser.id,
-      currentUserName: currentUser.name,
-      loggedInUserUid: user.uid,
-      areTheSame: user.uid === currentUser.id
-    });
-
     try {
+      if (markAsInteracted) markAsInteracted(currentUser.id);
       popProfile();
       await saveLike(user.uid, currentUser.id);
     } catch (err) {
@@ -77,6 +70,7 @@ const Feed = () => {
     if (!currentUser || !user) return;
 
     try {
+      if (markAsInteracted) markAsInteracted(currentUser.id);
       popProfile();
       await savePass(user.uid, currentUser.id);
     } catch (err) {
@@ -88,7 +82,7 @@ const Feed = () => {
   const isFinished = !isInitialLoading && stack.length === 0;
 
   return (
-    <BaseLayout showTabs={true} maxWidth="mobile" title="Descubre">
+    <BaseLayout showTabs={true} maxWidth="full" title="Descubre">
       <div className="feed-container">
         {showMatchNotification && matchedUser && (
           <div className="match-notification">

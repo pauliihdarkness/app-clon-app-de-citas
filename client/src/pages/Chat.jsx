@@ -123,7 +123,7 @@ const Chat = () => {
 
   const handleProfileClick = () => {
     if (otherUser?.uid) {
-      navigate(`/profile/${otherUser.uid}`);
+      navigate(`/user/${otherUser.uid}`);
     }
   };
 

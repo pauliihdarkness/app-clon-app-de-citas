@@ -88,10 +88,12 @@
   flex: 1;
   padding: 1rem 0;
   width: 100%;
+  overflow: hidden;
 }
 
+
 .app-main.has-tabs {
-  padding-bottom: 90px; /* Espacio para la TabBar */
+  padding-bottom: 0; /* No padding cuando hay tabs para feed fullscreen */
 }
 
 /* Container Constraints */
@@ -99,6 +101,12 @@
   width: 100%;
   margin: 0 auto;
   padding: 0 1rem;
+  height: 100%;
+}
+
+.container--full {
+  padding: 0;
+  height: 100%;
 }
 
 .container--mobile {

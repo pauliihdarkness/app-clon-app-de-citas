@@ -31,6 +31,9 @@ export async function getProfilesBatch({ filters, pageSize = 15, lastDoc = null,
     return true;
   });
 
-  return { docs: filteredDocs, lastDoc: filteredDocs[filteredDocs.length - 1] || null };
-}
+  // CRITICAL FIX: lastDoc must be the last document of the FETCHED batch, 
+  // not the filtered batch, to ensure pagination continues correctly.
+  const lastVisible = snap.docs[snap.docs.length - 1];
 
+  return { docs: filteredDocs, lastDoc: lastVisible || null };
+}

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
+import PublicProfile from "./pages/PublicProfile";
 import EditProfile from "./pages/EditProfile";
 import Chat from "./pages/Chat";
 import MatchesList from "./pages/MatchesList";
@@ -46,9 +47,9 @@ const AppRouter = () => {
                         <Profile />
                     </ProtectedRoute>
                 } />
-                <Route path="/profile/:userId" element={
+                <Route path="/user/:userId" element={
                     <ProtectedRoute>
-                        <Profile />
+                        <PublicProfile />
                     </ProtectedRoute>
                 } />
                 <Route path="/profile/edit" element={

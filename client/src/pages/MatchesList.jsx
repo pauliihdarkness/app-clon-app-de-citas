@@ -8,6 +8,7 @@ const MatchesList = () => {
     const { user } = useAuth();
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -51,6 +52,15 @@ const MatchesList = () => {
 
         fetchMatches();
     }, [user]);
+
+    // Filter matches based on search query
+    const filteredMatches = matches.filter(match => {
+        if (!searchQuery.trim()) return true;
+        const query = searchQuery.toLowerCase();
+        const name = match.otherUser?.name?.toLowerCase() || "";
+        const lastMessage = match.lastMessage?.toLowerCase() || "";
+        return name.includes(query) || lastMessage.includes(query);
+    });
 
     const formatTime = (isoString) => {
         if (!isoString) return "";
@@ -135,13 +145,82 @@ const MatchesList = () => {
             }}>
                 <h1 style={{
                     fontSize: "1.5rem",
-                    margin: 0,
+                    margin: "0 0 1rem 0",
                     background: "var(--primary-gradient)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent"
                 }}>
                     💬 Mensajes
                 </h1>
+
+                {/* Search Bar */}
+                <div style={{
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center"
+                }}>
+                    <span style={{
+                        position: "absolute",
+                        left: "1rem",
+                        fontSize: "1.2rem",
+                        opacity: 0.5,
+                        pointerEvents: "none"
+                    }}>🔍</span>
+                    <input
+                        type="text"
+                        placeholder="Buscar conversaciones..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            width: "100%",
+                            padding: "0.75rem 3rem 0.75rem 3rem",
+                            borderRadius: "12px",
+                            border: "1px solid var(--glass-border)",
+                            background: "rgba(255, 255, 255, 0.05)",
+                            color: "white",
+                            fontSize: "1rem",
+                            outline: "none",
+                            transition: "all 0.2s ease"
+                        }}
+                        onFocus={(e) => {
+                            e.target.style.borderColor = "var(--primary-color)";
+                            e.target.style.background = "rgba(255, 255, 255, 0.08)";
+                        }}
+                        onBlur={(e) => {
+                            e.target.style.borderColor = "var(--glass-border)";
+                            e.target.style.background = "rgba(255, 255, 255, 0.05)";
+                        }}
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery("")}
+                            style={{
+                                position: "absolute",
+                                right: "0.75rem",
+                                background: "rgba(255, 255, 255, 0.1)",
+                                border: "none",
+                                borderRadius: "50%",
+                                width: "24px",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                                color: "white",
+                                fontSize: "0.9rem",
+                                transition: "all 0.2s ease"
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                            }}
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Messages list */}
@@ -164,9 +243,23 @@ const MatchesList = () => {
                             Cuando hagas match con alguien, aparecerá aquí
                         </p>
                     </div>
+                ) : filteredMatches.length === 0 ? (
+                    <div style={{
+                        textAlign: "center",
+                        padding: "3rem 1rem",
+                        background: "var(--glass-bg)",
+                        borderRadius: "16px",
+                        border: "1px solid var(--glass-border)"
+                    }}>
+                        <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔍</p>
+                        <h2 style={{ marginBottom: "0.5rem" }}>Sin resultados</h2>
+                        <p style={{ color: "var(--text-secondary)" }}>
+                            No se encontraron conversaciones con "{searchQuery}"
+                        </p>
+                    </div>
                 ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        {matches.map((match, index) => {
+                        {filteredMatches.map((match, index) => {
                             const otherUser = match.otherUser;
                             const displayName = otherUser?.name || "Usuario";
                             const displayImage = otherUser?.images?.[0] || null;
