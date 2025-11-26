@@ -18,6 +18,74 @@ const Chat = () => {
   // Auto-scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (!matchId) return;
+
+    const fetchChatData = async () => {
+      try {
+        // Fetch match data to get other user info
+        const matchResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/matches?userId=${user.uid}`);
+        if (matchResponse.ok) {
+          const matches = await matchResponse.json();
+          const currentMatch = matches.find(m => m.id === matchId);
+
+          if (currentMatch?.otherUserId) {
+            const otherUserProfile = await getUserProfile(currentMatch.otherUserId);
+            setOtherUser(otherUserProfile);
+          }
+        }
+
+        // Fetch historical messages (limit 50)
+        const messagesResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/matches/${matchId}/messages?limit=50`);
+        if (messagesResponse.ok) {
+          const data = await messagesResponse.json();
+          setMessages(data);
+        }
+
+        // Mark messages as read
+        await fetch(`${import.meta.env.VITE_API_URL}/api/matches/${matchId}/mark-read`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.uid })
+        });
+
+      } catch (error) {
+        console.error("Failed to fetch chat data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChatData();
+
+    // Connect to socket
+    socketService.connect();
+    setIsConnected(true);
+
+    // Join room
+    socketService.joinRoom(matchId);
+
+    // Listen for messages
+    socketService.onMessage((data) => {
+      setMessages((prev) => [...prev, data]);
+    });
+
+    return () => {
+      socketService.disconnect();
+      socketService.offMessage();
+      setIsConnected(false);
+    };
+  }, [matchId, user]);
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+
     if (!user) {
       console.error("❌ Cannot send message: User not authenticated");
       alert("Debes iniciar sesión para enviar mensajes");
