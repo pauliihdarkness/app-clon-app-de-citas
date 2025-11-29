@@ -1,64 +1,104 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getUserProfile } from "../api/user";
+import { useUserProfiles } from "../context/UserProfilesContext";
+import { useToast } from "../hooks/useToast";
 import TabNavigation from "../components/Navigation/TabNavigation";
+import { db } from "../api/firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 
 const MatchesList = () => {
     const { user } = useAuth();
+    const { getProfile } = useUserProfiles();
+    const { showToast } = useToast();
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const prevUnreadCounts = React.useRef({});
+    const isFirstLoad = React.useRef(true);
 
+    // Real-time matches updates using Firestore onSnapshot
     useEffect(() => {
-        const fetchMatches = async () => {
-            if (!user) return;
+        if (!user) return;
 
-            try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/matches?userId=${user.uid}`);
-                if (response.ok) {
-                    const data = await response.json();
+        // Listen to all matches where the user is a participant
+        const matchesRef = collection(db, "matches");
+        const q = query(matchesRef, where("users", "array-contains", user.uid));
 
-                    // Filter out matches without otherUserId
-                    const validMatches = data.filter(match => match.otherUserId);
+        const unsubscribe = onSnapshot(q, async (snapshot) => {
+            const updatedMatches = [];
 
-                    // Fetch profile info for each match's other user
-                    const matchesWithProfiles = await Promise.all(
-                        validMatches.map(async (match) => {
-                            try {
-                                const otherUserProfile = await getUserProfile(match.otherUserId);
-                                return {
-                                    ...match,
-                                    otherUser: otherUserProfile
-                                };
-                            } catch (error) {
-                                return {
-                                    ...match,
-                                    otherUser: null
-                                };
-                            }
-                        })
-                    );
+            for (const doc of snapshot.docs) {
+                const matchData = doc.data();
+                const matchId = doc.id;
 
-                    setMatches(matchesWithProfiles);
+                // Find the other user ID
+                const otherUserId = matchData.users?.find(id => id !== user.uid);
+                const currentUnreadCount = matchData.unreadCount?.[user.uid] || 0;
+
+                // Check for new messages to show toast
+                if (!isFirstLoad.current && otherUserId) {
+                    const prevCount = prevUnreadCounts.current[matchId] || 0;
+                    if (currentUnreadCount > prevCount) {
+                        // We need the user name for the toast, which we might not have yet if it's a new match
+                        // But usually we fetch it below. For immediate toast, we might need to rely on what we have or fetch it.
+                        // Since we fetch profiles inside this loop, let's use the fetched profile if available, 
+                        // or try to get it from existing matches state if it was already there.
+                    }
                 }
-            } catch (error) {
-                // Silently handle error
-            } finally {
-                setLoading(false);
-            }
-        };
 
-        fetchMatches();
+                if (otherUserId) {
+                    // Use cached profile (significant performance improvement)
+                    const otherUserProfile = await getProfile(otherUserId);
+
+                    // Toast logic here where we have the name
+                    if (!isFirstLoad.current && otherUserProfile) {
+                        const prevCount = prevUnreadCounts.current[matchId] || 0;
+                        if (currentUnreadCount > prevCount) {
+                            showToast(`Tienes un mensaje nuevo de ${otherUserProfile.name}`, 'message');
+                        }
+                    }
+
+                    updatedMatches.push({
+                        id: matchId,
+                        ...matchData,
+                        otherUserId,
+                        otherUser: otherUserProfile,
+                        unreadCount: currentUnreadCount
+                    });
+                }
+
+                // Update ref for next time
+                prevUnreadCounts.current[matchId] = currentUnreadCount;
+            }
+
+            setMatches(updatedMatches);
+            setLoading(false);
+            isFirstLoad.current = false;
+        });
+
+        // Cleanup on unmount
+        return () => unsubscribe();
     }, [user]);
+
+    // Helper to safely convert Firestore Timestamp or string to Date object
+    const getDateObject = (timestamp) => {
+        if (!timestamp) return null;
+        if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+            return timestamp.toDate();
+        }
+        return new Date(timestamp);
+    };
 
     // Separar matches nuevos (sin mensajes) de conversaciones activas
     const newMatches = matches
         .filter(match => !match.lastMessageTime)
         .sort((a, b) => {
             // Ordenar por fecha de match (más reciente primero)
-            const timeA = a.matchedAt ? new Date(a.matchedAt).getTime() : 0;
-            const timeB = b.matchedAt ? new Date(b.matchedAt).getTime() : 0;
+            const dateA = getDateObject(a.matchedAt);
+            const dateB = getDateObject(b.matchedAt);
+            const timeA = dateA ? dateA.getTime() : 0;
+            const timeB = dateB ? dateB.getTime() : 0;
             return timeB - timeA;
         });
 
@@ -66,14 +106,17 @@ const MatchesList = () => {
         .filter(match => match.lastMessageTime)
         .sort((a, b) => {
             // Ordenar por último mensaje (más reciente primero)
-            const timeA = new Date(a.lastMessageTime).getTime();
-            const timeB = new Date(b.lastMessageTime).getTime();
+            const dateA = getDateObject(a.lastMessageTime);
+            const dateB = getDateObject(b.lastMessageTime);
+            const timeA = dateA ? dateA.getTime() : 0;
+            const timeB = dateB ? dateB.getTime() : 0;
             return timeB - timeA;
         });
 
-    const formatTime = (isoString) => {
-        if (!isoString) return "";
-        const date = new Date(isoString);
+    const formatTime = (timestamp) => {
+        const date = getDateObject(timestamp);
+        if (!date) return "";
+
         const now = new Date();
         const diffMs = now - date;
         const diffMins = Math.floor(diffMs / 60000);
@@ -90,6 +133,7 @@ const MatchesList = () => {
     if (loading) {
         return (
             <div style={{
+                maxWidth: "600px",
                 height: "100dvh",
                 display: "flex",
                 flexDirection: "column",
@@ -138,6 +182,8 @@ const MatchesList = () => {
 
     return (
         <div style={{
+            margin: "0 auto",
+            maxWidth: "600px",
             height: "100dvh",
             display: "flex",
             flexDirection: "column",
@@ -219,6 +265,7 @@ const MatchesList = () => {
                                             <img
                                                 src={match.otherUser?.images?.[0] || "https://via.placeholder.com/70"}
                                                 alt={match.otherUser?.name || "Usuario"}
+                                                loading="lazy"
                                                 style={{
                                                     width: "100%",
                                                     height: "100%",
@@ -311,6 +358,7 @@ const MatchesList = () => {
                                         <img
                                             src={match.otherUser?.images?.[0] || "https://via.placeholder.com/60"}
                                             alt={match.otherUser?.name || "Usuario"}
+                                            loading="lazy"
                                             style={{
                                                 width: "100%",
                                                 height: "100%",

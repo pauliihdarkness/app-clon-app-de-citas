@@ -25,7 +25,7 @@ const SplashScreen = () => {
                 marginBottom: '20px',
                 animation: 'pulse 2s infinite ease-in-out'
             }}>
-                App Didactica
+                App de Citas
             </div>
 
             <div className="spinner" style={{

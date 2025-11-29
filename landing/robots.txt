@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://Pauliihhdarkness.github.io/app-clon-app-de-citas/sitemap.xml
+Sitemap: https://Pauliihdarkness.github.io/app-clon-app-de-citas/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 10

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import socketService from "../services/socket";
 import { useAuth } from "../context/AuthContext";
-import { getUserProfile } from "../api/user";
+import useChatSnapshot from "../hooks/onSnapShot";
+import { db } from "../api/firebase";
+import { doc, getDoc, collection, addDoc, updateDoc, serverTimestamp, increment } from "firebase/firestore";
+import MessageBubble from "../components/Chat/MessageBubble";
 
 const Chat = () => {
   const { user } = useAuth();
@@ -10,80 +12,32 @@ const Chat = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
   const [otherUser, setOtherUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
+  const isFirstLoad = useRef(true);
+  const textareaRef = useRef(null);
+
+  // Use custom hook for real-time updates
+  useChatSnapshot(matchId, user, setOtherUser, setMessages, setLoading);
 
   // Auto-scroll to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (instant = false) => {
+    messagesEndRef.current?.scrollIntoView({ behavior: instant ? "auto" : "smooth" });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      if (isFirstLoad.current) {
+        scrollToBottom(true);
+        isFirstLoad.current = false;
+      } else {
+        scrollToBottom(false);
+      }
+    }
   }, [messages]);
 
-  useEffect(() => {
-    if (!matchId) return;
-
-    const fetchChatData = async () => {
-      try {
-        // Fetch match data to get other user info
-        const matchResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/matches?userId=${user.uid}`);
-        if (matchResponse.ok) {
-          const matches = await matchResponse.json();
-          const currentMatch = matches.find(m => m.id === matchId);
-
-          if (currentMatch?.otherUserId) {
-            const otherUserProfile = await getUserProfile(currentMatch.otherUserId);
-            setOtherUser(otherUserProfile);
-          }
-        }
-
-        // Fetch historical messages (limit 50)
-        const messagesResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/matches/${matchId}/messages?limit=50`);
-        if (messagesResponse.ok) {
-          const data = await messagesResponse.json();
-          setMessages(data);
-        }
-
-        // Mark messages as read
-        await fetch(`${import.meta.env.VITE_API_URL}/api/matches/${matchId}/mark-read`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.uid })
-        });
-
-      } catch (error) {
-        console.error("Failed to fetch chat data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchChatData();
-
-    // Connect to socket
-    socketService.connect();
-    setIsConnected(true);
-
-    // Join room
-    socketService.joinRoom(matchId);
-
-    // Listen for messages
-    socketService.onMessage((data) => {
-      setMessages((prev) => [...prev, data]);
-    });
-
-    return () => {
-      socketService.disconnect();
-      socketService.offMessage();
-      setIsConnected(false);
-    };
-  }, [matchId, user]);
-
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
 
     if (!user) {
@@ -93,15 +47,45 @@ const Chat = () => {
     }
 
     if (message.trim() && matchId) {
-      const messageData = {
-        roomId: matchId,
-        author: user.uid,
-        message: message,
-        time: new Date().toLocaleTimeString(),
-      };
+      try {
+        const messageText = message.trim();
+        setMessage(""); // Clear input immediately
+        if (textareaRef.current) {
+          textareaRef.current.style.height = 'auto'; // Reset height
+        }
 
-      socketService.sendMessage(messageData);
-      setMessage("");
+        // 1. Add message to subcollection
+        const messagesRef = collection(db, "matches", matchId, "messages");
+        await addDoc(messagesRef, {
+          senderId: user.uid,
+          text: messageText,
+          timestamp: serverTimestamp(),
+          read: false
+        });
+
+        // 2. Update match document
+        const matchRef = doc(db, "matches", matchId);
+        const matchDoc = await getDoc(matchRef);
+
+        if (matchDoc.exists()) {
+          const matchData = matchDoc.data();
+          const recipientId = matchData.users?.find(id => id !== user.uid);
+
+          const updateData = {
+            lastMessage: messageText,
+            lastMessageTime: serverTimestamp()
+          };
+
+          if (recipientId) {
+            updateData[`unreadCount.${recipientId}`] = increment(1);
+          }
+
+          await updateDoc(matchRef, updateData);
+        }
+      } catch (error) {
+        console.error("Error sending message:", error);
+        alert("Error al enviar el mensaje");
+      }
     }
   };
 
@@ -170,6 +154,8 @@ const Chat = () => {
 
   return (
     <div style={{
+      maxWidth: "600px",
+      margin: "0 auto",
       height: "100dvh",
       display: "flex",
       flexDirection: "column",
@@ -265,18 +251,6 @@ const Chat = () => {
                   {!otherUser?.images?.[0] && "👤"}
                 </div>
               </div>
-              {/* Online indicator */}
-              <div style={{
-                position: "absolute",
-                bottom: "0",
-                right: "0",
-                width: "14px",
-                height: "14px",
-                borderRadius: "50%",
-                background: isConnected ? "#10B981" : "#6B7280",
-                border: "2px solid var(--bg-primary)",
-                boxShadow: isConnected ? "0 0 8px rgba(16, 185, 129, 0.5)" : "none"
-              }}></div>
             </div>
 
             {/* Name - clickable */}
@@ -303,13 +277,6 @@ const Chat = () => {
               >
                 {otherUser?.name || "Usuario"}
               </h2>
-              <p style={{
-                margin: 0,
-                fontSize: "0.85rem",
-                color: "var(--text-secondary)"
-              }}>
-                {isConnected ? "Conectado" : "Desconectado"}
-              </p>
             </div>
           </>
         )}
@@ -344,81 +311,15 @@ const Chat = () => {
             const formattedTime = formatMessageTime(msg.time);
 
             return (
-              <div
+              <MessageBubble
                 key={index}
-                style={{
-                  display: "flex",
-                  flexDirection: isOwn ? "row-reverse" : "row",
-                  alignItems: "flex-end",
-                  gap: "0.5rem",
-                  animation: `fadeIn 0.3s ease ${index * 0.05}s both`
-                }}
-              >
-                {/* Avatar placeholder for alignment */}
-                {!isOwn && (
-                  <div style={{
-                    width: "32px",
-                    height: "32px",
-                    visibility: showAvatar ? "visible" : "hidden"
-                  }}>
-                    {showAvatar && (
-                      <div style={{
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "50%",
-                        background: otherUser?.images?.[0] ? `url(${otherUser.images[0]})` : "var(--primary-gradient)",
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "0.9rem"
-                      }}>
-                        {!otherUser?.images?.[0] && "👤"}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Message bubble */}
-                <div style={{
-                  maxWidth: "70%",
-                  position: "relative"
-                }}>
-                  <div style={{
-                    background: isOwn ? "var(--primary-gradient)" : "rgba(255, 255, 255, 0.1)",
-                    padding: "0.75rem 1rem",
-                    borderRadius: isOwn
-                      ? "16px 16px 4px 16px"
-                      : "16px 16px 16px 4px",
-                    boxShadow: isOwn
-                      ? "0 2px 8px rgba(254, 60, 114, 0.3)"
-                      : "0 2px 8px rgba(0, 0, 0, 0.1)",
-                    position: "relative"
-                  }}>
-                    <p style={{
-                      margin: 0,
-                      color: "white",
-                      wordWrap: "break-word",
-                      lineHeight: "1.4"
-                    }}>
-                      {msg.message}
-                    </p>
-                    {formattedTime && (
-                      <span style={{
-                        fontSize: "0.7rem",
-                        opacity: 0.7,
-                        marginTop: "0.25rem",
-                        display: "block",
-                        textAlign: isOwn ? "right" : "left",
-                        color: "white"
-                      }}>
-                        {formattedTime}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+                message={msg.message}
+                isOwn={isOwn}
+                showAvatar={showAvatar}
+                formattedTime={formattedTime}
+                otherUserImage={otherUser?.images?.[0]}
+                index={index}
+              />
             );
           })
         )}
@@ -436,23 +337,40 @@ const Chat = () => {
         <form onSubmit={handleSendMessage} style={{
           display: "flex",
           gap: "0.75rem",
-          alignItems: "center"
+          alignItems: "flex-end"
         }}>
-          <input
-            type="text"
+          <textarea
+            ref={textareaRef}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => {
+              setMessage(e.target.value);
+              e.target.style.height = 'auto';
+              e.target.style.height = Math.min(e.target.scrollHeight, 80) + 'px';
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage(e);
+              }
+            }}
             placeholder="Escribe un mensaje..."
+            rows={1}
             style={{
               flex: 1,
-              padding: "1rem 1.25rem",
-              borderRadius: "24px",
+              padding: "1rem",
+              borderRadius: "1rem",
               border: "1px solid var(--glass-border)",
               background: "rgba(255, 255, 255, 0.05)",
               color: "white",
-              fontSize: "1rem",
+              fontSize: "0.8rem",
               outline: "none",
-              transition: "all 0.2s ease"
+              transition: "border-color 0.2s ease, background 0.2s ease",
+              resize: "none",
+              overflowY: "auto",
+              minHeight: "54px",
+              maxHeight: "80px",
+              fontFamily: "inherit",
+              lineHeight: "1.4"
             }}
             onFocus={(e) => {
               e.target.style.borderColor = "var(--primary-color)";
@@ -484,7 +402,8 @@ const Chat = () => {
               justifyContent: "center",
               boxShadow: user && message.trim()
                 ? "0 4px 12px rgba(254, 60, 114, 0.3)"
-                : "none"
+                : "none",
+              flexShrink: 0
             }}
             onMouseEnter={(e) => {
               if (user && message.trim()) {
@@ -518,6 +437,34 @@ const Chat = () => {
         @keyframes pulse {
           0%, 100% { opacity: 0.4; }
           50% { opacity: 0.8; }
+        }
+
+        /* Custom Scrollbar Styles */
+        *::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        
+        *::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 10px;
+        }
+        
+        *::-webkit-scrollbar-thumb {
+          background: linear-gradient(135deg, #FE3C72, #FF7854);
+          border-radius: 10px;
+          transition: all 0.3s ease;
+        }
+        
+        *::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(135deg, #FF5D8F, #FF9574);
+          box-shadow: 0 0 8px rgba(254, 60, 114, 0.5);
+        }
+
+        /* Firefox scrollbar */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #FE3C72 rgba(255, 255, 255, 0.05);
         }
       `}</style>
     </div>

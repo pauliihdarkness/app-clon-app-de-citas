@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useRef } from "react";
 import { getProfilesBatch } from "../api/firebase/feed";
-import { setUserCached } from "./UserCache";
+import { useUserProfiles } from "./UserProfilesContext";
 
 const FeedContext = createContext();
 
@@ -11,6 +11,7 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
   const loadingRef = useRef(false);
   const filtersRef = useRef(initialFilters);
   const interactedLoadedRef = useRef(false);
+  const { getProfile } = useUserProfiles();
 
   // Cargar interacciones previas al iniciar
   React.useEffect(() => {
@@ -62,8 +63,10 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
 
       const profiles = docs.map(d => ({ id: d.id, ...d.data() }));
 
-      // cache individual users
-      await Promise.all(profiles.map(p => setUserCached(p.id, p)));
+      // Cache profiles using UserProfilesContext
+      profiles.forEach(p => {
+        getProfile(p.id); // This will cache the profile
+      });
 
       // Filtrado adicional de seguridad por si acaso
       const newProfiles = profiles.filter(p => !interactedUserIds.has(p.id));
