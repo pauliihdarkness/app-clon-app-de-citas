@@ -836,7 +836,6 @@ body {
     border-radius: 15px;
     padding: 2rem;
     backdrop-filter: blur(10px);
-    margin-left: calc(50% + 2rem);
 }
 
 .timeline-content h3 {
