@@ -176,7 +176,7 @@ Especialmente bienvenides:
 ## 📧 Contacto
 
 **Pauliih Darkness Dev**
-- GitHub: [@Pauliihhdarkness](https://github.com/Pauliihhdarkness)
+- GitHub: [@Pauliihdarkness](https://github.com/Pauliihhdarkness)
 - Proyecto: [app-clon-app-de-citas](https://github.com/Pauliihhdarkness/app-clon-app-de-citas)
 
 ---

@@ -13,6 +13,13 @@ import NotFound from "./pages/NotFound";
 import CreateProfile from "./pages/CreateProfile";
 import Settings from "./pages/Settings";
 import AccountInfo from "./pages/AccountInfo";
+import TurnstileTest from "./pages/TurnstileTest";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CookiePolicy from "./pages/CookiePolicy";
+import CommunityGuidelines from "./pages/CommunityGuidelines";
+import FAQ from "./pages/FAQ";
+import Contact from "./pages/Contact";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
 import SplashScreen from "./components/Layout/SplashScreen";
 import { FeedProvider } from "./context/FeedContext";
@@ -89,6 +96,16 @@ const AppRouter = () => {
                         <AccountInfo />
                     </ProtectedRoute>
                 } />
+                <Route path="/test-turnstile" element={<TurnstileTest />} />
+
+                {/* Legal Pages - Public Access */}
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/cookie-policy" element={<CookiePolicy />} />
+                <Route path="/community-guidelines" element={<CommunityGuidelines />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/contact" element={<Contact />} />
+
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </Router>

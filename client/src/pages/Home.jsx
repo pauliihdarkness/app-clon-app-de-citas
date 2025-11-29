@@ -122,9 +122,12 @@ const Home = () => {
       <footer className="home-footer">
         <p>© 2025 App de Citas • Hecho con 💜</p>
         <div className="footer-links">
-          <a href="#terms">Términos</a>
-          <a href="#privacy">Privacidad</a>
-          <a href="#contact">Contacto</a>
+          <a href="/terms">Términos y Condiciones</a>
+          <a href="/privacy-policy">Privacidad</a>
+          <a href="/cookie-policy">Cookies</a>
+          <a href="/community-guidelines">Comunidad</a>
+          <a href="/faq">FAQ</a>
+          <a href="/contact">Contacto</a>
         </div>
       </footer>
     </div>

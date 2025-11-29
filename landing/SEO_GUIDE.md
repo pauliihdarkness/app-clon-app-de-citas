@@ -25,7 +25,7 @@
 - ✅ **twitter:title**: Título optimizado
 - ✅ **twitter:description**: Descripción
 - ✅ **twitter:image**: Imagen de preview
-- ✅ **twitter:creator**: @Pauliihhdarkness
+- ✅ **twitter:creator**: @Pauliihdarkness
 
 ### 4. Structured Data (JSON-LD)
 - ✅ **Schema.org**: SoftwareApplication

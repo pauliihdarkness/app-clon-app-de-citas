@@ -1,8 +1,9 @@
 # 🔥 App de Citas - Dating App
 
-![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
-![Vite](https://img.shields.io/badge/Vite-5-Purple?style=for-the-badge&logo=vite)
-![Firebase](https://img.shields.io/badge/Firebase-10-Orange?style=for-the-badge&logo=firebase)
+![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)
+![Vite](https://img.shields.io/badge/Vite-7-Purple?style=for-the-badge&logo=vite)
+![Firebase](https://img.shields.io/badge/Firebase-12-Orange?style=for-the-badge&logo=firebase)
+![Node.js](https://img.shields.io/badge/Node.js-20-green?style=for-the-badge&logo=node.js)
 ![Cloudinary](https://img.shields.io/badge/Cloudinary-Blue?style=for-the-badge&logo=cloudinary)
 
 Una aplicación moderna de citas y conexiones sociales construida con React y Firebase, diseñada con un enfoque **Mobile First** y una estética **Glassmorphism** premium.
@@ -80,36 +81,50 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 - ✅ **Validaciones Robustas**: Edad mínima 18 años, formatos de datos
 - ✅ **Reglas de Firestore**: Protección completa para users, likes y matches
 - ✅ **Variables de Entorno**: Credenciales sensibles fuera del código
-- ✅ **Feed Seguro**: Filtro crítico para evitar auto-likes
+- ✅ **Cloudflare Turnstile**: Protección contra bots en registro y login
+- ✅ **Helmet + CSP**: Prevención de XSS y configuración de seguridad HTTP
+- ✅ **Moderación NSFW**: Detección automática de contenido inapropiado con nsfwjs
+- ✅ **Compresión de Imágenes**: Optimización automática antes de subir (max 1MB)
 
 ### 📍 Geolocalización
 - ✅ Selector de ubicación con autocompletado
 - ✅ Integración con API de geocodificación
 - ✅ Almacenamiento de país, estado y ciudad
 
+### 📄 Páginas Legales
+- ✅ **Términos y Condiciones**: 15 secciones completas
+- ✅ **Política de Privacidad**: 13 secciones + GDPR/CCPA
+- ✅ **Política de Cookies**: Con tabla detallada de cookies
+- ✅ **Guía de Comunidad**: Grid visual de valores y reglas
+- ✅ **FAQ**: 40+ preguntas con acordeón interactivo
+- ✅ **Contacto**: Formulario funcional + información de contacto
+- ✅ **Diseño Consistente**: Tema oscuro coherente con la app
+
 ## 🛠️ Tecnologías Utilizadas
 
 ### Frontend
-- **React 18** - Biblioteca de UI con Hooks
-- **Vite 5** - Build tool ultrarrápido
-- **React Router DOM** - Navegación SPA
+- **React 19.2** - Biblioteca de UI con Hooks
+- **Vite 7.2** - Build tool ultrarrápido
+- **React Router DOM 7.9** - Navegación SPA
+- **Firebase 12.6** - Authentication y Firestore
 - **CSS3 Moderno** - Variables, Flexbox, Grid, Glassmorphism
-- **Socket.IO Client** - Comunicación en tiempo real
 
 ### Backend
-- **Node.js + Express** - Servidor backend para workers y API
-- **Firebase Admin SDK** - Operaciones privilegiadas en Firestore
-- **Firebase Authentication** - Gestión de usuarios
-- **Firestore Database** - Base de datos NoSQL con índices compuestos
+- **Node.js 20+** - Runtime de JavaScript
+- **Express 5.1** - Framework web minimalista
+- **Firebase Admin SDK 13.6** - Operaciones privilegiadas en Firestore
+- **Helmet 8.1** - Seguridad HTTP (CSP, XSS protection)
 - **Cloudinary** - Almacenamiento y optimización de imágenes
-- **Socket.IO Server** - Servidor de WebSocket
 
-### Utilidades y Librerías
-- **react-easy-crop** - Recorte de imágenes interactivo
-- **localforage** - Caché persistente con IndexedDB
-- **cors** - Middleware de seguridad CORS
-- **dotenv** - Gestión de variables de entorno
-- **date-fns** - Manipulación de fechas (utilidades personalizadas)
+### Seguridad y Utilidades
+- **Cloudflare Turnstile** - Protección contra bots
+- **nsfwjs 4.2** + **TensorFlow.js 4.22** - Detección de contenido NSFW
+- **browser-image-compression 2.0** - Compresión de imágenes en cliente
+- **react-easy-crop 5.5** - Recorte de imágenes interactivo
+- **localforage 1.10** - Caché persistente con IndexedDB
+- **axios 1.13** - Cliente HTTP
+- **cors 2.8** - Middleware de seguridad CORS
+- **dotenv 17.2** - Gestión de variables de entorno
 
 ## 🚀 Instalación y Configuración
 
@@ -147,35 +162,6 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
    # Firebase Configuration
    VITE_FIREBASE_API_KEY=tu_api_key
    VITE_FIREBASE_AUTH_DOMAIN=tu_project.firebaseapp.com
-   VITE_FIREBASE_PROJECT_ID=tu_project_id
-   VITE_FIREBASE_STORAGE_BUCKET=tu_project.appspot.com
-   VITE_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
-   VITE_FIREBASE_APP_ID=tu_app_id
-   VITE_API_URL=http://localhost:3000
-
-   # Cloudinary Configuration
-   VITE_CLOUDINARY_CLOUD_NAME=tu_cloud_name
-   VITE_CLOUDINARY_UPLOAD_PRESET=tu_upload_preset
-   ```
-
-5. **Configurar Variables de Entorno del Servidor**
-   
-   Crea un archivo `.env` en la carpeta `server`:
-
-   ```env
-   # Firebase Admin SDK
-   FIREBASE_PROJECT_ID=tu_project_id
-   FIREBASE_CLIENT_EMAIL=tu_client_email@app.iam.gserviceaccount.com
-   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-   
-   # CORS (dominios permitidos separados por comas)
-   ALLOWED_ORIGINS=http://localhost:5173,https://tu-app.vercel.app
-   ```
-
-6. **Configurar Firebase**
-   - Crear proyecto en [Firebase Console](https://console.firebase.google.com/)
-   - Habilitar Authentication (Email/Password y Google)
-   - Crear base de datos Firestore
    - Descargar Service Account Key (Project Settings > Service Accounts)
    - Copiar credenciales a los archivos `.env` correspondientes
    - Desplegar índices: `firebase deploy --only firestore:indexes`
@@ -337,8 +323,8 @@ firebase deploy --only storage
 - [ ] Recuperación de contraseña
 - [ ] Verificación de email
 - [ ] Cambio de contraseña
-- [ ] Páginas de Términos y Privacidad
-- [ ] Sistema de reportes y bloqueos
+- [ ] PWA (Progressive Web App)
+- [ ] Sistema de reportes mejorado
 
 ## 🤝 Contribución
 
@@ -352,12 +338,16 @@ firebase deploy --only storage
 
 ## 📝 Documentación Adicional
 
-- [Arquitectura del Proyecto](./Arquitectura.md)
-- [Configuración del Backend](./Backend-Config.md)
-- [Configuración de Firebase](./FIREBASE_SETUP.md)
+- [📚 Índice de Documentación](./docs/README.md)
+- [Arquitectura del Proyecto](./docs/Arquitectura.md)
+- [Configuración del Backend](./docs/Backend-Config.md)
+- [Configuración de Firebase](./docs/FIREBASE_SETUP.md)
+- [Guía de Despliegue en Vercel](./client/DEPLOYMENT.md)
 - [Estructura de Firestore](./docs/firestore-structure.md)
-- [Requisitos del Proyecto](./Requisitos.md)
-- [Lista de Tareas](./Lista%20de%20tareas.md)
+- [Requisitos del Proyecto](./docs/Requisitos.md)
+- [Configuración de Turnstile](./docs/TURNSTILE_SETUP.md)
+- [Moderación NSFW](./docs/NSFW_MODERATION.md)
+- [Análisis de Seguridad](./docs/security.md)
 
 ## 📄 Licencia
 

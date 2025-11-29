@@ -2,8 +2,10 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import Cropper from "react-easy-crop";
 import { getCroppedImg } from "../../helpers/cropImage.js";
 import { uploadCroppedImage } from "../../api/cloudinary.js";
+import { validateImageFile } from "../../utils/nsfwDetector.js";
 import Modal from "../UI/Modal";
 import Button from "../UI/Button";
+import NSFWAnalysisModal from "../UI/NSFWAnalysisModal";
 import "./UpdateMultipleImagesWithCrop.css";
 
 function UpdateMultipleImagesWithCrop({ uid, initialImages = [], onImagesChange, onDirectUpdate, maxImages = 6 }) {
@@ -25,7 +27,12 @@ function UpdateMultipleImagesWithCrop({ uid, initialImages = [], onImagesChange,
     const [croppingMode, setCroppingMode] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const onFileChange = (e) => {
+    // NSFW Analysis states
+    const [nsfwAnalyzing, setNsfwAnalyzing] = useState(false);
+    const [nsfwStatus, setNsfwStatus] = useState(null); // 'analyzing', 'approved', 'rejected', 'error'
+    const [nsfwResult, setNsfwResult] = useState(null);
+
+    const onFileChange = async (e) => {
         if (images.length >= maxImages) {
             alert(`Solo se permiten ${maxImages} fotos.`);
             return;
@@ -34,12 +41,37 @@ function UpdateMultipleImagesWithCrop({ uid, initialImages = [], onImagesChange,
         const file = e.target.files[0];
         if (!file) return;
 
-        setOriginalFile(file);
-        setPreviewURL(URL.createObjectURL(file));
-        setCroppingMode(true);
-
         // Reset input value to allow selecting the same file again if needed
         e.target.value = null;
+
+        // Analizar imagen con NSFW detector
+        setNsfwAnalyzing(true);
+        setNsfwStatus('analyzing');
+
+        try {
+            const result = await validateImageFile(file);
+
+            if (result.isSafe) {
+                // Imagen aprobada - mostrar cropper
+                setNsfwStatus('approved');
+                setOriginalFile(file);
+                setPreviewURL(URL.createObjectURL(file));
+
+                // Pequeño delay para mostrar el mensaje de éxito
+                setTimeout(() => {
+                    setNsfwAnalyzing(false);
+                    setCroppingMode(true);
+                }, 1500);
+            } else {
+                // Imagen rechazada
+                setNsfwStatus('rejected');
+                setNsfwResult(result);
+            }
+        } catch (error) {
+            console.error('Error al analizar imagen:', error);
+            setNsfwStatus('error');
+            setNsfwResult({ reason: 'Error al verificar la imagen' });
+        }
     };
 
     const onCropComplete = useCallback((_, areaPixels) => {
@@ -97,6 +129,16 @@ function UpdateMultipleImagesWithCrop({ uid, initialImages = [], onImagesChange,
         setCroppedAreaPixels(null);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
+        setNsfwAnalyzing(false);
+        setNsfwStatus(null);
+        setNsfwResult(null);
+    };
+
+    const handleCloseNSFWModal = () => {
+        // Solo cerrar el modal NSFW sin resetear los datos del archivo
+        setNsfwAnalyzing(false);
+        setNsfwStatus(null);
+        setNsfwResult(null);
     };
 
     const handleDeleteImage = async (indexToDelete) => {
@@ -207,6 +249,15 @@ function UpdateMultipleImagesWithCrop({ uid, initialImages = [], onImagesChange,
                     </Button>
                 </div>
             </Modal>
+
+            {/* NSFW Analysis Modal */}
+            <NSFWAnalysisModal
+                isOpen={nsfwAnalyzing}
+                status={nsfwStatus}
+                result={nsfwResult}
+                onClose={handleCloseNSFWModal}
+                onRetry={triggerFileInput}
+            />
         </div>
     );
 }

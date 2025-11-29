@@ -24,22 +24,9 @@ const Login = () => {
           const userData = await getUserProfile(user.uid);
 
           if (userData) {
-            // Validar campos requeridos
-            // Se usa createdAt (nuevo) o CreationDate (legacy)
-            // No se chequea birthdate porque puede ser privado, pero se chequea age que se calcula si existe birthdate
-            const hasRequiredFields = userData.name &&
-              userData.age &&
-              userData.gender &&
-              userData.images && userData.images.length > 0 &&
-              userData.location && userData.location.city &&
-              (userData.createdAt || userData.CreationDate);
-
-            if (hasRequiredFields) {
-              navigate("/feed");
-            } else {
-              console.log("Perfil incompleto, redirigiendo a completar:", userData);
-              navigate("/create-profile");
-            }
+            // Si el perfil existe, redirigir al feed directamente
+            // Se eliminó la validación estricta de campos requeridos a petición del usuario
+            navigate("/feed");
           } else {
             // Si no existe el perfil, crearlo con datos básicos públicos
             await createUserProfile(user.uid, {

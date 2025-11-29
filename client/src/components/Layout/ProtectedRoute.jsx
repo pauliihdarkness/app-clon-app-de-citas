@@ -17,14 +17,9 @@ const ProtectedRoute = ({ children }) => {
           const userData = await getUserProfile(user.uid);
 
           if (userData) {
-            // Verificar campos obligatorios: Nombre, Edad, Género, Fotos, Ubicación
-            const isComplete = userData.name &&
-              userData.age &&
-              userData.gender &&
-              userData.images && userData.images.length > 0 &&
-              userData.location && userData.location.city;
-
-            setProfileComplete(!!isComplete);
+            // Si existe userData, consideramos el perfil "completo" para permitir acceso
+            // Se eliminó la validación estricta de campos a petición del usuario
+            setProfileComplete(true);
           } else {
             setProfileComplete(false);
           }

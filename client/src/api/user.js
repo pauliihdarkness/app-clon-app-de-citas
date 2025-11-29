@@ -2,6 +2,7 @@ import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, limit, ge
 import { getAuth } from "firebase/auth";
 import { db } from "./firebase";
 import { calculateAge } from "../utils/dateUtils";
+import { getUserCached, setUserCached } from "../context/UserCache";
 
 // Crear perfil
 export const createUserProfile = async (userId, profileData) => {
@@ -13,10 +14,19 @@ export const createUserProfile = async (userId, profileData) => {
   };
 
   await setDoc(doc(db, "users", userId), completeProfileData, { merge: true });
+
+  // Update cache immediately to avoid race conditions in ProtectedRoute
+  await setUserCached(userId, completeProfileData);
 };
 
 // Leer perfil
-export const getUserProfile = async (userId) => {
+export const getUserProfile = async (userId, forceRefresh = false) => {
+  // Try cache first
+  if (!forceRefresh) {
+    const cached = await getUserCached(userId);
+    if (cached) return cached;
+  }
+
   const docSnap = await getDoc(doc(db, "users", userId));
   if (!docSnap.exists()) return null;
 
@@ -39,6 +49,9 @@ export const getUserProfile = async (userId) => {
   }
   // For other users, age should already be in the public profile
 
+  // Save to cache
+  await setUserCached(userId, userData);
+
   return userData;
 };
 
@@ -54,6 +67,12 @@ export const updateUserProfile = async (userId, profileData) => {
   }
 
   await updateDoc(doc(db, "users", userId), dataToUpdate);
+
+  // Update cache if exists
+  const cached = await getUserCached(userId);
+  if (cached) {
+    await setUserCached(userId, { ...cached, ...dataToUpdate });
+  }
 };
 
 // Eliminar perfil
