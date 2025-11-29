@@ -2,10 +2,10 @@
 
 ## 🏷️ Versión Actual
 
-**Versión:** `0.8.0-beta`  
+**Versión:** `0.9.0-rc1`  
 **Nombre en Código:** "App de Citas"  
-**Fecha de Release:** 22 de noviembre de 2025  
-**Estado:** Beta Privada
+**Fecha de Release:** 28 de noviembre de 2025  
+**Estado:** Release Candidate
 
 ---
 
@@ -13,54 +13,50 @@
 
 ### Resumen Ejecutivo
 ```
-████████████████████████████████████░░░░░░░░ 75%
+████████████████████████████████████████████ 92%
 ```
 
 | Categoría | Progreso | Estado |
 |-----------|----------|--------|
-| 🔐 Autenticación | 85% | ✅ Funcional |
-| 👤 Perfiles | 90% | ✅ Funcional |
-| 🔥 Feed | 95% | ✅ Optimizado |
-| ❤️ Likes/Matches | 90% | ✅ Funcional |
-| 💬 Chat | 90% | ✅ Funcional |
-| 🔔 Notificaciones | 0% | ⏳ Pendiente |
-| 🎨 UI/UX | 80% | ✅ Funcional |
-| 🖥️ Backend | 70% | ✅ Funcional |
-| 🔒 Seguridad | 85% | ✅ Funcional |
-| 📚 Documentación | 95% | ✅ Completa |
+| 🔐 Autenticación | 100% | ✅ Completa |
+| 👤 Perfiles | 100% | ✅ Completo |
+| 🔥 Feed | 100% | ✅ Optimizado |
+| ❤️ Likes/Matches | 100% | ✅ Completo |
+| 💬 Chat | 95% | ✅ Funcional |
+| 🔔 Notificaciones | 20% | 🚧 En Progreso |
+| 🎨 UI/UX | 95% | ✅ Premium |
+| 🖥️ Backend | 90% | ✅ Estable |
+| 🔒 Seguridad | 95% | ✅ Auditada |
+| 📚 Documentación | 100% | ✅ Completa |
+| ⚖️ Legal | 100% | ✅ Completo |
+| 🚀 Despliegue | 100% | ✅ Listo |
 
-**Progreso Total:** 85% completado
+**Progreso Total:** 92% completado
 
 ---
 
-## 🚀 Novedades de la Versión 0.8.0
+## 🚀 Novedades de la Versión 0.9.0
 
-### ⚡ Optimización del Feed (NUEVO)
-- ✅ **Batch Loading**: Carga de perfiles en lotes de 15-25 usuarios
-- ✅ **Caché Local**: Sistema de caché con Map + IndexedDB (localforage)
-- ✅ **Prefetch Inteligente**: Carga anticipada cuando quedan < 5 perfiles
-- ✅ **Queries Optimizadas**: Uso de `getDocs` con paginación (`startAfter`)
-- ✅ **Reducción de Lecturas**: ~70% menos lecturas de Firestore vs versión anterior
-- ✅ **Filtrado de Interacciones**: Exclusión automática de usuarios con Like/Pass previo
+### ⚖️ Páginas Legales (NUEVO)
+- ✅ **6 Páginas Completas**: Términos, Privacidad, Cookies, Comunidad, FAQ, Contacto
+- ✅ **Diseño Integrado**: Estética coherente con el resto de la app
+- ✅ **Accesibilidad**: Footer global en Home con enlaces directos
 
-### 🖥️ Backend Node.js (NUEVO)
-- ✅ **Worker de Matches**: Detección automática de matches en tiempo real
-- ✅ **Express Server**: Servidor con keep-alive para Render
-- ✅ **Middleware de Autenticación**: Verificación de tokens Firebase
-- ✅ **CORS Seguro**: Configuración restrictiva por dominios
-- ✅ **Arquitectura Modular**: Separación en workers, middleware y API
+### 🔒 Seguridad Avanzada (NUEVO)
+- ✅ **Cloudflare Turnstile**: Protección contra bots en registro/login
+- ✅ **Helmet + CSP**: Headers de seguridad HTTP estrictos
+- ✅ **Moderación NSFW**: Detección automática de contenido inapropiado
+- ✅ **Compresión Cliente**: Optimización de imágenes antes de subir
 
-### 🔥 Firebase Infrastructure (NUEVO)
-- ✅ **Índices Compuestos**: 6 índices optimizados para queries rápidas
-- ✅ **Reglas de Seguridad**: Firestore y Storage completamente protegidos
-- ✅ **Configuración Desplegada**: firebase.json, reglas e índices en producción
+### 🚀 Despliegue y DevOps (NUEVO)
+- ✅ **Configuración Vercel**: `vercel.json` y `_redirects` para SPA
+- ✅ **Guía de Despliegue**: Documentación paso a paso (`DEPLOYMENT.md`)
+- ✅ **Optimización SEO**: Meta tags, Open Graph y Favicons actualizados
 
-### 📚 Documentación (ACTUALIZADA)
-- ✅ **README.md**: Guía completa con instrucciones de instalación
-- ✅ **Arquitectura.md**: Diagramas y flujos actualizados con backend
-- ✅ **Backend-Config.md**: Guía de configuración del servidor
-- ✅ **FIREBASE_SETUP.md**: Pasos de despliegue de Firebase
-- ✅ **Requisitos.md**: Checklist actualizado (85% completado)
+### 📚 Documentación (REORGANIZADA)
+- ✅ **Carpeta `docs/`**: Centralización de toda la documentación técnica
+- ✅ **Índice Maestro**: `docs/README.md` para navegación fácil
+- ✅ **Nuevas Guías**: NSFW, Turnstile, Despliegue
 
 ---
 
@@ -234,13 +230,14 @@ Aplicación 123/
 - ✅ CORS restrictivo
 - ✅ Validación de edad (18+)
 - ✅ Fecha de nacimiento inmutable
+- ✅ **Cloudflare Turnstile** (Anti-bot)
+- ✅ **Helmet + CSP** (Anti-XSS)
+- ✅ **Moderación NSFW** (Anti-abuso)
 
 ### Pendiente
 - ⏳ Rate limiting
-- ⏳ Firebase App Check
 - ⏳ Encriptación de datos sensibles
-- ⏳ Sistema de reportes
-- ⏳ Sistema de bloqueos
+- ⏳ Sistema de reportes avanzado
 
 ---
 
@@ -275,9 +272,8 @@ Aplicación 123/
 - 📊 Analytics integrado
 
 ### v1.1.0 (Febrero 2026)
-- 🛡️ Sistema de reportes y bloqueos
+- 🛡️ Sistema de reportes y bloqueos avanzado
 - ✅ Verificación de perfil
-- 📄 Páginas legales completas
 - 🌐 PWA completo
 
 ---
@@ -307,5 +303,5 @@ Aplicación 123/
 
 ---
 
-**Última Actualización:** 22 de noviembre de 2025  
+**Última Actualización:** 28 de noviembre de 2025  
 **Próxima Revisión:** Diciembre 2025
