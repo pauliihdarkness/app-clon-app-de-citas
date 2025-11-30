@@ -102,21 +102,31 @@ const Login = () => {
 
   return (
     <div style={{
-      minHeight: "100dvh",
+      position: "relative",
+      minWidth: "100vw",
+      minHeight: "100vh",
+      width: "100%",
+      height: "100%",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       background: "radial-gradient(circle at top right, #2a1a2e 0%, #0F0F15 60%)",
+      zIndex: 9999,
+      overflowY: "auto",
       padding: "1rem"
     }}>
       <div className="glass slide-up" style={{
+        position: "absolute",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
         width: "100%",
         maxWidth: "400px",
         padding: "2.5rem",
         borderRadius: "24px",
         display: "flex",
         flexDirection: "column",
-        gap: "1.5rem"
+        gap: "1.5rem",
+        boxSizing: "border-box"
       }}>
         <div style={{ textAlign: "center", marginBottom: "1rem" }}>
           <h1 style={{
@@ -126,22 +136,22 @@ const Login = () => {
             WebkitTextFillColor: "transparent",
             marginBottom: "0.5rem"
           }}>
-            Welcome Back
+            ¡Bienvenide de nuevo!
           </h1>
-          <p style={{ color: "var(--text-secondary)" }}>Sign in to continue your journey</p>
+          <p style={{ color: "var(--text-secondary)" }}>Inicia sesión para continuar</p>
         </div>
 
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <Input
             type="email"
-            placeholder="Email Address"
+            placeholder="Correo electrónico"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             icon={<span style={{ fontSize: "1.2rem" }}>✉️</span>}
           />
           <Input
             type="password"
-            placeholder="Password"
+            placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             icon={<span style={{ fontSize: "1.2rem" }}>🔒</span>}
@@ -161,7 +171,7 @@ const Login = () => {
           )}
 
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </Button>
         </form>
 
@@ -173,7 +183,7 @@ const Login = () => {
           fontSize: "0.9rem"
         }}>
           <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.1)" }} />
-          <span>or continue with</span>
+          <span>o continúa con</span>
           <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.1)" }} />
         </div>
 
@@ -186,7 +196,7 @@ const Login = () => {
         </Button>
 
         <p style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.9rem", marginTop: "1rem" }}>
-          Don't have an account? <a href="/register" style={{ fontWeight: "600" }}>Sign up</a>
+          ¿No tienes cuenta? <a href="/register" style={{ fontWeight: "600" }}>Regístrate</a>
         </p>
       </div>
     </div>
@@ -194,4 +204,3 @@ const Login = () => {
 };
 
 export default Login;
-

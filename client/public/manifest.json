@@ -1,6 +1,6 @@
 {
-  "name": "Dating App",
-  "short_name": "Dating",
+  "name": "App De Citas",
+  "short_name": "AppCitas",
   "description": "Encuentra conexiones auténticas y significativas",
   "start_url": "/",
   "scope": "/",
