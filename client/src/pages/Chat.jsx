@@ -5,6 +5,7 @@ import useChatSnapshot from "../hooks/onSnapShot";
 import { db } from "../api/firebase";
 import { doc, getDoc, collection, addDoc, updateDoc, serverTimestamp, increment } from "firebase/firestore";
 import MessageBubble from "../components/Chat/MessageBubble";
+import { ChevronLeft, Send, MessageCircle } from "lucide-react";
 
 const Chat = () => {
   const { user } = useAuth();
@@ -179,7 +180,7 @@ const Chat = () => {
           style={{
             background: "rgba(255, 255, 255, 0.1)",
             border: "none",
-            borderRadius: "12px",
+            borderRadius: "50%",
             width: "40px",
             height: "40px",
             display: "flex",
@@ -197,7 +198,7 @@ const Chat = () => {
             e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
           }}
         >
-          ‹
+          <ChevronLeft size={28} />
         </button>
 
         {/* User info */}
@@ -240,15 +241,19 @@ const Chat = () => {
                   width: "100%",
                   height: "100%",
                   borderRadius: "50%",
-                  background: otherUser?.images?.[0] ? `url(${otherUser.images[0]})` : "var(--primary-gradient)",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
+                  background: "var(--primary-gradient)",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.2rem"
+                  justifyContent: "center"
                 }}>
-                  {!otherUser?.images?.[0] && "👤"}
+                  <img style={{
+                    animation: "fadeIn 0.3s ease-in-out",
+                    visibility: otherUser?.images?.[0] ? "visible" : "hidden",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    objectFit: "cover"
+                  }} src={otherUser?.images?.[0]} alt="Avatar" />
                 </div>
               </div>
             </div>
@@ -301,7 +306,7 @@ const Chat = () => {
             alignItems: "center",
             gap: "1rem"
           }}>
-            <div style={{ fontSize: "3rem" }}>💬</div>
+            <MessageCircle size={64} strokeWidth={1.5} />
             <p>No hay mensajes aún. ¡Inicia la conversación!</p>
           </div>
         ) : (
@@ -418,7 +423,7 @@ const Chat = () => {
                 : "none";
             }}
           >
-            ➤
+            <Send size={24} />
           </button>
         </form>
       </div>

@@ -6,9 +6,11 @@ export const ToastContext = createContext();
 export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
 
-    const showToast = useCallback((message, type = 'info', duration = 3000) => {
+    const showToast = useCallback((message, type = 'info', duration = null) => {
         const id = Date.now() + Math.random();
-        const newToast = { id, message, type, duration };
+        // Match toasts should display longer (5s), others default to 3s
+        const toastDuration = duration || (type === 'match' ? 5000 : 3000);
+        const newToast = { id, message, type, duration: toastDuration };
 
         setToasts(prev => [...prev, newToast]);
     }, []);

@@ -4,8 +4,14 @@ import { useAuth } from "../context/AuthContext";
 import { useUserProfiles } from "../context/UserProfilesContext";
 import { useToast } from "../hooks/useToast";
 import TabNavigation from "../components/Navigation/TabNavigation";
+import MatchModal from "../components/MatchModal/MatchModal";
 import { db } from "../api/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
+
+import { Sparkles, MessageCircle, Trash2, X, UserX, EyeOff } from "lucide-react";
+import { hideMatchForUser, unmatchUser } from "../api/matches";
+import Button from "../components/UI/Button";
+import { requestNotificationPermission, showMessageNotification, showMatchNotification, isAppInBackground } from "../utils/webNotifications";
 
 const MatchesList = () => {
     const { user } = useAuth();
@@ -13,9 +19,20 @@ const MatchesList = () => {
     const { showToast } = useToast();
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showMatchModal, setShowMatchModal] = useState(false);
+    const [newMatchData, setNewMatchData] = useState(null);
+
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, matchId: null, matchName: "" });
     const navigate = useNavigate();
     const prevUnreadCounts = React.useRef({});
+    const previousMatchIds = React.useRef(new Set());
     const isFirstLoad = React.useRef(true);
+    const longPressTimer = React.useRef(null);
+
+    // Request notification permission on mount
+    useEffect(() => {
+        requestNotificationPermission();
+    }, []);
 
     // Real-time matches updates using Firestore onSnapshot
     useEffect(() => {
@@ -27,6 +44,7 @@ const MatchesList = () => {
 
         const unsubscribe = onSnapshot(q, async (snapshot) => {
             const updatedMatches = [];
+            let detectedNewMatch = null;
 
             for (const doc of snapshot.docs) {
                 const matchData = doc.data();
@@ -36,26 +54,46 @@ const MatchesList = () => {
                 const otherUserId = matchData.users?.find(id => id !== user.uid);
                 const currentUnreadCount = matchData.unreadCount?.[user.uid] || 0;
 
-                // Check for new messages to show toast
-                if (!isFirstLoad.current && otherUserId) {
-                    const prevCount = prevUnreadCounts.current[matchId] || 0;
-                    if (currentUnreadCount > prevCount) {
-                        // We need the user name for the toast, which we might not have yet if it's a new match
-                        // But usually we fetch it below. For immediate toast, we might need to rely on what we have or fetch it.
-                        // Since we fetch profiles inside this loop, let's use the fetched profile if available, 
-                        // or try to get it from existing matches state if it was already there.
-                    }
+                // Skip if hidden for current user
+                if (matchData.hiddenFor?.includes(user.uid)) continue;
+
+                // Detect NEW match (not seen before)
+                if (!isFirstLoad.current && !previousMatchIds.current.has(matchId) && otherUserId) {
+                    const otherUserProfile = await getProfile(otherUserId);
+                    const currentUserProfile = await getProfile(user.uid);
+
+                    detectedNewMatch = {
+                        matchId,
+                        currentUser: currentUserProfile,
+                        matchedUser: otherUserProfile
+                    };
+
+                    previousMatchIds.current.add(matchId);
+                } else if (isFirstLoad.current) {
+                    // On first load, just track existing matches without showing modal
+                    previousMatchIds.current.add(matchId);
                 }
 
                 if (otherUserId) {
                     // Use cached profile (significant performance improvement)
                     const otherUserProfile = await getProfile(otherUserId);
 
-                    // Toast logic here where we have the name
+                    // Toast logic for new messages
                     if (!isFirstLoad.current && otherUserProfile) {
                         const prevCount = prevUnreadCounts.current[matchId] || 0;
                         if (currentUnreadCount > prevCount) {
+                            // Show toast
                             showToast(`Tienes un mensaje nuevo de ${otherUserProfile.name}`, 'message');
+
+                            // Show browser notification if app is in background
+                            if (isAppInBackground()) {
+                                showMessageNotification(
+                                    otherUserProfile.name,
+                                    matchData.lastMessage || 'Nuevo mensaje',
+                                    otherUserProfile.images?.[0],
+                                    matchId
+                                );
+                            }
                         }
                     }
 
@@ -74,12 +112,29 @@ const MatchesList = () => {
 
             setMatches(updatedMatches);
             setLoading(false);
+
+            // Show match modal if new match detected
+            if (detectedNewMatch) {
+                setNewMatchData(detectedNewMatch);
+                setShowMatchModal(true);
+                showToast(`¡Es un Match! 💗 ${detectedNewMatch.matchedUser.name}`, 'match');
+
+                // Show browser notification
+                if (isAppInBackground()) {
+                    showMatchNotification(
+                        detectedNewMatch.matchedUser.name,
+                        detectedNewMatch.matchedUser.images?.[0],
+                        detectedNewMatch.matchId
+                    );
+                }
+            }
+
             isFirstLoad.current = false;
         });
 
         // Cleanup on unmount
         return () => unsubscribe();
-    }, [user]);
+    }, [user, getProfile, showToast]);
 
     // Helper to safely convert Firestore Timestamp or string to Date object
     const getDateObject = (timestamp) => {
@@ -128,6 +183,51 @@ const MatchesList = () => {
         if (diffHours < 24) return `${diffHours}h`;
         if (diffDays < 7) return `${diffDays}d`;
         return date.toLocaleDateString();
+
+    };
+
+    const handleTouchStart = (match) => {
+        longPressTimer.current = setTimeout(() => {
+            setDeleteModal({
+                isOpen: true,
+                matchId: match.id,
+                matchName: match.otherUser?.name || "Usuario"
+            });
+        }, 800); // 800ms long press
+    };
+
+    const handleTouchEnd = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+        }
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteModal.matchId) return;
+
+        try {
+            await hideMatchForUser(deleteModal.matchId, user.uid);
+            showToast("Conversación ocultada", "success");
+            setDeleteModal({ isOpen: false, matchId: null, matchName: "" });
+        } catch (error) {
+            showToast("Error al ocultar conversación", "error");
+        }
+    };
+
+    const confirmUnmatch = async () => {
+        if (!deleteModal.matchId) return;
+
+        try {
+            await unmatchUser(deleteModal.matchId);
+            showToast("Match deshecho", "success");
+            // Small delay to ensure Firestore operation completes before closing modal
+            setTimeout(() => {
+                setDeleteModal({ isOpen: false, matchId: null, matchName: "" });
+            }, 100);
+        } catch (error) {
+            showToast("Error al deshacer match", "error");
+            setDeleteModal({ isOpen: false, matchId: null, matchName: "" });
+        }
     };
 
     if (loading) {
@@ -300,9 +400,9 @@ const MatchesList = () => {
                                             alignItems: "center",
                                             justifyContent: "center",
                                             border: "2px solid var(--bg-primary)",
-                                            fontSize: "0.7rem"
+                                            color: "white"
                                         }}>
-                                            ✨
+                                            <Sparkles size={14} />
                                         </div>
                                     </div>
                                     <span style={{
@@ -340,8 +440,12 @@ const MatchesList = () => {
                                     transition: "background 0.2s",
                                     background: match.unreadCount > 0 ? "rgba(254, 60, 114, 0.05)" : "transparent"
                                 }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = "var(--glass-bg)"}
-                                onMouseLeave={(e) => e.currentTarget.style.background = match.unreadCount > 0 ? "rgba(254, 60, 114, 0.05)" : "transparent"}
+                                onMouseDown={() => handleTouchStart(match)}
+                                onMouseUp={handleTouchEnd}
+                                onMouseLeave={handleTouchEnd}
+                                onTouchStart={() => handleTouchStart(match)}
+                                onTouchEnd={handleTouchEnd}
+                                onContextMenu={(e) => e.preventDefault()} // Prevent default context menu
                             >
                                 {/* Avatar */}
                                 <div style={{
@@ -441,9 +545,11 @@ const MatchesList = () => {
                         gap: "1rem"
                     }}>
                         <div style={{
-                            fontSize: "4rem",
-                            opacity: 0.5
-                        }}>💬</div>
+                            opacity: 0.5,
+                            color: "var(--text-secondary)"
+                        }}>
+                            <MessageCircle size={64} strokeWidth={1.5} />
+                        </div>
                         <h3 style={{
                             fontSize: "1.25rem",
                             fontWeight: "600",
@@ -465,6 +571,90 @@ const MatchesList = () => {
             </div>
 
             <TabNavigation />
+
+            {showMatchModal && newMatchData && (
+                <MatchModal
+                    currentUser={newMatchData.currentUser}
+                    matchedUser={newMatchData.matchedUser}
+                    matchId={newMatchData.matchId}
+                    onClose={() => setShowMatchModal(false)}
+                />
+            )}
+
+            {/* Delete/Unmatch Modal */}
+            {deleteModal.isOpen && (
+                <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: "rgba(0,0,0,0.8)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1000,
+                    padding: "1rem"
+                }}>
+                    <div className="glass" style={{
+                        background: "#1a1a1a",
+                        padding: "2rem",
+                        borderRadius: "24px",
+                        maxWidth: "400px",
+                        width: "100%",
+                        border: "1px solid var(--glass-border)",
+                        animation: "scaleIn 0.3s ease",
+                        textAlign: "center"
+                    }}>
+                        <h3 style={{ marginBottom: "1.5rem", color: "white" }}>Opciones de Conversación</h3>
+                        <p style={{
+                            marginBottom: "2rem",
+                            color: "var(--text-secondary)",
+                            fontSize: "0.95rem"
+                        }}>
+                            ¿Qué deseas hacer con <strong>{deleteModal.matchName}</strong>?
+                        </p>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                            <Button
+                                onClick={confirmDelete}
+                                style={{
+                                    background: "rgba(255, 255, 255, 0.1)",
+                                    border: "none",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "0.5rem"
+                                }}
+                            >
+                                <EyeOff size={18} /> Ocultar Chat (Solo para mí)
+                            </Button>
+
+                            <Button
+                                onClick={confirmUnmatch}
+                                style={{
+                                    background: "rgba(239, 68, 68, 0.2)",
+                                    color: "#ef4444",
+                                    border: "1px solid rgba(239, 68, 68, 0.3)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "0.5rem"
+                                }}
+                            >
+                                <UserX size={18} /> Deshacer Match (Para ambos)
+                            </Button>
+
+                            <Button
+                                onClick={() => setDeleteModal({ isOpen: false, matchId: null, matchName: "" })}
+                                style={{ background: "transparent", border: "none", marginTop: "0.5rem", color: "var(--text-secondary)" }}
+                            >
+                                Cancelar
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style>{`
                 .hide-scrollbar::-webkit-scrollbar {

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Flame, MessageCircle, User } from "lucide-react";
 import "./TabNavigation.css";
 
 const TabNavigation = () => {
@@ -7,9 +8,9 @@ const TabNavigation = () => {
     const location = useLocation();
 
     const tabs = [
-        { name: 'Feed', path: '/feed', icon: '🔥', label: 'Feed' },
-        { name: 'Chat', path: '/chat', icon: '💬', label: 'Chat' },
-        { name: 'Profile', path: '/profile', icon: '👤', label: 'Perfil' }
+        { name: 'Feed', path: '/feed', icon: <Flame size={24} />, label: 'Feed' },
+        { name: 'Chat', path: '/chat', icon: <MessageCircle size={24} />, label: 'Chat' },
+        { name: 'Profile', path: '/profile', icon: <User size={24} />, label: 'Perfil' }
     ];
 
     const isActive = (path) => location.pathname === path;

@@ -66,8 +66,9 @@ service cloud.firestore {
       allow update: if isAuthenticated()
                     && request.auth.uid in resource.data.users;
       
-      // Los matches no se pueden eliminar manualmente
-      allow delete: if false;
+      // Los usuarios involucrados pueden eliminar el match (unmatch)
+      allow delete: if isAuthenticated()
+                    && request.auth.uid in resource.data.users;
       
       // Subcolección de mensajes
       match /messages/{messageId} {

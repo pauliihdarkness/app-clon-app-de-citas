@@ -12,6 +12,7 @@ import LocationSelector from "../components/Profile/LocationSelector";
 import genderDataRaw from "../assets/data/gender-identities.json";
 import orientationDataRaw from "../assets/data/sexual-orientation.json";
 import interestsDataRaw from "../assets/data/interests.json";
+import { Camera, Edit2, ArrowLeft } from "lucide-react";
 import "./EditProfile.css";
 
 const genderData = genderDataRaw.identidades_genero;
@@ -215,7 +216,7 @@ const EditProfile = () => {
         {/* 1. Photos Section (Direct Edit) */}
         <div className="edit-box photos-box">
           <div className="box-header">
-            <h2>📷 Fotos ({userData.images.length}/9)</h2>
+            <h2><Camera size={20} /> Fotos ({userData.images.length}/9)</h2>
           </div>
           <div className="box-content">
             <UpdateMultipleImagesWithCrop
@@ -232,7 +233,7 @@ const EditProfile = () => {
         <div className="edit-box summary-box" onClick={() => openModal('basic')}>
           <div className="box-header">
             <h2>📋 Información Básica</h2>
-            <span className="edit-icon">✏️</span>
+            <span className="edit-icon"><Edit2 size={18} /></span>
           </div>
           <div className="box-content summary-content">
             <div className="summary-item">
@@ -256,7 +257,7 @@ const EditProfile = () => {
         <div className="edit-box summary-box" onClick={() => openModal('bio')}>
           <div className="box-header">
             <h2>💭 Sobre Mí</h2>
-            <span className="edit-icon">✏️</span>
+            <span className="edit-icon"><Edit2 size={18} /></span>
           </div>
           <div className="box-content summary-content">
             <p className="bio-preview">
@@ -269,7 +270,7 @@ const EditProfile = () => {
         <div className="edit-box summary-box" onClick={() => openModal('interests')}>
           <div className="box-header">
             <h2>✨ Intereses ({userData.interests.length}/8)</h2>
-            <span className="edit-icon">✏️</span>
+            <span className="edit-icon"><Edit2 size={18} /></span>
           </div>
           <div className="box-content summary-content">
             <div className="interests-preview">
@@ -288,7 +289,7 @@ const EditProfile = () => {
         <div className="edit-box summary-box" onClick={() => openModal('lifestyle')}>
           <div className="box-header">
             <h2>🍷 Estilo de Vida</h2>
-            <span className="edit-icon">✏️</span>
+            <span className="edit-icon"><Edit2 size={18} /></span>
           </div>
           <div className="box-content summary-content">
             <div className="summary-item">
@@ -306,7 +307,7 @@ const EditProfile = () => {
         <div className="edit-box summary-box" onClick={() => openModal('job')}>
           <div className="box-header">
             <h2>💼 Información Profesional</h2>
-            <span className="edit-icon">✏️</span>
+            <span className="edit-icon"><Edit2 size={18} /></span>
           </div>
           <div className="box-content summary-content">
             <div className="summary-item">
@@ -320,7 +321,7 @@ const EditProfile = () => {
         <div className="edit-box summary-box" onClick={() => openModal('intentions')}>
           <div className="box-header">
             <h2>❤️ Qué busco</h2>
-            <span className="edit-icon">✏️</span>
+            <span className="edit-icon"><Edit2 size={18} /></span>
           </div>
           <div className="box-content summary-content">
             <p className="bio-preview">
@@ -331,7 +332,7 @@ const EditProfile = () => {
 
         <div className="global-actions">
           <Button onClick={() => navigate("/profile")} variant="secondary">
-            ⬅️ Volver al Perfil
+            <ArrowLeft size={18} /> Volver al Perfil
           </Button>
         </div>
 

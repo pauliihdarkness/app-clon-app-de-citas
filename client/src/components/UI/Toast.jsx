@@ -16,6 +16,7 @@ const Toast = ({ id, message, type = 'info', duration = 3000, onClose }) => {
             case 'warning': return '⚠';
             case 'info': return 'ℹ';
             case 'message': return '💬';
+            case 'match': return '💗';
             default: return 'ℹ';
         }
     };
@@ -42,6 +43,10 @@ const Toast = ({ id, message, type = 'info', duration = 3000, onClose }) => {
                 bg: 'rgba(255, 255, 255, 0.15)',
                 border: 'rgba(255, 255, 255, 0.3)'
             };
+            case 'match': return {
+                bg: 'linear-gradient(135deg, #FF6B9D, #C471ED)',
+                border: '#FF6B9D'
+            };
             default: return {
                 bg: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
                 border: '#3b82f6'
@@ -65,7 +70,7 @@ const Toast = ({ id, message, type = 'info', duration = 3000, onClose }) => {
                 color: 'white',
                 minWidth: '300px',
                 maxWidth: '400px',
-                animation: type === 'message' ? 'slideDown 0.5s ease-out' : 'slideIn 0.3s ease-out',
+                animation: (type === 'message' || type === 'match') ? 'slideDown 0.5s ease-out' : 'slideIn 0.3s ease-out',
                 marginBottom: '0.75rem',
                 backdropFilter: 'blur(10px)',
                 border: `1px solid ${colors.border}`

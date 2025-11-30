@@ -37,7 +37,7 @@ const ProtectedRoute = ({ children }) => {
     if (!loading) {
       checkProfile();
     }
-  }, [user, loading]);
+  }, [user, loading, location.pathname]);
 
   if (loading || isProfileLoading) {
     return <SplashScreen />;

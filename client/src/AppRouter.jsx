@@ -22,6 +22,7 @@ import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
 import SplashScreen from "./components/Layout/SplashScreen";
+import InstallPrompt from "./components/PWA/InstallPrompt";
 import { FeedProvider } from "./context/FeedContext";
 import { useAuth } from "./context/AuthContext";
 
@@ -47,6 +48,7 @@ const AppRouter = () => {
 
     return (
         <Router>
+            <InstallPrompt />
             <Routes>
                 <Route path="/" element={user ? <Navigate to="/feed" replace /> : <Home />} />
                 <Route path="/login" element={<Login />} />

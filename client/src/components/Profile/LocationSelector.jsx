@@ -5,6 +5,7 @@ import localizations from "../../assets/data/Localizations-AR.json";
 import { getInitialLocation } from "../../utils/geolocation";
 import "../../assets/styles/global.css";
 
+import { Building2, Compass } from "lucide-react";
 import "./LocationSelector.css";
 
 const LocationSelector = ({ onLocationChange, initialLocation }) => {
@@ -69,7 +70,6 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
 
     return (
         <div className="location-selector-container">
-            <h3 className="location-title">📍 Ubicación</h3>
 
             <div className="location-field">
                 <label className="location-label">Provincia</label>
@@ -95,7 +95,7 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
                     value={ciudad}
                     onChange={(e) => setCiudad(e.target.value)}
                     disabled={!provincia}
-                    icon={<span>🏙️</span>}
+                    icon={<Building2 size={18} />}
                     onFocus={() => ciudad && setSugerencias(s => s) && setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Delay para permitir click
                 />
@@ -122,7 +122,7 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
                         onClick={handleDetectLocation}
                         variant="secondary"
                         disabled={isLoadingGeo}
-                        icon={<span>🧭</span>}
+                        icon={<Compass size={18} />}
                     >
                         {isLoadingGeo ? "Detectando..." : "Usar mi ubicación actual"}
                     </Button>

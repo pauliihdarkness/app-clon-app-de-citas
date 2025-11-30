@@ -100,6 +100,15 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 - ✅ **Contacto**: Formulario funcional + información de contacto
 - ✅ **Diseño Consistente**: Tema oscuro coherente con la app
 
+### 📱 PWA (Progressive Web App)
+- ✅ **Installable**: App instalable en desktop y móvil
+- ✅ **Manifest**: Configuración completa con iconos y metadata
+- ✅ **Service Worker**: Soporte offline y caché de assets
+- ✅ **Web Notifications**: Notificaciones del navegador para mensajes y matches
+- ✅ **Install Prompt**: Banner personalizado para instalar la app
+- ✅ **Standalone Mode**: Experiencia app nativa sin UI del navegador
+- ✅ **Offline Support**: Funcionalidad básica sin conexión
+
 ## 🛠️ Tecnologías Utilizadas
 
 ### Frontend

@@ -23,6 +23,7 @@ const MessageBubble = React.memo(({
                 <div style={{
                     width: "32px",
                     height: "32px",
+                    flexShrink: 0,
                     visibility: showAvatar ? "visible" : "hidden"
                 }}>
                     {showAvatar && (
@@ -30,12 +31,9 @@ const MessageBubble = React.memo(({
                             width: "100%",
                             height: "100%",
                             borderRadius: "50%",
+                            overflow: "hidden",
                             background: "var(--primary-gradient)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "0.9rem",
-                            overflow: "hidden"
+                            position: "relative"
                         }}>
                             {otherUserImage ? (
                                 <img
@@ -43,13 +41,25 @@ const MessageBubble = React.memo(({
                                     alt="Avatar"
                                     loading="lazy"
                                     style={{
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
                                         width: "100%",
                                         height: "100%",
                                         objectFit: "cover"
                                     }}
                                 />
                             ) : (
-                                "👤"
+                                <div style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "0.9rem"
+                                }}>
+                                    👤
+                                </div>
                             )}
                         </div>
                     )}

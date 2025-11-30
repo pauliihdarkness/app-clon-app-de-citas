@@ -6,9 +6,10 @@ import { validateImageFile } from "../../utils/nsfwDetector.js";
 import Modal from "../UI/Modal";
 import Button from "../UI/Button";
 import NSFWAnalysisModal from "../UI/NSFWAnalysisModal";
+import { Camera } from "lucide-react";
 import "./UpdateMultipleImagesWithCrop.css";
 
-function UpdateMultipleImagesWithCrop({ uid, initialImages = [], onImagesChange, onDirectUpdate, maxImages = 6 }) {
+function UpdateMultipleImagesWithCrop({ uid, initialImages = [], onImagesChange, onDirectUpdate, maxImages = 9 }) {
     const [images, setImages] = useState(initialImages);
     const fileInputRef = useRef(null);
 
@@ -177,7 +178,7 @@ function UpdateMultipleImagesWithCrop({ uid, initialImages = [], onImagesChange,
                         onClick={triggerFileInput}
                         type="button"
                     >
-                        <span className="upload-icon">📷</span>
+                        <Camera size={32} className="upload-icon" />
                         <span>Agregar Foto ({images.length}/{maxImages})</span>
                     </button>
                 </div>

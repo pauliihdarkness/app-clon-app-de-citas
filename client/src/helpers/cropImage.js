@@ -16,8 +16,24 @@ export const getCroppedImg = (imageSrc, cropArea) => {
             const ctx = canvas.getContext("2d");
 
             // react-easy-crop ya entrega estos valores en pixeles
-            canvas.width = cropArea.width;
-            canvas.height = cropArea.height;
+            const MAX_DIMENSION = 1080;
+            let width = cropArea.width;
+            let height = cropArea.height;
+
+            // Calcular nuevas dimensiones si superan el máximo
+            if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                const ratio = width / height;
+                if (width > height) {
+                    width = MAX_DIMENSION;
+                    height = MAX_DIMENSION / ratio;
+                } else {
+                    height = MAX_DIMENSION;
+                    width = MAX_DIMENSION * ratio;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
 
             ctx.drawImage(
                 image,
@@ -27,8 +43,8 @@ export const getCroppedImg = (imageSrc, cropArea) => {
                 cropArea.height,
                 0,
                 0,
-                cropArea.width,
-                cropArea.height
+                width,
+                height
             );
 
             canvas.toBlob((blob) => {

@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { getUserProfile, getPrivateUserData } from "../api/user";
 import BaseLayout from "../components/Layout/BaseLayout";
 import "./AccountInfo.css";
+import { Info } from "lucide-react";
+
 
 const AccountInfo = () => {
     const { user } = useAuth();
@@ -99,7 +101,7 @@ const AccountInfo = () => {
                         </div>
                     </div>
                     <div className="info-note">
-                        <p>ℹ️ La fecha de nacimiento no se puede modificar por razones de seguridad.</p>
+                        <p><Info size={16} /> La fecha de nacimiento no se puede modificar por razones de seguridad.</p>
                     </div>
                 </div>
 

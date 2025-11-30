@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged, signOut, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import app from "../api/firebase";
+import { startKeepAlive, stopKeepAlive } from "../services/keepAlive";
 
 const AuthContext = createContext();
 const auth = getAuth(app);
@@ -15,8 +16,18 @@ export const AuthProvider = ({ children }) => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             setLoading(false);
+
+            // Start keep-alive when user is authenticated
+            if (currentUser) {
+                startKeepAlive();
+            } else {
+                stopKeepAlive();
+            }
         });
-        return () => unsubscribe();
+        return () => {
+            unsubscribe();
+            stopKeepAlive();
+        };
     }, []);
 
     const loginWithGoogle = async () => {
@@ -53,6 +64,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
+        stopKeepAlive(); // Stop keep-alive on logout
         await signOut(auth);
         setUser(null);
     };

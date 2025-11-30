@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { getUserProfile } from "../api/user";
 import Button from "../components/UI/Button";
 import { useNavigate } from "react-router-dom";
+import { Edit2, Settings, Camera, MessageSquareQuote, Info, Wine, Briefcase, Target, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import "./Profile.css";
 
 const Profile = () => {
@@ -116,10 +117,10 @@ const Profile = () => {
   const headerActions = (
     <>
       <button onClick={handleEditProfile} className="header-btn" aria-label="Editar Perfil">
-        ✏️
+        <Edit2 size={20} />
       </button>
       <button onClick={() => navigate("/settings")} className="header-btn" aria-label="Configuración">
-        ⚙️
+        <Settings size={20} />
       </button>
     </>
   );
@@ -145,10 +146,10 @@ const Profile = () => {
                 {photos.length > 1 && (
                   <>
                     <button className="carousel-btn prev" onClick={prevPhoto}>
-                      ‹
+                      <ChevronLeft size={24} />
                     </button>
                     <button className="carousel-btn next" onClick={nextPhoto}>
-                      ›
+                      <ChevronRight size={24} />
                     </button>
                     <div className="carousel-indicators">
                       {photos.map((_, index) => (
@@ -165,7 +166,7 @@ const Profile = () => {
             </>
           ) : (
             <div className="carousel-image placeholder">
-              <div className="placeholder-icon">📷</div>
+              <div className="placeholder-icon"><Camera size={48} /></div>
               <p>Sin fotos</p>
             </div>
           )}
@@ -180,7 +181,7 @@ const Profile = () => {
             </h1>
             {userData?.location?.city && (
               <p className="location">
-                📍 {userData.location.city}
+                <MapPin /> {userData.location.city}
                 {userData.location.state && `, ${userData.location.state}`}
               </p>
             )}
@@ -189,7 +190,7 @@ const Profile = () => {
           {/* Bio */}
           {userData?.bio && (
             <div className="profile-section">
-              <h3>💭 Sobre mí</h3>
+              <h3><MessageSquareQuote size={18} /> Sobre mí</h3>
               <p className="bio-text">{userData.bio}</p>
             </div>
           )}
@@ -197,7 +198,7 @@ const Profile = () => {
           {/* More About Me - Sexual Orientation & Search Intent */}
           {(userData?.sexualOrientation || userData?.searchIntent) && (
             <div className="profile-section">
-              <h3>ℹ️ Más sobre mí</h3>
+              <h3><Info size={18} /> Más sobre mí</h3>
               <div className="details-grid">
                 {userData.sexualOrientation && (
                   <div className="detail-item">
@@ -218,7 +219,7 @@ const Profile = () => {
           {/* Lifestyle Section */}
           {userData?.lifestyle && Object.values(userData.lifestyle).some(val => val) && (
             <div className="profile-section">
-              <h3>🍷 Estilo de Vida</h3>
+              <h3><Wine size={18} /> Estilo de Vida</h3>
               <div className="details-grid">
                 {userData.lifestyle.height && (
                   <div className="detail-item">
@@ -257,7 +258,7 @@ const Profile = () => {
           {/* Job Section */}
           {userData?.job && (userData.job.title || userData.job.company || userData.job.education) && (
             <div className="profile-section">
-              <h3>💼 Profesional</h3>
+              <h3><Briefcase size={18} /> Profesional</h3>
               <div className="details-grid">
                 {userData.job.title && (
                   <div className="detail-item">
@@ -284,7 +285,7 @@ const Profile = () => {
           {/* Interests */}
           {userData?.interests && userData.interests.length > 0 && (
             <div className="profile-section">
-              <h3>🎯 Intereses</h3>
+              <h3><Target size={18} /> Intereses</h3>
               <div className="interests-container">
                 {userData.interests.map((interest, index) => (
                   <span key={index} className="interest-tag">

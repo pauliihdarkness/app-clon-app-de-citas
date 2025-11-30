@@ -10,6 +10,7 @@ import LocationSelector from "../components/Profile/LocationSelector";
 import UpdateMultipleImagesWithCrop from "../components/Profile/UpdateMultipleImagesWithCrop";
 import genderData from "../assets/data/gender-identities.json";
 import orientationData from "../assets/data/sexual-orientation.json";
+import { MapPin, Calendar, Camera, User, Users, Heart } from "lucide-react";
 
 const CreateProfile = () => {
     const { user } = useAuth();
@@ -141,7 +142,9 @@ const CreateProfile = () => {
             <form onSubmit={handlePreSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                 {/* 1. Nombre */}
                 <div className="form-section">
-                    <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>Nombre</label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
+                        <User size={18} /> Nombre
+                    </label>
                     <Input
                         type="text"
                         placeholder="Tu nombre"
@@ -152,7 +155,9 @@ const CreateProfile = () => {
 
                 {/* 2. Fecha de Nacimiento */}
                 <div className="form-section">
-                    <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>Fecha de Nacimiento</label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
+                        <Calendar size={18} /> Fecha de Nacimiento
+                    </label>
                     <Input
                         type="date"
                         value={fechaNacimiento || ""}
@@ -181,7 +186,9 @@ const CreateProfile = () => {
 
                 {/* 3. Género */}
                 <div className="form-section">
-                    <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>Género</label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
+                        <Users size={18} /> Género
+                    </label>
                     <div style={{ position: "relative" }}>
                         <select
                             value={genero}
@@ -198,7 +205,9 @@ const CreateProfile = () => {
 
                 {/* 4. Orientación Sexual */}
                 <div className="form-section">
-                    <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>Orientación Sexual</label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
+                        <Heart size={18} /> Orientación Sexual
+                    </label>
                     <div style={{ position: "relative" }}>
                         <select
                             value={orientacionSexual}
@@ -215,7 +224,9 @@ const CreateProfile = () => {
 
                 {/* 5. Fotos */}
                 <div className="form-section">
-                    <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>Tus Fotos</label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
+                        <Camera size={18} /> Tus Fotos
+                    </label>
                     <UpdateMultipleImagesWithCrop
                         uid={user?.uid}
                         onImagesChange={handleImagesChange}
@@ -224,7 +235,9 @@ const CreateProfile = () => {
 
                 {/* 6. Ubicación */}
                 <div className="form-section">
-                    <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>Ubicación</label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
+                        <MapPin size={18} /> Ubicación
+                    </label>
                     <LocationSelector
                         onLocationChange={handleLocationChange}
                         initialLocation={{ pais, provincia, ciudad }}

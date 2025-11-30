@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getUserProfile } from "../api/user";
 import { saveLike, savePass } from "../api/likes";
+import { ChevronLeft, ChevronRight, Camera, MessageSquareQuote, MapPin, Info, Wine, Briefcase, Target, X, Heart } from "lucide-react";
 import "./PublicProfile.css";
 
 const PublicProfile = () => {
@@ -14,7 +15,7 @@ const PublicProfile = () => {
     const [loading, setLoading] = useState(true);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
-    
+
     // Detectar si viene del feed específicamente
     const fromFeed = location.state?.fromFeed === true;
     const isOwnProfile = user?.uid === userId;
@@ -149,8 +150,8 @@ const PublicProfile = () => {
         <div className="public-profile-container">
             {/* Header with back button */}
             <div className="public-profile-header">
-                <button onClick={() => navigate(-1)} className="back-btn" aria-label="Volver">
-                    ‹
+                <button onClick={() => navigate(-1)} className="back-btn-public-profile" aria-label="Volver">
+                    <ChevronLeft size={28} color="var(--text-color)" />
                 </button>
                 <h1>Perfil</h1>
                 <div style={{ width: "40px" }}></div> {/* Spacer for centering */}
@@ -175,10 +176,10 @@ const PublicProfile = () => {
                                 {photos.length > 1 && (
                                     <>
                                         <button className="carousel-btn prev" onClick={prevPhoto}>
-                                            ‹
+                                            <ChevronLeft size={24} />
                                         </button>
                                         <button className="carousel-btn next" onClick={nextPhoto}>
-                                            ›
+                                            <ChevronRight size={24} />
                                         </button>
                                         <div className="carousel-indicators">
                                             {photos.map((_, index) => (
@@ -195,7 +196,7 @@ const PublicProfile = () => {
                         </>
                     ) : (
                         <div className="carousel-image placeholder">
-                            <div className="placeholder-icon">📷</div>
+                            <div className="placeholder-icon"><Camera size={48} /></div>
                             <p>Sin fotos</p>
                         </div>
                     )}
@@ -210,7 +211,8 @@ const PublicProfile = () => {
                         </h2>
                         {userData?.location?.city && (
                             <p className="location">
-                                📍 {userData.location.city}
+                                <MapPin size={18} />
+                                {userData.location.city}
                                 {userData.location.state && `, ${userData.location.state}`}
                             </p>
                         )}
@@ -219,7 +221,7 @@ const PublicProfile = () => {
                     {/* Bio */}
                     {userData?.bio && (
                         <div className="profile-section">
-                            <h3>💭 Sobre mí</h3>
+                            <h3><MessageSquareQuote size={18} /> Sobre mí</h3>
                             <p className="bio-text">{userData.bio}</p>
                         </div>
                     )}
@@ -227,7 +229,7 @@ const PublicProfile = () => {
                     {/* More About Me */}
                     {(userData?.sexualOrientation || userData?.searchIntent) && (
                         <div className="profile-section">
-                            <h3>ℹ️ Más sobre mí</h3>
+                            <h3><Info size={18} /> Más sobre mí</h3>
                             <div className="details-grid">
                                 {userData.sexualOrientation && (
                                     <div className="detail-item">
@@ -248,7 +250,7 @@ const PublicProfile = () => {
                     {/* Lifestyle */}
                     {userData?.lifestyle && Object.values(userData.lifestyle).some(val => val) && (
                         <div className="profile-section">
-                            <h3>🍷 Estilo de Vida</h3>
+                            <h3><Wine size={18} /> Estilo de Vida</h3>
                             <div className="details-grid">
                                 {userData.lifestyle.height && (
                                     <div className="detail-item">
@@ -287,7 +289,7 @@ const PublicProfile = () => {
                     {/* Job */}
                     {userData?.job && (userData.job.title || userData.job.company || userData.job.education) && (
                         <div className="profile-section">
-                            <h3>💼 Profesional</h3>
+                            <h3><Briefcase size={18} /> Profesional</h3>
                             <div className="details-grid">
                                 {userData.job.title && (
                                     <div className="detail-item">
@@ -314,7 +316,7 @@ const PublicProfile = () => {
                     {/* Interests */}
                     {userData?.interests && userData.interests.length > 0 && (
                         <div className="profile-section">
-                            <h3>🎯 Intereses</h3>
+                            <h3><Target size={18} /> Intereses</h3>
                             <div className="interests-container">
                                 {userData.interests.map((interest, index) => (
                                     <span key={index} className="interest-tag">
@@ -334,14 +336,14 @@ const PublicProfile = () => {
                             onClick={handlePass}
                             aria-label="Pass"
                         >
-                            ❌
+                            <X size={32} />
                         </button>
                         <button
                             className="action-btn like"
                             onClick={handleLike}
                             aria-label="Like"
                         >
-                            💚
+                            <Heart size={32} fill="currentColor" />
                         </button>
                     </div>
                 )}

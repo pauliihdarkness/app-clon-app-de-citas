@@ -4,7 +4,7 @@ import TabNavigation from "../Navigation/TabNavigation";
 import "./BaseLayout.css";
 import "../../assets/styles/global.css";
 
-const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Citas & Conexiones", backPath, headerActions }) => {
+const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "App de Citas", backPath, headerActions }) => {
   const navigate = useNavigate();
   const location = useLocation();
 

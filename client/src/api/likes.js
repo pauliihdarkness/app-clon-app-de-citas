@@ -17,10 +17,14 @@ export const saveLike = async (fromUserId, toUserId) => {
             createdAt: serverTimestamp()
         });
 
-        // La lógica de match ahora se maneja en el backend (Render)
-        // El cliente escuchará cambios en la colección 'matches'
+        // Verificar si hay match mutuo
+        const isMatch = await checkMutualLike(fromUserId, toUserId);
 
-        return { success: true };
+        if (isMatch) {
+            await createMatch(fromUserId, toUserId);
+        }
+
+        return { success: true, isMatch };
     } catch (error) {
         console.error("Error saving like:", error);
         throw error;
@@ -87,6 +91,7 @@ export const createMatch = async (user1Id, user2Id) => {
         const matchId = `${sortedUser1}_${sortedUser2}`;
 
         await setDoc(doc(db, "matches", matchId), {
+            users: [sortedUser1, sortedUser2], // Array para consultas
             user1Id: sortedUser1,
             user2Id: sortedUser2,
             createdAt: serverTimestamp()
