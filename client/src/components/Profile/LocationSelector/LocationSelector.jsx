@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Input from "../UI/Input";
-import Button from "../UI/Button";
-import localizations from "../../assets/data/Localizations-AR.json";
-import { getInitialLocation } from "../../utils/geolocation";
-import "../../assets/styles/global.css";
+import Input from "../../UI/Input";
+import Button from "../../UI/Button";
+import localizations from "../../../assets/data/Localizations-AR.json";
+import { getInitialLocation } from "../../../utils/geolocation";
+import "../../../assets/styles/global.css";
 
 import { Building2, Compass } from "lucide-react";
 import "./LocationSelector.css";

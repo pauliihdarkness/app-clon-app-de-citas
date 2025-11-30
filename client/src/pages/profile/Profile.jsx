@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import BaseLayout from "../components/Layout/BaseLayout";
-import { useAuth } from "../context/AuthContext";
-import { getUserProfile } from "../api/user";
-import Button from "../components/UI/Button";
+import BaseLayout from "../../components/Layout/BaseLayout";
+import { useAuth } from "../../context/AuthContext";
+import { getUserProfile } from "../../api/user";
 import { useNavigate } from "react-router-dom";
 import { Edit2, Settings, Camera, MessageSquareQuote, Info, Wine, Briefcase, Target, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import "./Profile.css";

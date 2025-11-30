@@ -17,7 +17,7 @@ const SplashScreen = () => {
             background: "radial-gradient(circle at center, #2a1a2e 0%, #0F0F15 70%)",
         }}>
             <div className="splash-logo" style={{
-                fontSize: '3rem',
+                fontSize: '1rem',
                 fontWeight: 'bold',
                 background: "linear-gradient(45deg, #FE3C72, #FF7854)",
                 WebkitBackgroundClip: "text",

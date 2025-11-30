@@ -1,12 +1,23 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import TabNavigation from "../Navigation/TabNavigation";
+import { useNotifications } from "../../context/NotificationContext";
 import "./BaseLayout.css";
 import "../../assets/styles/global.css";
 
 const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "App de Citas", backPath, headerActions }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Safe fallback for notifications
+  let unreadCount = 0;
+  try {
+    const notifications = useNotifications();
+    unreadCount = notifications?.unreadCount || 0;
+  } catch (error) {
+    // NotificationProvider not available, use default value
+    console.warn('NotificationContext not available in BaseLayout');
+  }
 
   // Determinar si mostrar botón de atrás
   const showBackButton = !showTabs && location.pathname !== "/";
@@ -20,7 +31,7 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
   };
 
   const handleNotifications = () => {
-    alert("🔔 ¡Sin notificaciones nuevas!");
+    navigate("/notifications");
   };
 
   const handleFilters = () => {
@@ -55,7 +66,7 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
               </button>
               <button onClick={handleNotifications} className="header-btn" aria-label="Notificaciones">
                 🔔
-                <span className="badge"></span>
+                {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
               </button>
             </>
           ) : null}
@@ -71,7 +82,7 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
 
       {/* Footer (Solo si no hay tabs) */}
       <footer className={`app-footer ${showTabs ? "hidden" : ""}`}>
-        <small>© 2025 App de Citas • Privacidad • Términos</small>
+        <small>© 2025 App de Citas</small>
       </footer>
 
       {/* Bottom Navigation */}

@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, limit, getDocs } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, limit, getDocs, arrayUnion, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { db } from "./firebase";
 import { calculateAge } from "../utils/dateUtils";
@@ -108,4 +108,39 @@ export const getFeedUsers = async (currentUserId) => {
   });
 
   return users;
+};
+
+/**
+ * Bloquear a un usuario
+ * @param {string} currentUserId - ID del usuario actual
+ * @param {string} targetUserId - ID del usuario a bloquear
+ */
+export const blockUser = async (currentUserId, targetUserId) => {
+  try {
+    // 1. Añadir a la lista de bloqueados del usuario actual
+    const userRef = doc(db, "users", currentUserId);
+    await updateDoc(userRef, {
+      blockedUsers: arrayUnion(targetUserId)
+    });
+
+    // 2. Deshacer match si existe (importar dinámicamente para evitar ciclos)
+    const { unmatchUser } = await import("./matches");
+
+    // Buscar el match ID (esto es ineficiente, idealmente deberíamos pasar el matchId si lo tenemos)
+    // Pero para asegurar, buscamos matches donde ambos estén
+    const matchesRef = collection(db, "matches");
+    const q = query(matchesRef, where("users", "array-contains", currentUserId));
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach(async (doc) => {
+      const data = doc.data();
+      if (data.users.includes(targetUserId)) {
+        await unmatchUser(doc.id);
+      }
+    });
+
+  } catch (error) {
+    console.error("Error blocking user:", error);
+    throw error;
+  }
 };

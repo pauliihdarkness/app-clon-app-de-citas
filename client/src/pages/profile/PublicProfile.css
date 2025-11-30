@@ -1,13 +1,8 @@
 .public-profile-container {
     min-height: 100vh;
-    /* Fallback */
-    min-height: 100dvh;
     background: var(--background-color);
     color: var(--text-color);
     padding-bottom: 80px;
-    max-width: 600px;
-    margin: 0 auto;
-    position: relative;
 }
 
 .public-profile-header {
@@ -29,13 +24,13 @@
     font-weight: 600;
 }
 
-.back-btn-public-profile {
+.back-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     border: none;
     background: rgba(255, 255, 255, 0.1);
-    color: var(--text-color);
+    color: white;
     font-size: 2rem;
     display: flex;
     align-items: center;

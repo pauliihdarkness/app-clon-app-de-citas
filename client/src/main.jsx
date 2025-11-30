@@ -4,6 +4,7 @@ import AppRouter from "./AppRouter";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
 import { UserProfilesProvider } from "./context/UserProfilesContext.jsx";
+import "./assets/styles/global.css";
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {

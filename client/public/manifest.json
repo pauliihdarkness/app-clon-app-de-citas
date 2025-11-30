@@ -41,7 +41,19 @@
       "name": "Mensajes",
       "short_name": "Chats",
       "description": "Ver conversaciones",
-      "url": "/matches",
+      "url": "/chat",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+        {
+      "name": "Mi perfil",
+      "short_name": "Cuenta",
+      "description": "Ver y editar mi perfil",
+      "url": "/profile",
       "icons": [
         {
           "src": "/icon-192.png",

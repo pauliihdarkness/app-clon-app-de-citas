@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import Modal from './Modal';
+import Modal from '../Modal/Modal';
 import './NSFWAnalysisModal.css';
 
 /**

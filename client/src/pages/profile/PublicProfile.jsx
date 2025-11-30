@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { getUserProfile } from "../api/user";
-import { saveLike, savePass } from "../api/likes";
-import { ChevronLeft, ChevronRight, Camera, MessageSquareQuote, MapPin, Info, Wine, Briefcase, Target, X, Heart } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { getUserProfile, blockUser } from "../../api/user";
+import { saveLike, savePass } from "../../api/likes";
+import { reportUser } from "../../api/reports";
+import { useToast } from "../../hooks/useToast";
+import { MoreVertical, Flag, UserX, X, Heart, MapPin, MessageSquare, Info, Wine, Briefcase, Target } from "lucide-react";
 import "./PublicProfile.css";
 
 const PublicProfile = () => {
@@ -15,6 +17,22 @@ const PublicProfile = () => {
     const [loading, setLoading] = useState(true);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const { showToast } = useToast();
+    const [showMenu, setShowMenu] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const menuRef = React.useRef(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setShowMenu(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     // Detectar si viene del feed específicamente
     const fromFeed = location.state?.fromFeed === true;
@@ -122,6 +140,35 @@ const PublicProfile = () => {
         }
     };
 
+
+    const handleBlockUser = async () => {
+        if (!userId || !user) return;
+        if (window.confirm(`¿Bloquear a ${userData.name}? No podrán verse ni escribirse más.`)) {
+            try {
+                await blockUser(user.uid, userId);
+                showToast("Usuario bloqueado", "success");
+                navigate(-1);
+            } catch (error) {
+                showToast("Error al bloquear usuario", "error");
+            }
+        }
+    };
+
+    const handleReportUser = async () => {
+        if (!userId || !user || !reportReason) return;
+        try {
+            await reportUser(user.uid, userId, reportReason);
+            showToast("Usuario reportado", "success");
+            setShowReportModal(false);
+            setReportReason("");
+            if (window.confirm("Gracias por tu reporte. ¿Deseas bloquear a este usuario también?")) {
+                await handleBlockUser();
+            }
+        } catch (error) {
+            showToast("Error al reportar usuario", "error");
+        }
+    };
+
     if (loading) {
         return (
             <div className="public-profile-container">
@@ -150,11 +197,94 @@ const PublicProfile = () => {
         <div className="public-profile-container">
             {/* Header with back button */}
             <div className="public-profile-header">
-                <button onClick={() => navigate(-1)} className="back-btn-public-profile" aria-label="Volver">
-                    <ChevronLeft size={28} color="var(--text-color)" />
+                <button onClick={() => navigate(-1)} className="back-btn" aria-label="Volver">
+                    ‹
                 </button>
                 <h1>Perfil</h1>
                 <div style={{ width: "40px" }}></div> {/* Spacer for centering */}
+
+                {/* More Options Button */}
+                <div style={{ position: "absolute", right: "1rem", top: "1rem" }} ref={menuRef}>
+                    <button
+                        onClick={() => setShowMenu(!showMenu)}
+                        style={{
+                            background: "rgba(0,0,0,0.3)",
+                            border: "none",
+                            color: "white",
+                            cursor: "pointer",
+                            padding: "0.5rem",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: "50%",
+                            backdropFilter: "blur(4px)"
+                        }}
+                    >
+                        <MoreVertical size={20} />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {showMenu && (
+                        <div style={{
+                            position: "absolute",
+                            top: "100%",
+                            right: 0,
+                            marginTop: "0.5rem",
+                            background: "#1a1a1a",
+                            border: "1px solid var(--glass-border)",
+                            borderRadius: "12px",
+                            padding: "0.5rem",
+                            minWidth: "180px",
+                            zIndex: 100,
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.25rem"
+                        }}>
+                            <button
+                                onClick={() => { setShowReportModal(true); setShowMenu(false); }}
+                                style={{
+                                    background: "transparent",
+                                    border: "none",
+                                    color: "#fbbf24",
+                                    padding: "0.75rem",
+                                    textAlign: "left",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.75rem",
+                                    borderRadius: "8px",
+                                    fontSize: "0.9rem",
+                                    transition: "background 0.2s"
+                                }}
+                            >
+                                <Flag size={18} />
+                                Reportar
+                            </button>
+
+                            <button
+                                onClick={handleBlockUser}
+                                style={{
+                                    background: "transparent",
+                                    border: "none",
+                                    color: "#ef4444",
+                                    padding: "0.75rem",
+                                    textAlign: "left",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.75rem",
+                                    borderRadius: "8px",
+                                    fontSize: "0.9rem",
+                                    transition: "background 0.2s"
+                                }}
+                            >
+                                <UserX size={18} />
+                                Bloquear
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="public-profile-content">
@@ -176,10 +306,10 @@ const PublicProfile = () => {
                                 {photos.length > 1 && (
                                     <>
                                         <button className="carousel-btn prev" onClick={prevPhoto}>
-                                            <ChevronLeft size={24} />
+                                            ‹
                                         </button>
                                         <button className="carousel-btn next" onClick={nextPhoto}>
-                                            <ChevronRight size={24} />
+                                            ›
                                         </button>
                                         <div className="carousel-indicators">
                                             {photos.map((_, index) => (
@@ -196,7 +326,7 @@ const PublicProfile = () => {
                         </>
                     ) : (
                         <div className="carousel-image placeholder">
-                            <div className="placeholder-icon"><Camera size={48} /></div>
+                            <div className="placeholder-icon">📷</div>
                             <p>Sin fotos</p>
                         </div>
                     )}
@@ -211,8 +341,7 @@ const PublicProfile = () => {
                         </h2>
                         {userData?.location?.city && (
                             <p className="location">
-                                <MapPin size={18} />
-                                {userData.location.city}
+                                <MapPin size={14} style={{ display: "inline", marginRight: "4px" }} /> {userData.location.city}
                                 {userData.location.state && `, ${userData.location.state}`}
                             </p>
                         )}
@@ -221,7 +350,7 @@ const PublicProfile = () => {
                     {/* Bio */}
                     {userData?.bio && (
                         <div className="profile-section">
-                            <h3><MessageSquareQuote size={18} /> Sobre mí</h3>
+                            <h3><MessageSquare size={18} style={{ display: "inline", marginRight: "8px", verticalAlign: "middle" }} /> Sobre mí</h3>
                             <p className="bio-text">{userData.bio}</p>
                         </div>
                     )}
@@ -229,7 +358,7 @@ const PublicProfile = () => {
                     {/* More About Me */}
                     {(userData?.sexualOrientation || userData?.searchIntent) && (
                         <div className="profile-section">
-                            <h3><Info size={18} /> Más sobre mí</h3>
+                            <h3><Info size={18} style={{ display: "inline", marginRight: "8px", verticalAlign: "middle" }} /> Más sobre mí</h3>
                             <div className="details-grid">
                                 {userData.sexualOrientation && (
                                     <div className="detail-item">
@@ -250,7 +379,7 @@ const PublicProfile = () => {
                     {/* Lifestyle */}
                     {userData?.lifestyle && Object.values(userData.lifestyle).some(val => val) && (
                         <div className="profile-section">
-                            <h3><Wine size={18} /> Estilo de Vida</h3>
+                            <h3><Wine size={18} style={{ display: "inline", marginRight: "8px", verticalAlign: "middle" }} /> Estilo de Vida</h3>
                             <div className="details-grid">
                                 {userData.lifestyle.height && (
                                     <div className="detail-item">
@@ -289,7 +418,7 @@ const PublicProfile = () => {
                     {/* Job */}
                     {userData?.job && (userData.job.title || userData.job.company || userData.job.education) && (
                         <div className="profile-section">
-                            <h3><Briefcase size={18} /> Profesional</h3>
+                            <h3><Briefcase size={18} style={{ display: "inline", marginRight: "8px", verticalAlign: "middle" }} /> Profesional</h3>
                             <div className="details-grid">
                                 {userData.job.title && (
                                     <div className="detail-item">
@@ -316,7 +445,7 @@ const PublicProfile = () => {
                     {/* Interests */}
                     {userData?.interests && userData.interests.length > 0 && (
                         <div className="profile-section">
-                            <h3><Target size={18} /> Intereses</h3>
+                            <h3><Target size={18} style={{ display: "inline", marginRight: "8px", verticalAlign: "middle" }} /> Intereses</h3>
                             <div className="interests-container">
                                 {userData.interests.map((interest, index) => (
                                     <span key={index} className="interest-tag">
@@ -349,6 +478,91 @@ const PublicProfile = () => {
                 )}
             </div>
 
+            {/* Report Modal */}
+            {showReportModal && (
+                <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: "rgba(0,0,0,0.8)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1000,
+                    padding: "1rem"
+                }}>
+                    <div className="glass" style={{
+                        background: "#1a1a1a",
+                        padding: "2rem",
+                        borderRadius: "24px",
+                        maxWidth: "400px",
+                        width: "100%",
+                        border: "1px solid var(--glass-border)",
+                        animation: "scaleIn 0.3s ease"
+                    }}>
+                        <h3 style={{ marginBottom: "1rem", color: "white" }}>Reportar Usuario</h3>
+                        <p style={{ marginBottom: "1.5rem", color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                            ¿Por qué quieres reportar a este usuario?
+                        </p>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.5rem" }}>
+                            {["Comportamiento inapropiado", "Perfil falso", "Spam / Estafa", "Acoso", "Otro"].map((reason) => (
+                                <button
+                                    key={reason}
+                                    onClick={() => setReportReason(reason)}
+                                    style={{
+                                        padding: "0.75rem",
+                                        borderRadius: "8px",
+                                        border: "1px solid var(--glass-border)",
+                                        background: reportReason === reason ? "var(--primary-color)" : "rgba(255,255,255,0.05)",
+                                        color: "white",
+                                        cursor: "pointer",
+                                        textAlign: "left",
+                                        transition: "all 0.2s"
+                                    }}
+                                >
+                                    {reason}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div style={{ display: "flex", gap: "1rem" }}>
+                            <button
+                                onClick={() => setShowReportModal(false)}
+                                style={{
+                                    flex: 1,
+                                    padding: "0.75rem",
+                                    borderRadius: "12px",
+                                    border: "1px solid var(--glass-border)",
+                                    background: "transparent",
+                                    color: "white",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleReportUser}
+                                disabled={!reportReason}
+                                style={{
+                                    flex: 1,
+                                    padding: "0.75rem",
+                                    borderRadius: "12px",
+                                    border: "none",
+                                    background: reportReason ? "var(--primary-gradient)" : "rgba(255,255,255,0.1)",
+                                    color: "white",
+                                    cursor: reportReason ? "pointer" : "not-allowed",
+                                    opacity: reportReason ? 1 : 0.5
+                                }}
+                            >
+                                Enviar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

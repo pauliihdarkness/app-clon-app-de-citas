@@ -1,7 +1,6 @@
 .feed-container {
     padding: 0;
-    height: calc(100vh - 60px - 70px); /* Fallback */
-    height: calc(100dvh - 60px - 70px); /* altura total - header - tabnav */
+    height: calc(100vh - 60px - 70px); /* altura total - header - tabnav */
     display: flex;
     flex-direction: column;
     overflow: hidden;

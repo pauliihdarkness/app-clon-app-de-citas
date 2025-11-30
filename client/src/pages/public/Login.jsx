@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
-import { getUserProfile, createUserProfile } from "../api/user";
-import { createPrivateData } from "../api/privateData";
-import BaseLayout from "../components/Layout/BaseLayout";
-import Button from "../components/UI/Button";
-import Input from "../components/UI/Input";
-import "../assets/styles/global.css";
+import { useAuth } from "../../context/AuthContext.jsx";
+import { getUserProfile, createUserProfile } from "../../api/user";
+import { createPrivateData } from "../../api/privateData";
+import BaseLayout from "../../components/Layout/BaseLayout";
+import Button from "../../components/UI/Button";
+import Input from "../../components/UI/Input";
+import "../../assets/styles/global.css";
 
 const Login = () => {
   const { login, loginWithGoogle, user, error } = useAuth();
@@ -103,8 +103,9 @@ const Login = () => {
   return (
     <div style={{
       position: "relative",
-      minWidth: "100vw",
       minHeight: "100vh",
+      maxWidth: "480px",
+      margin: "0 auto",
       width: "100%",
       height: "100%",
       display: "flex",
@@ -117,8 +118,6 @@ const Login = () => {
     }}>
       <div className="glass slide-up" style={{
         position: "absolute",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
         width: "100%",
         maxWidth: "400px",
         padding: "2.5rem",

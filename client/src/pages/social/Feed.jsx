@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
-import BaseLayout from "../components/Layout/BaseLayout";
-import { useAuth } from "../context/AuthContext";
-import { useFeed } from "../context/FeedContext";
-import { saveLike, savePass } from "../api/likes";
-import UserCard from "../components/Feed/UserCard";
+import BaseLayout from "../../components/Layout/BaseLayout";
+import { useAuth } from "../../context/AuthContext";
+import { useFeed } from "../../context/FeedContext";
+import { saveLike, savePass } from "../../api/likes";
+import UserCard from "../../components/Feed/UserCard";
 import { collection, query, where, onSnapshot, orderBy, limit } from "firebase/firestore";
-import { db } from "../api/firebase";
+import { db } from "../../api/firebase";
+import { throttle } from "../../utils/throttle";
+import SkeletonCard from "../../components/UI/SkeletonCard";
 import "./Feed.css";
 
 const Feed = () => {
   const { user } = useAuth();
-  const { stack, loadBatch, popProfile, markAsInteracted } = useFeed();
+  const { stack, loadBatch, popProfile } = useFeed();
   const [showMatchNotification, setShowMatchNotification] = useState(false);
   const [matchedUser, setMatchedUser] = useState(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -52,31 +54,41 @@ const Feed = () => {
     return () => unsubscribe();
   }, [user]);
 
-  const handleLike = async () => {
+  // Preload next user's image
+  useEffect(() => {
+    const nextUser = stack[1];
+    if (nextUser && nextUser.images && nextUser.images.length > 0) {
+      const img = new Image();
+      img.src = nextUser.images[0];
+    }
+  }, [stack]);
+
+  const handleLike = throttle(async () => {
     const currentUser = stack[0];
     if (!currentUser || !user) return;
 
+    console.log(`💖 Calling API to like user: ${currentUser.id}`);
+
     try {
-      if (markAsInteracted) markAsInteracted(currentUser.id);
       popProfile();
       await saveLike(user.uid, currentUser.id);
     } catch (err) {
       console.error("Error saving like:", err);
+      // Optionally, add the profile back to the stack on failure
     }
-  };
+  }, 1000);
 
-  const handlePass = async () => {
+  const handlePass = throttle(async () => {
     const currentUser = stack[0];
     if (!currentUser || !user) return;
 
     try {
-      if (markAsInteracted) markAsInteracted(currentUser.id);
       popProfile();
       await savePass(user.uid, currentUser.id);
     } catch (err) {
       console.error("Error saving pass:", err);
     }
-  };
+  }, 1000);
 
   const currentUser = stack[0];
   const isFinished = !isInitialLoading && stack.length === 0;
@@ -96,7 +108,7 @@ const Feed = () => {
 
         <div className="feed-content">
           {isInitialLoading ? (
-            <div className="spinner"></div>
+            <SkeletonCard />
           ) : isFinished ? (
             <div className="feed-finished">
               <div className="finished-icon">🎉</div>

@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import Cropper from "react-easy-crop";
-import { getCroppedImg } from "../../helpers/cropImage.js";
-import { uploadCroppedImage } from "../../api/cloudinary.js";
-import { validateImageFile } from "../../utils/nsfwDetector.js";
-import Modal from "../UI/Modal";
-import Button from "../UI/Button";
-import NSFWAnalysisModal from "../UI/NSFWAnalysisModal";
+import { getCroppedImg } from "../../../helpers/cropImage.js";
+import { uploadCroppedImage } from "../../../api/cloudinary.js";
+import { validateImageFile } from "../../../utils/nsfwDetector.js";
+import Modal from "../../UI/Modal/Modal";
+import Button from "../../UI/Button.jsx";
+import NSFWAnalysisModal from "../../UI/NSFWA/NSFWAnalysisModal";
 import { Camera } from "lucide-react";
 import "./UpdateMultipleImagesWithCrop.css";
 

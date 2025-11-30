@@ -48,12 +48,28 @@ html {
 }
 
 body {
-    background-color: var(--background-color);
+    background-color: #1a1a1a;
+    /* Darker background for desktop area */
     color: var(--text-color);
     min-height: 100vh;
     /* Fallback */
     min-height: 100dvh;
     overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+#root {
+    width: 100%;
+    max-width: 480px;
+    /* Mobile width constraint */
+    background-color: var(--background-color);
+    /* App background */
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    /* Shadow to separate from desktop bg */
+    position: relative;
 }
 
 /* ============================================

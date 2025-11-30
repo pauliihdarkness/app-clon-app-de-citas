@@ -11,4 +11,15 @@ export default defineConfig({
       protocol: 'ws',
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          ui: ['lucide-react', 'react-swipeable', 'react-easy-crop']
+        }
+      }
+    }
+  }
 })

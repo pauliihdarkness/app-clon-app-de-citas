@@ -1,7 +1,6 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import BaseLayout from "../components/Layout/BaseLayout";
+import { useAuth } from "../../context/AuthContext";
+import BaseLayout from "../../components/Layout/BaseLayout";
 import { User, Lock, Bell, Moon, Info, FileText, ChevronRight, ArrowLeft } from "lucide-react";
 import "./Settings.css";
 

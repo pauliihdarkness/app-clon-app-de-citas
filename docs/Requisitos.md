@@ -428,7 +428,7 @@
 - [x] Comentarios en código
 - [x] Variables de entorno documentadas
 - [ ] Guía de contribución
-- [ ] Documentación de API
+- [x] Documentación de API
 
 ---
 

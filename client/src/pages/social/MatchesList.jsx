@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useUserProfiles } from "../context/UserProfilesContext";
-import { useToast } from "../hooks/useToast";
-import TabNavigation from "../components/Navigation/TabNavigation";
-import MatchModal from "../components/MatchModal/MatchModal";
-import { db } from "../api/firebase";
+import { useAuth } from "../../context/AuthContext";
+import { useUserProfiles } from "../../context/UserProfilesContext";
+import { useToast } from "../../hooks/useToast";
+import TabNavigation from "../../components/Navigation/TabNavigation";
+import MatchModal from "../../components/MatchModal/MatchModal";
+import { db } from "../../api/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 
-import { Sparkles, MessageCircle, Trash2, X, UserX, EyeOff } from "lucide-react";
-import { hideMatchForUser, unmatchUser } from "../api/matches";
-import Button from "../components/UI/Button";
-import { requestNotificationPermission, showMessageNotification, showMatchNotification, isAppInBackground } from "../utils/webNotifications";
+import { Sparkles, MessageCircle } from "lucide-react";
+import { requestNotificationPermission, showMessageNotification, showMatchNotification, isAppInBackground } from "../../utils/webNotifications";
 
 const MatchesList = () => {
     const { user } = useAuth();
@@ -22,12 +20,12 @@ const MatchesList = () => {
     const [showMatchModal, setShowMatchModal] = useState(false);
     const [newMatchData, setNewMatchData] = useState(null);
 
-    const [deleteModal, setDeleteModal] = useState({ isOpen: false, matchId: null, matchName: "" });
     const navigate = useNavigate();
     const prevUnreadCounts = React.useRef({});
-    const previousMatchIds = React.useRef(new Set());
+    const previousMatchIds = React.useRef(
+        new Set(JSON.parse(localStorage.getItem('viewedMatches') || '[]'))
+    );
     const isFirstLoad = React.useRef(true);
-    const longPressTimer = React.useRef(null);
 
     // Request notification permission on mount
     useEffect(() => {
@@ -69,9 +67,11 @@ const MatchesList = () => {
                     };
 
                     previousMatchIds.current.add(matchId);
+                    localStorage.setItem('viewedMatches', JSON.stringify([...previousMatchIds.current]));
                 } else if (isFirstLoad.current) {
                     // On first load, just track existing matches without showing modal
                     previousMatchIds.current.add(matchId);
+                    localStorage.setItem('viewedMatches', JSON.stringify([...previousMatchIds.current]));
                 }
 
                 if (otherUserId) {
@@ -184,50 +184,6 @@ const MatchesList = () => {
         if (diffDays < 7) return `${diffDays}d`;
         return date.toLocaleDateString();
 
-    };
-
-    const handleTouchStart = (match) => {
-        longPressTimer.current = setTimeout(() => {
-            setDeleteModal({
-                isOpen: true,
-                matchId: match.id,
-                matchName: match.otherUser?.name || "Usuario"
-            });
-        }, 800); // 800ms long press
-    };
-
-    const handleTouchEnd = () => {
-        if (longPressTimer.current) {
-            clearTimeout(longPressTimer.current);
-        }
-    };
-
-    const confirmDelete = async () => {
-        if (!deleteModal.matchId) return;
-
-        try {
-            await hideMatchForUser(deleteModal.matchId, user.uid);
-            showToast("Conversación ocultada", "success");
-            setDeleteModal({ isOpen: false, matchId: null, matchName: "" });
-        } catch (error) {
-            showToast("Error al ocultar conversación", "error");
-        }
-    };
-
-    const confirmUnmatch = async () => {
-        if (!deleteModal.matchId) return;
-
-        try {
-            await unmatchUser(deleteModal.matchId);
-            showToast("Match deshecho", "success");
-            // Small delay to ensure Firestore operation completes before closing modal
-            setTimeout(() => {
-                setDeleteModal({ isOpen: false, matchId: null, matchName: "" });
-            }, 100);
-        } catch (error) {
-            showToast("Error al deshacer match", "error");
-            setDeleteModal({ isOpen: false, matchId: null, matchName: "" });
-        }
     };
 
     if (loading) {
@@ -440,12 +396,6 @@ const MatchesList = () => {
                                     transition: "background 0.2s",
                                     background: match.unreadCount > 0 ? "rgba(254, 60, 114, 0.05)" : "transparent"
                                 }}
-                                onMouseDown={() => handleTouchStart(match)}
-                                onMouseUp={handleTouchEnd}
-                                onMouseLeave={handleTouchEnd}
-                                onTouchStart={() => handleTouchStart(match)}
-                                onTouchEnd={handleTouchEnd}
-                                onContextMenu={(e) => e.preventDefault()} // Prevent default context menu
                             >
                                 {/* Avatar */}
                                 <div style={{
@@ -579,81 +529,6 @@ const MatchesList = () => {
                     matchId={newMatchData.matchId}
                     onClose={() => setShowMatchModal(false)}
                 />
-            )}
-
-            {/* Delete/Unmatch Modal */}
-            {deleteModal.isOpen && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: "rgba(0,0,0,0.8)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1000,
-                    padding: "1rem"
-                }}>
-                    <div className="glass" style={{
-                        background: "#1a1a1a",
-                        padding: "2rem",
-                        borderRadius: "24px",
-                        maxWidth: "400px",
-                        width: "100%",
-                        border: "1px solid var(--glass-border)",
-                        animation: "scaleIn 0.3s ease",
-                        textAlign: "center"
-                    }}>
-                        <h3 style={{ marginBottom: "1.5rem", color: "white" }}>Opciones de Conversación</h3>
-                        <p style={{
-                            marginBottom: "2rem",
-                            color: "var(--text-secondary)",
-                            fontSize: "0.95rem"
-                        }}>
-                            ¿Qué deseas hacer con <strong>{deleteModal.matchName}</strong>?
-                        </p>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                            <Button
-                                onClick={confirmDelete}
-                                style={{
-                                    background: "rgba(255, 255, 255, 0.1)",
-                                    border: "none",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "0.5rem"
-                                }}
-                            >
-                                <EyeOff size={18} /> Ocultar Chat (Solo para mí)
-                            </Button>
-
-                            <Button
-                                onClick={confirmUnmatch}
-                                style={{
-                                    background: "rgba(239, 68, 68, 0.2)",
-                                    color: "#ef4444",
-                                    border: "1px solid rgba(239, 68, 68, 0.3)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "0.5rem"
-                                }}
-                            >
-                                <UserX size={18} /> Deshacer Match (Para ambos)
-                            </Button>
-
-                            <Button
-                                onClick={() => setDeleteModal({ isOpen: false, matchId: null, matchName: "" })}
-                                style={{ background: "transparent", border: "none", marginTop: "0.5rem", color: "var(--text-secondary)" }}
-                            >
-                                Cancelar
-                            </Button>
-                        </div>
-                    </div>
-                </div>
             )}
 
             <style>{`

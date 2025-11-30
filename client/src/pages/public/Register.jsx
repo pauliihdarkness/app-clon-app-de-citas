@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { createPrivateUserData } from "../api/user";
-import Input from "../components/UI/Input";
-import Button from "../components/UI/Button";
-import BaseLayout from "../components/Layout/BaseLayout";
+import { useAuth } from "../../context/AuthContext";
+import { createPrivateUserData } from "../../api/user";
+import Input from "../../components/UI/Input";
+import Button from "../../components/UI/Button";
+import BaseLayout from "../../components/Layout/BaseLayout";
 import "./Register.css";
 
 const Register = () => {
@@ -167,8 +167,8 @@ const Register = () => {
           {/* Terms */}
           <div className="terms">
             Al registrarte, aceptas nuestros{" "}
-            <a href="#terms">Términos de Servicio</a> y{" "}
-            <a href="#privacy">Política de Privacidad</a>
+            <a href="/terms">Términos de Servicio</a> y{" "}
+            <a href="/privacy-policy">Política de Privacidad</a>
           </div>
         </div>
       </div>

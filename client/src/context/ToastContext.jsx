@@ -19,8 +19,10 @@ export const ToastProvider = ({ children }) => {
         setToasts(prev => prev.filter(toast => toast.id !== id));
     }, []);
 
+    const value = React.useMemo(() => ({ showToast }), [showToast]);
+
     return (
-        <ToastContext.Provider value={{ showToast }}>
+        <ToastContext.Provider value={value}>
             {children}
             <div style={{
                 position: 'fixed',

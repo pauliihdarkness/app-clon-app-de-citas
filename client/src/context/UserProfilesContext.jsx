@@ -70,12 +70,12 @@ export const UserProfilesProvider = ({ children }) => {
         delete cacheTimestamps.current[userId];
     }, []);
 
-    const value = {
+    const value = React.useMemo(() => ({
         getProfile,
         clearCache,
         removeProfile,
         profiles
-    };
+    }), [getProfile, clearCache, removeProfile, profiles]);
 
     return (
         <UserProfilesContext.Provider value={value}>

@@ -5,9 +5,11 @@ import cors from "cors";
 import helmet from "helmet"; // Import helmet
 import { verifyToken } from "./middleware/auth.js";
 import { verifyTurnstileEndpoint } from "./middleware/turnstile.js"; // Import Turnstile
+import { generalLimiter, strictLimiter, readLimiter } from "./middleware/rateLimiter.js"; // Import Rate Limiters
 import { createServer } from "http"; // Import http
 import { setupSocket } from "./socket/socketHandler.js"; // Import socket handler
 import matchesRouter from "./routes/matches.js";
+import likesRouter from "./routes/likes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -69,8 +71,12 @@ app.get("/", (req, res) => {
 // Turnstile Verification Endpoint
 app.post("/api/verify-turnstile", verifyTurnstileEndpoint);
 
-// Public API Routes
-app.use("/api/matches", matchesRouter);
+// Apply General Rate Limiting to all API routes
+app.use("/api", generalLimiter);
+
+// Public API Routes with specific rate limiting
+app.use("/api/matches", readLimiter, matchesRouter); // Read limiter: 200 req/hour
+app.use("/api/likes", strictLimiter, likesRouter); // Strict limiter: 50 req/hour (adicional al rate limit interno)
 
 
 

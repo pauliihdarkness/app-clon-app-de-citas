@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import useChatSnapshot from "../hooks/onSnapShot";
-import { db } from "../api/firebase";
+import { useAuth } from "../../context/AuthContext";
+import useChatSnapshot from "../../hooks/onSnapShot";
+import { db } from "../../api/firebase";
 import { doc, getDoc, collection, addDoc, updateDoc, serverTimestamp, increment } from "firebase/firestore";
-import MessageBubble from "../components/Chat/MessageBubble";
-import { ChevronLeft, Send, MessageCircle } from "lucide-react";
+import MessageBubble from "../../components/Chat/MessageBubble";
+import { ChevronLeft, Send, MessageCircle, MoreVertical, EyeOff, UserX, Flag, Trash2 } from "lucide-react";
+import { hideMatchForUser, unmatchUser } from "../../api/matches";
+import { blockUser } from "../../api/user";
+import { reportUser } from "../../api/reports";
+import { useToast } from "../../hooks/useToast";
 
 const Chat = () => {
   const { user } = useAuth();
@@ -18,6 +22,22 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const isFirstLoad = useRef(true);
   const textareaRef = useRef(null);
+  const { showToast } = useToast();
+  const [showMenu, setShowMenu] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Use custom hook for real-time updates
   useChatSnapshot(matchId, user, setOtherUser, setMessages, setLoading);
@@ -117,6 +137,59 @@ const Chat = () => {
   const handleProfileClick = () => {
     if (otherUser?.uid) {
       navigate(`/user/${otherUser.uid}`);
+    }
+  };
+
+  const handleHideChat = async () => {
+    if (!matchId || !user) return;
+    try {
+      await hideMatchForUser(matchId, user.uid);
+      showToast("Chat ocultado", "success");
+      navigate("/chat");
+    } catch (error) {
+      showToast("Error al ocultar chat", "error");
+    }
+  };
+
+  const handleUnmatch = async () => {
+    if (!matchId) return;
+    if (window.confirm("¿Estás seguro de que quieres deshacer el match? Esta acción es irreversible.")) {
+      try {
+        await unmatchUser(matchId);
+        showToast("Match deshecho", "success");
+        navigate("/chat");
+      } catch (error) {
+        showToast("Error al deshacer match", "error");
+      }
+    }
+  };
+
+  const handleBlockUser = async () => {
+    if (!otherUser?.uid || !user) return;
+    if (window.confirm(`¿Bloquear a ${otherUser.name}? No podrán verse ni escribirse más.`)) {
+      try {
+        await blockUser(user.uid, otherUser.uid);
+        showToast("Usuario bloqueado", "success");
+        navigate("/chat");
+      } catch (error) {
+        showToast("Error al bloquear usuario", "error");
+      }
+    }
+  };
+
+  const handleReportUser = async () => {
+    if (!otherUser?.uid || !user || !reportReason) return;
+    try {
+      await reportUser(user.uid, otherUser.uid, reportReason);
+      showToast("Usuario reportado", "success");
+      setShowReportModal(false);
+      setReportReason("");
+      // Suggest blocking after reporting
+      if (window.confirm("Gracias por tu reporte. ¿Deseas bloquear a este usuario también?")) {
+        await handleBlockUser();
+      }
+    } catch (error) {
+      showToast("Error al reportar usuario", "error");
     }
   };
 
@@ -285,7 +358,164 @@ const Chat = () => {
             </div>
           </>
         )}
+        {/* More Options Button */}
+        <div style={{ position: "relative" }} ref={menuRef}>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "white",
+              cursor: "pointer",
+              padding: "0.5rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            <MoreVertical size={24} />
+          </button>
+
+          {/* Dropdown Menu */}
+          {showMenu && (
+            <div style={{
+              position: "absolute",
+              top: "100%",
+              right: 0,
+              marginTop: "0.5rem",
+              background: "#1a1a1a",
+              border: "1px solid var(--glass-border)",
+              borderRadius: "12px",
+              padding: "0.5rem",
+              minWidth: "200px",
+              zIndex: 100,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.25rem",
+              zIndex: 99999
+            }}>
+              <button
+                onClick={handleProfileClick}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "white",
+                  padding: "0.75rem",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  borderRadius: "8px",
+                  fontSize: "0.9rem",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <div style={{ width: "20px", display: "flex", justifyContent: "center" }}>👤</div>
+                Ver Perfil
+              </button>
+
+              <button
+                onClick={handleHideChat}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  padding: "0.75rem",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  borderRadius: "8px",
+                  fontSize: "0.9rem",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <EyeOff size={18} />
+                Ocultar Chat
+              </button>
+
+              <div style={{ height: "1px", background: "var(--glass-border)", margin: "0.25rem 0" }}></div>
+
+              <button
+                onClick={() => { setShowReportModal(true); setShowMenu(false); }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#fbbf24",
+                  padding: "0.75rem",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  borderRadius: "8px",
+                  fontSize: "0.9rem",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(251, 191, 36, 0.1)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <Flag size={18} />
+                Reportar
+              </button>
+
+              <button
+                onClick={handleBlockUser}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#ef4444",
+                  padding: "0.75rem",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  borderRadius: "8px",
+                  fontSize: "0.9rem",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <UserX size={18} />
+                Bloquear
+              </button>
+
+              <button
+                onClick={handleUnmatch}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#ef4444",
+                  padding: "0.75rem",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  borderRadius: "8px",
+                  fontSize: "0.9rem",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <Trash2 size={18} />
+                Deshacer Match
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
 
       {/* Messages area */}
       <div style={{
@@ -472,6 +702,92 @@ const Chat = () => {
           scrollbar-color: #FE3C72 rgba(255, 255, 255, 0.05);
         }
       `}</style>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(0,0,0,0.8)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+          padding: "1rem"
+        }}>
+          <div className="glass" style={{
+            background: "#1a1a1a",
+            padding: "2rem",
+            borderRadius: "24px",
+            maxWidth: "400px",
+            width: "100%",
+            border: "1px solid var(--glass-border)",
+            animation: "scaleIn 0.3s ease"
+          }}>
+            <h3 style={{ marginBottom: "1rem", color: "white" }}>Reportar Usuario</h3>
+            <p style={{ marginBottom: "1.5rem", color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+              ¿Por qué quieres reportar a este usuario? Esto nos ayuda a mantener la comunidad segura.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.5rem" }}>
+              {["Comportamiento inapropiado", "Perfil falso", "Spam / Estafa", "Acoso", "Otro"].map((reason) => (
+                <button
+                  key={reason}
+                  onClick={() => setReportReason(reason)}
+                  style={{
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid var(--glass-border)",
+                    background: reportReason === reason ? "var(--primary-color)" : "rgba(255,255,255,0.05)",
+                    color: "white",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <button
+                onClick={() => setShowReportModal(false)}
+                style={{
+                  flex: 1,
+                  padding: "0.75rem",
+                  borderRadius: "12px",
+                  border: "1px solid var(--glass-border)",
+                  background: "transparent",
+                  color: "white",
+                  cursor: "pointer"
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleReportUser}
+                disabled={!reportReason}
+                style={{
+                  flex: 1,
+                  padding: "0.75rem",
+                  borderRadius: "12px",
+                  border: "none",
+                  background: reportReason ? "var(--primary-gradient)" : "rgba(255,255,255,0.1)",
+                  color: "white",
+                  cursor: reportReason ? "pointer" : "not-allowed",
+                  opacity: reportReason ? 1 : 0.5
+                }}
+              >
+                Enviar Reporte
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,9 +3,7 @@ const CACHE_NAME = 'dating-app-v1';
 const STATIC_CACHE = [
     '/',
     '/index.html',
-    '/manifest.json',
-    '/icon-192.png',
-    '/icon-512.png'
+    '/manifest.json'
 ];
 
 // Install event - cache static assets
@@ -42,6 +40,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     // Skip cross-origin requests
     if (!event.request.url.startsWith(self.location.origin)) {
+        return;
+    }
+
+    // DEVELOPMENT: Skip caching on localhost to avoid stale code
+    if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
         return;
     }
 

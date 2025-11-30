@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
-import { createUserProfile, createPrivateUserData } from "../api/user";
-import { calculateAge, getMaxBirthDate, getMinBirthDate, validateBirthDate } from "../utils/dateUtils";
-import BaseLayout from "../components/Layout/BaseLayout";
-import Input from "../components/UI/Input";
-import Button from "../components/UI/Button";
-import LocationSelector from "../components/Profile/LocationSelector";
-import UpdateMultipleImagesWithCrop from "../components/Profile/UpdateMultipleImagesWithCrop";
-import genderData from "../assets/data/gender-identities.json";
-import orientationData from "../assets/data/sexual-orientation.json";
+import { useAuth } from "../../context/AuthContext.jsx";
+import { createUserProfile, createPrivateUserData } from "../../api/user";
+import { calculateAge, getMaxBirthDate, getMinBirthDate, validateBirthDate } from "../../utils/dateUtils";
+import BaseLayout from "../../components/Layout/BaseLayout";
+import Input from "../../components/UI/Input";
+import Button from "../../components/UI/Button";
+import LocationSelector from "../../components/Profile/LocationSelector/LocationSelector";
+import UpdateMultipleImagesWithCrop from "../../components/Profile/UpdateMultipleImagesWithCrop/UpdateMultipleImagesWithCrop.jsx";
+import genderData from "../../assets/data/gender-identities.json";
+import orientationData from "../../assets/data/sexual-orientation.json";
 import { MapPin, Calendar, Camera, User, Users, Heart } from "lucide-react";
 
 const CreateProfile = () => {
@@ -286,13 +286,12 @@ const CreateProfile = () => {
                             <p>Al crear una cuenta en nuestra plataforma, aceptas los siguientes términos:</p>
                             <ul style={{ paddingLeft: "1.2rem", marginTop: "0.5rem" }}>
                                 <li>Debes ser mayor de 18 años.</li>
-                                <li>Te comprometes a proporcionar información veraz y mantenerla actualizada.</li>
                                 <li>No subirás contenido ofensivo, ilegal o que viole derechos de terceros.</li>
-                                <li>Respetarás a los demás usuarios y no realizarás acoso ni spam.</li>
+                                <li>Respetarás a lxs demás usuaries y no realizarás acoso ni spam.</li>
                                 <li>Nos reservamos el derecho de suspender cuentas que violen estas normas.</li>
                             </ul>
                             <p style={{ marginTop: "0.5rem" }}>
-                                Tu privacidad es importante para nosotros. Consulta nuestra Política de Privacidad para más detalles.
+                                Tu privacidad es importante para nosotres. Consulta nuestra Política de Privacidad para más detalles.
                             </p>
                         </div>
 
@@ -307,7 +306,7 @@ const CreateProfile = () => {
                                 onClick={handleConfirmSubmit}
                                 disabled={isLoading}
                             >
-                                {isLoading ? "Creando..." : "Aceptar y Crear"}
+                                {isLoading ? "Creando..." : "Acepto"}
                             </Button>
                         </div>
                     </div>

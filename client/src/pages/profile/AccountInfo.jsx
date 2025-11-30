@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { getUserProfile, getPrivateUserData } from "../api/user";
-import BaseLayout from "../components/Layout/BaseLayout";
+import { useAuth } from "../../context/AuthContext";
+import { getUserProfile, getPrivateUserData } from "../../api/user";
+import BaseLayout from "../../components/Layout/BaseLayout";
 import "./AccountInfo.css";
 import { Info } from "lucide-react";
 
