@@ -46,3 +46,4 @@ client/build/
 *.tmp
 *.temp
 PRE_COMMIT_CHECKLIST.md
+MEJORAS_PROPUESTAS.md
