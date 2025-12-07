@@ -1,19 +1,24 @@
 import { db } from '../firebase/config';
-import { doc, getDoc, collection, getDocs, limit, query, setDoc, addDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, limit, query, setDoc, addDoc, where } from 'firebase/firestore';
 import { getAllUsers } from './userService';
 
 /**
  * Intenta leer un documento y devuelve el resultado
  * @param {string} path - Ruta del documento o colección
  * @param {boolean} isCollection - Si es una colección o un documento
+ * @param {object} queryConstraints - Restricciones de consulta opcionales
  * @returns {Promise<{success: boolean, error: string|null}>}
  */
-const testRead = async (path, isCollection = false) => {
+const testRead = async (path, isCollection = false, queryConstraints = null) => {
     try {
         if (isCollection) {
             const colRef = collection(db, path);
-            // Intentamos leer solo 1 documento para verificar acceso
-            const q = query(colRef, limit(1));
+            let q;
+            if (queryConstraints) {
+                q = query(colRef, ...queryConstraints, limit(1));
+            } else {
+                q = query(colRef, limit(1));
+            }
             await getDocs(q);
         } else {
             const docRef = doc(db, path);
@@ -165,8 +170,9 @@ export const runSecurityAudit = async (currentUserId) => {
             path: 'matches',
             operation: 'read',
             isCollection: true,
+            queryConstraints: [where('users', 'array-contains', currentUserId)],
             expected: true,
-            description: 'Usuarios autenticados pueden leer matches.'
+            description: 'Usuarios autenticados pueden leer matches donde participan.'
         },
         {
             id: 'read_own_conversations',
@@ -194,6 +200,33 @@ export const runSecurityAudit = async (currentUserId) => {
             isCollection: true,
             expected: false,
             description: 'Solo administradores (backend) deberían leer reportes.'
+        },
+        {
+            id: 'read_admins',
+            name: 'Leer Colección Admins',
+            path: 'admins',
+            operation: 'read',
+            isCollection: true,
+            expected: false,
+            description: 'NO deberías poder ver la lista de administradores.'
+        },
+        {
+            id: 'read_system',
+            name: 'Leer Configuración del Sistema',
+            path: 'system',
+            operation: 'read',
+            isCollection: true,
+            expected: false,
+            description: 'NO deberías poder acceder a configuraciones del sistema.'
+        },
+        {
+            id: 'read_stats',
+            name: 'Leer Colección Stats',
+            path: 'stats',
+            operation: 'read',
+            isCollection: true,
+            expected: false,
+            description: 'Las estadísticas deben ser calculadas o leídas por admin, no acceso directo.'
         },
 
         // ===== PRUEBAS DE ESCRITURA =====
@@ -275,6 +308,7 @@ export const runSecurityAudit = async (currentUserId) => {
             path: 'likes',
             operation: 'write',
             isCollection: true,
+            data: { fromUserId: currentUserId, toUserId: otherUserId, timestamp: Date.now() },
             expected: true,
             description: 'Deberías poder dar like a otros usuarios.'
         },
@@ -293,6 +327,7 @@ export const runSecurityAudit = async (currentUserId) => {
             path: 'reports',
             operation: 'write',
             isCollection: true,
+            data: { reporterId: currentUserId, reportedUserId: otherUserId, reason: 'test', timestamp: Date.now() },
             expected: true,
             description: 'Usuarios autenticados pueden crear reportes.'
         },
@@ -312,9 +347,10 @@ export const runSecurityAudit = async (currentUserId) => {
         let result;
 
         if (test.operation === 'read') {
-            result = await testRead(test.path, test.isCollection);
+            result = await testRead(test.path, test.isCollection, test.queryConstraints);
         } else {
-            result = await testWrite(test.path, { _auditTest: true, timestamp: Date.now() }, test.isCollection);
+            const data = test.data || { _auditTest: true, timestamp: Date.now() };
+            result = await testWrite(test.path, data, test.isCollection);
         }
 
         // Determinar si la prueba pasó (el resultado real coincide con el esperado)

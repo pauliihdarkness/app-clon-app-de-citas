@@ -1,0 +1,860 @@
+{
+  "description": "Archivo consolidado con todas las opciones de perfil para dating app",
+  "version": "1.0.0",
+  "lastUpdated": "2025-12-07",
+  
+  "genders": {
+    "label": "Identidad de Género",
+    "type": "single-select",
+    "options": [
+      "Mujer",
+      "Transfemenina",
+      "Transmasculino",
+      "Mujer trans",
+      "Hombre trans",
+      "Travesti",
+      "No binario",
+      "Genderqueer",
+      "Genderfluid",
+      "Agénero",
+      "Bigénero",
+      "Trigénero",
+      "Pangénero",
+      "Demigénero",
+      "Demiboy",
+      "Demigirl",
+      "Intergénero",
+      "Andróginx",
+      "Neutrois",
+      "Fluxgender",
+      "Poligénero",
+      "Tercer género",
+      "Dos espíritus (Two-Spirit)",
+      "Hombre",
+      "No especifica",
+      "Prefiero no decirlo",
+      "Otro"
+    ]
+  },
+
+  "sexualOrientations": {
+    "label": "Orientación Sexual",
+    "type": "single-select",
+    "options": [
+      "Lesbiana",
+      "Homosexual",
+      "Gay",
+      "Bisexual",
+      "Pansexual",
+      "Asexual",
+      "Demisexual",
+      "Queer",
+      "Sapiosexual",
+      "Polisexual",
+      "Omnisexual",
+      "Androsexual",
+      "Ginesexual",
+      "Graysexual",
+      "Skoliosexual",
+      "Questioning",
+      "Heterosexual",
+      "Prefiero no decirlo",
+      "Otra"
+    ]
+  },
+
+  "zodiacSigns": {
+    "label": "Signo Zodiacal",
+    "type": "single-select",
+    "options": [
+      "Aries",
+      "Tauro",
+      "Géminis",
+      "Cáncer",
+      "Leo",
+      "Virgo",
+      "Libra",
+      "Escorpio",
+      "Sagitario",
+      "Capricornio",
+      "Acuario",
+      "Piscis"
+    ]
+  },
+
+  "languages": {
+    "label": "Idiomas",
+    "type": "multi-select",
+    "options": [
+      "español",
+      "portugués",
+      "inglés",
+      "alemán",
+      "francés",
+      "italiano",
+      "ruso",
+      "chino simplificado",
+      "afrikáans",
+      "indonesio",
+      "bosnio",
+      "catalán",
+      "checo",
+      "creole",
+      "galés",
+      "danés",
+      "divehi",
+      "estonio",
+      "esperanto",
+      "basco",
+      "afar",
+      "albanés",
+      "amárico",
+      "arameo",
+      "armenio",
+      "asamés",
+      "azerbaiyán",
+      "bengalí",
+      "beréber",
+      "bielorruso",
+      "búlgaro",
+      "canarés",
+      "coreano",
+      "croata",
+      "córnico",
+      "dzongkha",
+      "eslovaco",
+      "esloveno",
+      "faroese",
+      "finlandés",
+      "gallego",
+      "georgiano",
+      "griego",
+      "groenlandés",
+      "guyaratí",
+      "hawaiano",
+      "hebreo",
+      "hindi",
+      "holandés",
+      "húngaro",
+      "irlandés",
+      "islandés",
+      "japonés",
+      "kazajo",
+      "kirguís",
+      "konkani",
+      "kurmanju-kurdo",
+      "lao",
+      "lenguaje de signos",
+      "letón",
+      "lituano",
+      "luxemburgués",
+      "macedonio",
+      "malayalam",
+      "malayo",
+      "maltés",
+      "manés",
+      "maratí",
+      "mongol",
+      "nepalí",
+      "noruego bokmal",
+      "noruego nynorsk",
+      "oriya",
+      "oromo",
+      "panyabí",
+      "pastún",
+      "persa",
+      "polaco",
+      "rumano",
+      "sami",
+      "serbio",
+      "serbo-croata",
+      "sidamo",
+      "siríaco",
+      "somalí",
+      "sorani-kurdo",
+      "suajili",
+      "sueco",
+      "sánscrito",
+      "tagalo",
+      "tailandés",
+      "tamil",
+      "tigriña",
+      "turco",
+      "tártaro",
+      "télugu",
+      "ucraniano",
+      "urdú",
+      "uzbeko",
+      "vietnamita",
+      "xhosa",
+      "yidis",
+      "yoruba",
+      "zulu"
+    ]
+  },
+
+  "interests": {
+    "label": "Intereses",
+    "type": "multi-select",
+    "categories": {
+      "Entretenimiento": [
+        {
+          "emoji": "🎳",
+          "name": "Bowling"
+        },
+        {
+          "emoji": "🛍",
+          "name": "Compras"
+        },
+        {
+          "emoji": "🧚",
+          "name": "Cosplay"
+        },
+        {
+          "emoji": "♠️",
+          "name": "Juegos de cartas"
+        },
+        {
+          "emoji": "🎲",
+          "name": "Juegos de mesa"
+        },
+        {
+          "emoji": "🎼",
+          "name": "Musicales"
+        },
+        {
+          "emoji": "🎈",
+          "name": "Planificador de fiestas"
+        },
+        {
+          "emoji": "🎙️",
+          "name": "Pódcasts"
+        },
+        {
+          "emoji": "💢",
+          "name": "Anime"
+        },
+        {
+          "emoji": "🇮🇳",
+          "name": "Bollywood"
+        },
+        {
+          "emoji": "❤️",
+          "name": "Comedia romántica"
+        },
+        {
+          "emoji": "🤣",
+          "name": "Comedias"
+        },
+        {
+          "emoji": "🕹️",
+          "name": "Concursos"
+        },
+        {
+          "emoji": "🩸",
+          "name": "Crímenes reales"
+        },
+        {
+          "emoji": "🤠",
+          "name": "Dibujos animados"
+        },
+        {
+          "emoji": "🎥",
+          "name": "Documentales"
+        }
+      ],
+      "Comidas y bebidas": [
+        {
+          "emoji": "🍖",
+          "name": "Asados"
+        },
+        {
+          "emoji": "🍺",
+          "name": "Cerveza"
+        },
+        {
+          "emoji": "🍫",
+          "name": "Chocolate"
+        },
+        {
+          "emoji": "🥘",
+          "name": "Cocinar"
+        },
+        {
+          "emoji": "🥡",
+          "name": "Comida para llevar"
+        },
+        {
+          "emoji": "🍕",
+          "name": "Comida rápida"
+        },
+        {
+          "emoji": "🥦",
+          "name": "Comida sana"
+        },
+        {
+          "emoji": "🍰",
+          "name": "Experto en repostería"
+        }
+      ],
+      "Salidas": [
+        {
+          "emoji": "🥂",
+          "name": "Bares"
+        },
+        {
+          "emoji": "🍾",
+          "name": "Brunch con bebida libre"
+        },
+        {
+          "emoji": "🥞",
+          "name": "Brunchear los findes"
+        },
+        {
+          "emoji": "☕",
+          "name": "Cafeterías"
+        },
+        {
+          "emoji": "🍜",
+          "name": "Cena con amistades"
+        },
+        {
+          "emoji": "🍴",
+          "name": "Citas"
+        },
+        {
+          "emoji": "🍽",
+          "name": "Comer fuera"
+        },
+        {
+          "emoji": "🎟️",
+          "name": "Conciertos"
+        }
+      ],
+      "Lifestyle": [
+        {
+          "emoji": "🌲",
+          "name": "Amante de la naturaleza"
+        },
+        {
+          "emoji": "🐱",
+          "name": "Amantes de animales"
+        },
+        {
+          "emoji": "💕",
+          "name": "Amo los abrazos"
+        },
+        {
+          "emoji": "💝",
+          "name": "Amor propio"
+        },
+        {
+          "emoji": "📝",
+          "name": "Aprendiz de por vida"
+        },
+        {
+          "emoji": "⭐️",
+          "name": "Astrología"
+        },
+        {
+          "emoji": "🦋",
+          "name": "Autoexpresión"
+        },
+        {
+          "emoji": "👑",
+          "name": "Autorrealizado"
+        }
+      ],
+      "Música": [
+        {
+          "emoji": "🥁",
+          "name": "Afrobeats"
+        },
+        {
+          "emoji": "🪕",
+          "name": "Desi"
+        },
+        {
+          "emoji": "🕺",
+          "name": "Disco"
+        },
+        {
+          "emoji": "🎛️",
+          "name": "DJing"
+        },
+        {
+          "emoji": "🤖",
+          "name": "EDM"
+        },
+        {
+          "emoji": "🎵",
+          "name": "Fan de la música"
+        },
+        {
+          "emoji": "🎧",
+          "name": "Hip-hop"
+        },
+        {
+          "emoji": "🎸",
+          "name": "Indie"
+        }
+      ],
+      "Lectura y libros": [
+        {
+          "emoji": "📖",
+          "name": "Biografías"
+        },
+        {
+          "emoji": "🔖",
+          "name": "Club de lectura"
+        },
+        {
+          "emoji": "💥",
+          "name": "Cómics"
+        },
+        {
+          "emoji": "🕯️",
+          "name": "Ficción clásica"
+        },
+        {
+          "emoji": "🎩",
+          "name": "Ficción histórica"
+        },
+        {
+          "emoji": "🏆",
+          "name": "Libros de autoayuda"
+        },
+        {
+          "emoji": "👽",
+          "name": "Libros de ciencia ficción"
+        },
+        {
+          "emoji": "🐉",
+          "name": "Libros de fantasía"
+        }
+      ],
+      "Autocuidado": [
+        {
+          "emoji": "🧴",
+          "name": "Aromaterapia"
+        },
+        {
+          "emoji": "🛁",
+          "name": "Autocuidado"
+        },
+        {
+          "emoji": "🌞",
+          "name": "Cuidado de la piel"
+        },
+        {
+          "emoji": "🖊",
+          "name": "Diario personal"
+        },
+        {
+          "emoji": "🧖",
+          "name": "Días de spa"
+        },
+        {
+          "emoji": "🧘",
+          "name": "Meditación"
+        },
+        {
+          "emoji": "☁️",
+          "name": "Mindfulness"
+        },
+        {
+          "emoji": "🛋️",
+          "name": "Relax"
+        },
+        {
+          "emoji": "💬",
+          "name": "Terapia"
+        }
+      ],
+      "Habilidades y pasatiempos": [
+        {
+          "emoji": "🎭",
+          "name": "Actuación"
+        },
+        {
+          "emoji": "💫",
+          "name": "Alma creativa"
+        },
+        {
+          "emoji": "🚙",
+          "name": "Amante de autos"
+        },
+        {
+          "emoji": "🎪",
+          "name": "Artes circenses"
+        },
+        {
+          "emoji": "✂️",
+          "name": "Artesanías y arte"
+        },
+        {
+          "emoji": "🌌",
+          "name": "Astronomía"
+        },
+        {
+          "emoji": "💻",
+          "name": "Bloguear"
+        },
+        {
+          "emoji": "⚱️",
+          "name": "Cerámica"
+        }
+      ],
+      "Deportes y fitness": [
+        {
+          "emoji": "💪",
+          "name": "Amante del gym"
+        },
+        {
+          "emoji": "🥋",
+          "name": "Artes marciales"
+        },
+        {
+          "emoji": "🎽",
+          "name": "Atletismo"
+        },
+        {
+          "emoji": "🔴",
+          "name": "Billar"
+        },
+        {
+          "emoji": "🥊",
+          "name": "Box"
+        },
+        {
+          "emoji": "🤿",
+          "name": "Buceo"
+        },
+        {
+          "emoji": "🏸",
+          "name": "Bádminton"
+        },
+        {
+          "emoji": "🏀",
+          "name": "Básquetbol"
+        }
+      ],
+      "Tecnología": [
+        {
+          "emoji": "🖥️",
+          "name": "Electrónica"
+        },
+        {
+          "emoji": "📱",
+          "name": "Genio de la tecnología"
+        },
+        {
+          "emoji": "🧠",
+          "name": "IA"
+        },
+        {
+          "emoji": "🖨️",
+          "name": "Impresión 3D"
+        },
+        {
+          "emoji": "💻",
+          "name": "Programación"
+        },
+        {
+          "emoji": "🦾",
+          "name": "Robótica"
+        },
+        {
+          "emoji": "😎",
+          "name": "RV"
+        }
+      ],
+      "Viajes": [
+        {
+          "emoji": "⛰️",
+          "name": "Aventura"
+        },
+        {
+          "emoji": "🏕",
+          "name": "Campamento"
+        },
+        {
+          "emoji": "🛳️",
+          "name": "Cruceros en barco"
+        },
+        {
+          "emoji": "🌳",
+          "name": "Escapadas al campo"
+        },
+        {
+          "emoji": "🧳",
+          "name": "Escapadas de fin de semana"
+        },
+        {
+          "emoji": "🔎",
+          "name": "Explorador urbano"
+        },
+        {
+          "emoji": "✈️",
+          "name": "Jetsetter"
+        },
+        {
+          "emoji": "🦁",
+          "name": "Safari"
+        }
+      ],
+      "Valores": [
+        {
+          "emoji": "🖤",
+          "name": "Black Lives Matter"
+        },
+        {
+          "emoji": "✊",
+          "name": "Derechos humanos"
+        },
+        {
+          "emoji": "🏳️‍🌈",
+          "name": "Derechos LGBTQIA+"
+        },
+        {
+          "emoji": "💖",
+          "name": "Derechos trans"
+        },
+        {
+          "emoji": "💜",
+          "name": "Feminismo"
+        },
+        {
+          "emoji": "🌿",
+          "name": "Medio ambiente"
+        },
+        {
+          "emoji": "👏",
+          "name": "Positividad corporal"
+        },
+        {
+          "emoji": "♻️",
+          "name": "Sostenibilidad"
+        },
+        {
+          "emoji": "🚫",
+          "name": "Stop Asian Hate"
+        },
+        {
+          "emoji": "🙋",
+          "name": "Voluntariado"
+        },
+        {
+          "emoji": "🌎",
+          "name": "Conquistar mundo"
+        }
+      ]
+    }
+  },
+
+  "relationshipLooking": {
+    "label": "¿Qué buscas?",
+    "type": "multi-select",
+    "options": [
+      "Relación seria",
+      "Noviazgo",
+      "Matrimonio",
+      "Amistad",
+      "Casual",
+      "Amigos con beneficios",
+      "Exploración",
+      "Mentoría",
+      "Networking",
+      "Sin presión"
+    ]
+  },
+
+  "relationshipStatus": {
+    "label": "Estado civil",
+    "type": "single-select",
+    "options": [
+      "Soltero",
+      "Separado",
+      "Divorciado",
+      "Viudo",
+      "En una relación abierta",
+      "Complejo",
+      "Prefiero no decir"
+    ]
+  },
+
+  "smokingHabits": {
+    "label": "¿Fumas?",
+    "type": "single-select",
+    "options": [
+      "Nunca",
+      "Socialmente",
+      "A veces",
+      "Regularmente",
+      "Mucho",
+      "Prefiero no decir"
+    ]
+  },
+
+  "drinkingHabits": {
+    "label": "¿Bebes alcohol?",
+    "type": "single-select",
+    "options": [
+      "Nunca",
+      "Socialmente",
+      "A veces",
+      "Regularmente",
+      "Mucho",
+      "Prefiero no decir"
+    ]
+  },
+
+  "drugUsage": {
+    "label": "¿Usas drogas?",
+    "type": "single-select",
+    "options": [
+      "Nunca",
+      "Ocasionalmente",
+      "Regularmente",
+      "Prefiero no decir"
+    ]
+  },
+
+  "education": {
+    "label": "Nivel de educación",
+    "type": "single-select",
+    "options": [
+      "Primaria",
+      "Secundaria",
+      "Algunos estudios técnicos",
+      "Título técnico",
+      "Algunos estudios universitarios",
+      "Grado universitario",
+      "Postgrado",
+      "Doctorado",
+      "Prefiero no decir"
+    ]
+  },
+
+  "profession": {
+    "label": "Profesión/Ocupación",
+    "type": "text-input",
+    "placeholder": "Ej: Ingeniero, Diseñador, Estudiante..."
+  },
+
+  "bodyType": {
+    "label": "Tipo de cuerpo",
+    "type": "single-select",
+    "options": [
+      "Delgado",
+      "Atlético",
+      "Normal",
+      "Fornido",
+      "Musculoso",
+      "Curvilíneo",
+      "Prefiero no decir"
+    ]
+  },
+
+  "height": {
+    "label": "Altura",
+    "type": "number-input",
+    "unit": "cm",
+    "min": 130,
+    "max": 250
+  },
+
+  "religion": {
+    "label": "Religión",
+    "type": "single-select",
+    "options": [
+      "Agnóstico",
+      "Ateísta",
+      "Budista",
+      "Cristiano",
+      "Hindú",
+      "Judío",
+      "Musulmán",
+      "Pagano",
+      "Sikh",
+      "Espiritual",
+      "Otra",
+      "Prefiero no decir"
+    ]
+  },
+
+  "relationshipGoal": {
+    "label": "Objetivo de relación",
+    "type": "single-select",
+    "options": [
+      "Matrimonio y familia",
+      "Matrimonio sin hijos",
+      "Relación a largo plazo",
+      "Relación a corto plazo",
+      "Amistad",
+      "Sin presión, disfrutar",
+      "Aún no sé",
+      "Prefiero no decir"
+    ]
+  },
+
+  "wantKids": {
+    "label": "¿Quieres tener hijos?",
+    "type": "single-select",
+    "options": [
+      "Sí, algún día",
+      "Sí, pronto",
+      "No, definitivamente",
+      "Ya tengo hijos",
+      "Abierto a ello",
+      "Aún no sé",
+      "Prefiero no decir"
+    ]
+  },
+
+  "hasKids": {
+    "label": "¿Tienes hijos?",
+    "type": "single-select",
+    "options": [
+      "No",
+      "Sí, viven conmigo",
+      "Sí, pero no viven conmigo",
+      "Prefiero no decir"
+    ]
+  },
+
+  "pets": {
+    "label": "Mascotas",
+    "type": "multi-select",
+    "options": [
+      "Perro",
+      "Gato",
+      "Pájaro",
+      "Pez",
+      "Reptil",
+      "Roedor",
+      "Caballo",
+      "No tengo mascotas"
+    ]
+  },
+
+  "profileCompletion": {
+    "label": "Campos requeridos para completitud de perfil",
+    "mandatory": [
+      "name",
+      "age",
+      "gender",
+      "sexualOrientation",
+      "photos",
+      "location"
+    ],
+    "recommended": [
+      "zodiacSign",
+      "interests",
+      "relationshipLooking",
+      "education",
+      "height",
+      "bodyType"
+    ]
+  }
+}

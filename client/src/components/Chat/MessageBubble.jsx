@@ -72,16 +72,16 @@ const MessageBubble = React.memo(({
                 position: "relative"
             }}>
                 <div style={{
-                    background: isOwn ? "var(--primary-gradient)" : "rgba(255, 255, 255, 0.1)",
-                    padding: "0.75rem 1rem",
-                    borderRadius: isOwn
-                        ? "16px 16px 4px 16px"
-                        : "16px 16px 16px 4px",
-                    boxShadow: isOwn
-                        ? "0 2px 8px rgba(254, 60, 114, 0.3)"
-                        : "0 2px 8px rgba(0, 0, 0, 0.1)",
-                    position: "relative"
-                }}>
+                        background: isOwn ? "var(--primary-gradient)" : "rgba(255, 255, 255, 0.1)",
+                        padding: "0.75rem 1rem",
+                        borderRadius: isOwn
+                            ? "16px 16px 4px 16px"
+                            : "16px 16px 16px 4px",
+                        boxShadow: isOwn
+                            ? "0 2px 8px rgba(254, 60, 114, 0.3)"
+                            : "0 2px 8px rgba(0, 0, 0, 0.1)",
+                        position: "relative"
+                    }}>
                     <p style={{
                         margin: 0,
                         color: "white",
@@ -102,6 +102,8 @@ const MessageBubble = React.memo(({
                             {formattedTime}
                         </span>
                     )}
+
+                        {/* No inline menu on message bubbles */}
                 </div>
             </div>
         </div>

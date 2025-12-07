@@ -59,15 +59,16 @@
 - [x] Secciones organizadas (Bio, Más sobre mí, Intereses)
 - [x] Botones de acción en header (Editar, Configuración)
 - [x] Ver perfiles de otros usuarios (PublicProfile)
+- [x] **Geolocalización implementada** (ciudad, provincia, país via Nominatim)
 - [ ] Indicador de última conexión
-- [ ] Indicador de distancia
+- [ ] Indicador de distancia en km (cálculo entre coordenadas)
 
 ---
 
 ## 💬 Mensajería y Chat
 
 - [x] Lista de conversaciones (MatchesList)
-- [x] **Chat individual en tiempo real con Socket.IO**
+- [x] **Chat individual en tiempo real con Firestore**
 - [x] Envío de mensajes de texto
 - [x] **Input auto-expandible (hasta 3 líneas, Enter/Shift+Enter)**
 - [x] Indicador de mensajes no leídos
@@ -80,12 +81,12 @@
 - [x] **Notificaciones toast para nuevos mensajes (glassmorphism + slideDown)**
 - [x] **Ocultar conversación** (soft delete, solo para el usuario)
 - [x] **Deshacer Match** (hard delete, elimina para ambos usuarios)
-- [x] **Socket.IO rooms** para chats privados
-- [x] **Eventos: join_room, send_message, receive_message**
+- [x] **Firestore listeners** para chats privados
+- [x] **Eventos: join_chat, send_message, receive_message**
 - [ ] Envío de imágenes
 - [ ] Indicador de "escribiendo..."
 - [ ] Marca de mensaje leído (read receipts)
-- [ ] Reportar conversación
+- [ ] Reportar conversación (modal implementado, backend pendiente)
 
 ---
 
@@ -94,10 +95,12 @@
 - [x] Página de Configuración (Settings)
 - [x] Página de Información de Cuenta
 - [x] Visualización de datos privados (email, fecha de nacimiento, edad)
+- [x] **Información de perfil personal** (nombre, fecha nacimiento, edad, createdAt)
 - [ ] Cambio de contraseña desde Settings
-- [ ] Gestión de privacidad
-- [ ] Gestión de notificaciones
+- [ ] Gestión de privacidad (estructura lista, funcionalidad pendiente)
+- [ ] Gestión de notificaciones (estructura lista, funcionalidad pendiente)
 - [ ] Eliminar cuenta
+- [ ] Recuperación de contraseña
 
 ---
 
@@ -106,13 +109,14 @@
 - [x] **Notificaciones web (Web Notifications API)**
 - [x] **Notificaciones de nuevos mensajes (browser)**
 - [x] **Notificaciones de nuevos matches (browser)**
-- [x] Notificación de nuevo match (in-app)
+- [x] **Notificación de nuevo match (in-app toast)**
 - [x] **Notificación toast de nuevo mensaje (glassmorphism + slideDown)**
 - [x] **Sistema de toasts personalizado con múltiples tipos**
-- [ ] Notificaciones push (FCM - cuando app está cerrada)
+- [x] **Notificaciones en la app**
+- [x] **Service Worker para manejar clicks en notificaciones**
+- [ ] Notificaciones push (FCM - Service Worker ready, FCM setup pendiente)
 - [ ] Notificación de nuevo like
 - [ ] Configuración de preferencias de notificaciones
-- [x] Notificaciones en la app
 - [ ] Badge de contador en tabs
 
 ---
@@ -130,11 +134,12 @@
 - [x] Animaciones y transiciones suaves
 - [x] Diseño responsive (móvil, tablet, escritorio)
 - [x] Mobile First approach
-- [x] **PWA (Progressive Web App)**
+- [x] **PWA (Progressive Web App)** completa
 - [x] **Installable app (manifest + service worker)**
 - [x] **Install prompt personalizado**
-- [x] **Modo offline básico (service worker cache)**
+- [x] **Modo offline (service worker con cache-first y network-first strategies)**
 - [x] Splash screen
+- [x] **Web Notifications API integrada**
 
 ### Componentes UI
 - [x] Button reutilizable
@@ -288,6 +293,48 @@
 
 ## 📋 Resumen de Progreso
 
+### 📊 Auditoría de Requisitos (7 de Diciembre 2025)
+
+Se realizó una auditoría exhaustiva del cliente para verificar requisitos no marcados como completados:
+
+**✅ Requisitos Confirmados como Completados:**
+- ✅ Información de Cuenta (AccountInfo.jsx con email, fecha nacimiento, edad, createdAt)
+- ✅ Página de Configuración (Settings.jsx con acceso a módulos)
+- ✅ Geolocalización (geolocation.js integrado en perfil)
+- ✅ PWA Completa (manifest.json + sw.js con offline mode)
+- ✅ Web Notifications API (webNotifications.js implementado)
+- ✅ Service Worker para notificaciones (notificationclick handler)
+- ✅ Historial de mensajes (Firestore persistente)
+- ✅ Ocultar/Deshacer conversaciones
+
+### ⏳ Requisitos Realmente Pendientes
+
+**Backend/Autenticación:**
+- ⏳ Recuperación de contraseña (Firebase Ready)
+- ⏳ Cambio de contraseña
+- ⏳ 2FA
+
+**Chat/Mensajes:**
+- ⏳ Envío de imágenes
+- ⏳ Typing indicator
+- ⏳ Read receipts
+- ⏳ Reportar conversación (UI hecha, backend pendiente)
+
+**Perfiles:**
+- ⏳ Indicador de distancia en km
+- ⏳ Indicador de última conexión
+
+**Notificaciones:**
+- ⏳ FCM Push Notifications
+- ⏳ Notificación de nuevo like
+- ⏳ Badge de contador
+
+**Testing & DevOps:**
+- ⏳ Tests unitarios e integración
+- ⏳ CI/CD con GitHub Actions
+
+---
+
 ### ✅ Completado (~97%)
 - ✅ Autenticación completa (email + Google OAuth)
 - ✅ Gestión de perfiles completa con edición por secciones
@@ -313,10 +360,17 @@
 
 ### ⏳ Pendiente (~3%)
 - ⏳ Recuperación de contraseña
-- ⏳ Notificaciones push
-- ⏳ PWA y modo offline
+- ⏳ Cambio de contraseña
+- ⏳ 2FA (Autenticación de dos factores)
+- ⏳ Notificaciones push (FCM)
 - ⏳ Testing automatizado
 - ⏳ Analytics y monitoreo
+- ⏳ Indicador de distancia en km
+- ⏳ Indicador de última conexión
+- ⏳ Envío de imágenes en chat
+- ⏳ Indicador "escribiendo..."
+- ⏳ Read receipts
+- ⏳ Eliminar cuenta
 
 ---
 
@@ -349,5 +403,6 @@
 - ✅ Archivos obsoletos removidos (socket.js, UserCache.js, etc.)
 - ✅ Código ~900 bytes más ligero
 
-**Última actualización**: 30 de noviembre de 2025  
-**Versión actual**: 0.9.0-rc1
+**Última actualización**: 7 de diciembre de 2025  
+**Versión actual**: 0.9.0-rc1  
+**Progreso Real**: ~97% completado (ajustado después de auditoría de requisitos)

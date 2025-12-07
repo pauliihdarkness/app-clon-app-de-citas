@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import { db } from "../firebase.js";
 import admin from "firebase-admin";
+import { sendMessageNotification } from "../services/notificationService.js";
 
 export const setupSocket = (server, allowedOrigins) => {
     const io = new Server(server, {
@@ -59,6 +60,11 @@ export const setupSocket = (server, allowedOrigins) => {
                 await matchRef.update(updateData);
 
                 console.log(`✅ Message saved to Firestore for room ${roomId}`);
+
+                // Enviar notificación push al destinatario (no bloquea el flujo)
+                sendMessageNotification(roomId, author, message).catch((error) => {
+                    console.error("⚠️ Error enviando notificación push:", error);
+                });
 
             } catch (error) {
                 console.error("❌ Error saving message to Firestore:", error);

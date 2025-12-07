@@ -201,7 +201,7 @@ El backend actúa como un **Worker** que complementa al frontend. No es una API 
 - `f_auto` - Formato automático (WebP en navegadores compatibles)
 - `c_fill` - Recorte para llenar dimensiones
 - Compresión: Máx 1MB
-- Dimensiones: Máx 1500px
+- Dimensiones: Máx 1080px
 
 ### Flujo de Subida
 

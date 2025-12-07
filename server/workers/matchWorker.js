@@ -1,5 +1,6 @@
 import { db } from "../firebase.js";
 import admin from "firebase-admin";
+import { sendMatchNotification } from "../services/notificationService.js";
 
 export function startMatchWorker() {
     console.log("❤️  Match Worker started... listening for new likes.");
@@ -65,6 +66,11 @@ async function checkForMatch(fromUserId, toUserId, currentLikeId) {
                 lastMessageTime: null,
             });
             console.log(`✅ Match document created: ${matchId}`);
+
+            // Enviar notificaciones push a ambos usuarios (no bloquea el flujo)
+            sendMatchNotification(matchId, fromUserId, toUserId).catch((error) => {
+                console.error("⚠️ Error enviando notificaciones de match:", error);
+            });
         } else {
             console.log(`ℹ️  Match already exists: ${matchId}`);
         }

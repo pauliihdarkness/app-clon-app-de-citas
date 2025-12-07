@@ -10,6 +10,7 @@ import { createServer } from "http"; // Import http
 import { setupSocket } from "./socket/socketHandler.js"; // Import socket handler
 import matchesRouter from "./routes/matches.js";
 import likesRouter from "./routes/likes.js";
+import fcmTokensRouter from "./routes/fcmTokens.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -74,17 +75,13 @@ app.post("/api/verify-turnstile", verifyTurnstileEndpoint);
 // Apply General Rate Limiting to all API routes
 app.use("/api", generalLimiter);
 
-// Public API Routes with specific rate limiting
+// Any route under /api from here requires a valid Firebase token
+app.use("/api", verifyToken);
+
+// API Routes with specific rate limiting
 app.use("/api/matches", readLimiter, matchesRouter); // Read limiter: 200 req/hour
 app.use("/api/likes", strictLimiter, likesRouter); // Strict limiter: 50 req/hour (adicional al rate limit interno)
-
-
-
-// ... (previous imports)
-
-// Protected Routes (Example)
-// Any route under /api will require a valid Firebase token
-app.use("/api", verifyToken);
+app.use("/api/fcm-tokens", strictLimiter, fcmTokensRouter); // Strict limiter: 50 req/hour
 
 
 app.get("/api/status", (req, res) => {

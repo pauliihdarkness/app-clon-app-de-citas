@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { serverTimestamp } from "firebase/firestore";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { createUserProfile, createPrivateUserData } from "../../api/user";
 import { calculateAge, getMaxBirthDate, getMinBirthDate, validateBirthDate } from "../../utils/dateUtils";
@@ -32,9 +33,9 @@ const CreateProfile = () => {
     const [showTermsModal, setShowTermsModal] = useState(false);
 
     const handleLocationChange = (location) => {
-        setPais(location.country || "");
-        setProvincia(location.state || "");
-        setCiudad(location.city || "");
+        setPais(location.pais || location.country || "");
+        setProvincia(location.provincia || location.state || "");
+        setCiudad(location.ciudad || location.city || "");
     };
 
     const handleImagesChange = (urls) => {
@@ -72,8 +73,8 @@ const CreateProfile = () => {
             return;
         }
 
-        if (!pais || !ciudad) {
-            alert("Por favor selecciona tu ubicación");
+        if (!pais || !provincia || !ciudad) {
+            alert("Por favor selecciona tu ubicación completa (país, provincia y ciudad)");
             return;
         }
 
@@ -84,10 +85,19 @@ const CreateProfile = () => {
     const handleConfirmSubmit = async () => {
         setIsLoading(true);
         try {
+            // Recalcular edad para asegurar que sigue siendo válida
+            const edadActual = calculateAge(fechaNacimiento);
+            
+            if (!edadActual || edadActual < 18) {
+                alert("Debes ser mayor de 18 años para crear tu perfil");
+                setIsLoading(false);
+                return;
+            }
+
             // Save public profile data
             await createUserProfile(user.uid, {
                 name: nombre,
-                age: calculateAge(fechaNacimiento),
+                age: edadActual,
                 gender: genero,
                 sexualOrientation: orientacionSexual,
                 location: {
@@ -97,7 +107,7 @@ const CreateProfile = () => {
                 },
                 uid: user.uid,
                 images: imageUrls,
-                createdAt: new Date()
+                createdAt: serverTimestamp()
             });
 
             // Save private data (birthDate)
@@ -167,19 +177,20 @@ const CreateProfile = () => {
                             const fecha = e.target.value;
                             setFechaNacimiento(fecha);
                             if (fecha) {
-                                setEdad(calculateAge(fecha));
+                                const edadCalculada = calculateAge(fecha);
+                                setEdad(edadCalculada);
                             } else {
                                 setEdad("");
                             }
                         }}
                     />
-                    {edad && (
+                    {edad !== "" && (
                         <div style={{
                             marginTop: "0.5rem",
                             color: edad < 18 ? "#ff3b30" : "#4cd964",
                             fontSize: "0.9rem"
                         }}>
-                            Edad: {edad} años {edad < 18 ? "(Debes ser mayor de 18)" : ""}
+                            Edad: {edad} años {edad < 18 ? "(Debes ser mayor de 18)" : "✓"}
                         </div>
                     )}
                 </div>
@@ -240,7 +251,7 @@ const CreateProfile = () => {
                     </label>
                     <LocationSelector
                         onLocationChange={handleLocationChange}
-                        initialLocation={{ pais, provincia, ciudad }}
+                        initialLocation={{ provincia, ciudad }}
                     />
                 </div>
 

@@ -36,6 +36,7 @@ Almacena la información **pública** del perfil de usuario visible para otros u
   // ===== Identidad y Orientación =====
   gender: string,                 // Género: "Hombre", "Mujer", "No binario", etc.
   sexualOrientation: string,      // Orientación: "Heterosexual", "Homosexual", "Bisexual", etc.
+  pronuns: string, 
   
   // ===== Perfil =====
   bio: string,                    // Biografía del usuario (máx 500 caracteres)

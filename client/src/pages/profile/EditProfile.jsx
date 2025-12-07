@@ -11,12 +11,14 @@ import UpdateMultipleImagesWithCrop from "../../components/Profile/UpdateMultipl
 import LocationSelector from "../../components/Profile/LocationSelector/LocationSelector";
 import genderDataRaw from "../../assets/data/gender-identities.json";
 import orientationDataRaw from "../../assets/data/sexual-orientation.json";
+import pronounsDataRaw from "../../assets/data/pronouns.json";
 import interestsDataRaw from "../../assets/data/interests.json";
 import { Camera, Edit2, ArrowLeft } from "lucide-react";
 import "./EditProfile.css";
 
 const genderData = genderDataRaw.identidades_genero;
 const orientationData = orientationDataRaw.orientaciones_sexuales;
+const pronounsData = pronounsDataRaw.pronouns;
 
 const lifestyleOptions = {
   drink: ["Frecuentemente", "Socialmente", "Raramente", "Nunca"],
@@ -32,12 +34,13 @@ const EditProfile = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState(null); // 'basic', 'bio', 'interests', 'lifestyle', 'job', 'intentions'
+  const [activeModal, setActiveModal] = useState(null); // 'basic', 'bio', 'interests', 'lifestyle', 'job', 'intentions', 'location'
 
   // Data states (Source of Truth)
   const [userData, setUserData] = useState({
     name: "",
     gender: "",
+    pronouns: "",
     bio: "",
     sexualOrientation: "",
     interests: [],
@@ -61,6 +64,7 @@ const EditProfile = () => {
             setUserData({
               name: data.name || "",
               gender: data.gender || "",
+              pronouns: data.pronouns || "",
               bio: data.bio || "",
               sexualOrientation: data.sexualOrientation || "",
               interests: data.interests || [],
@@ -96,17 +100,17 @@ const EditProfile = () => {
     fetchUserData();
   }, [user]);
 
-  const openModal = (modalName) => {
+  const openModal = useCallback((modalName) => {
     setTempData({ ...userData }); // Copy current data to temp
     setActiveModal(modalName);
-  };
+  }, [userData]);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setActiveModal(null);
     setTempData({});
-  };
+  }, []);
 
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = useCallback(async () => {
     setSaving(true);
     try {
       // Prepare update object based on active modal
@@ -121,9 +125,19 @@ const EditProfile = () => {
         updateData = {
           name: tempData.name,
           gender: tempData.gender,
-          sexualOrientation: tempData.sexualOrientation,
-          location: tempData.location
+          pronouns: tempData.pronouns,
+          sexualOrientation: tempData.sexualOrientation
         };
+      } else if (activeModal === 'location') {
+        // Guardar solo la ubicación cuando se edita en su modal propio
+        const loc = tempData.location || {};
+        // Validar que al menos ciudad y provincia estén presentes
+        if (!loc.city || !loc.state) {
+          alert("Por favor selecciona tu provincia y ciudad antes de guardar la ubicación.");
+          setSaving(false);
+          return;
+        }
+        updateData = { location: tempData.location };
       } else if (activeModal === 'bio') {
         updateData = { bio: tempData.bio };
       } else if (activeModal === 'interests') {
@@ -148,14 +162,14 @@ const EditProfile = () => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [activeModal, tempData, user.uid, closeModal]);
 
   // Handlers for Temp Data
-  const handleTempChange = (field, value) => {
+  const handleTempChange = useCallback((field, value) => {
     setTempData(prev => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const handleTempNestedChange = (parent, field, value) => {
+  const handleTempNestedChange = useCallback((parent, field, value) => {
     setTempData(prev => ({
       ...prev,
       [parent]: {
@@ -163,13 +177,13 @@ const EditProfile = () => {
         [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleTempLocationChange = (location) => {
+  const handleTempLocationChange = useCallback((location) => {
     setTempData(prev => ({ ...prev, location }));
-  };
+  }, []);
 
-  const handleTempInterestClick = (interest) => {
+  const handleTempInterestClick = useCallback((interest) => {
     const currentInterests = tempData.interests || [];
     if (currentInterests.includes(interest)) {
       handleTempChange('interests', currentInterests.filter(i => i !== interest));
@@ -180,7 +194,7 @@ const EditProfile = () => {
         alert("Máximo 8 intereses");
       }
     }
-  };
+  }, [tempData.interests, handleTempChange]);
 
   // Direct Image Update (No Modal needed for this as per previous logic, or keep it separate)
   const handleImagesChange = useCallback((urls) => {
@@ -191,13 +205,13 @@ const EditProfile = () => {
     }
   }, []);
 
-  const handleDirectImageUpdate = async (newImages) => {
+  const handleDirectImageUpdate = useCallback(async (newImages) => {
     try {
       await updateUserProfile(user.uid, { images: newImages });
     } catch (error) {
       console.error("Error updating images:", error);
     }
-  };
+  }, [user.uid]);
 
   if (loading) {
     return (
@@ -244,6 +258,21 @@ const EditProfile = () => {
               <span className="label">Género:</span>
               <span className="value">{userData.gender}</span>
             </div>
+            <div className="summary-item">
+              <span className="label">Pronombres:</span>
+              <span className="value">{userData.pronouns || "-"}</span>
+            </div>
+            
+          </div>
+        </div>
+
+        {/* Location Summary Box */}
+        <div className="edit-box summary-box" onClick={() => openModal('location')}>
+          <div className="box-header">
+            <h2>📍 Ubicación</h2>
+            <span className="edit-icon"><Edit2 size={18} /></span>
+          </div>
+          <div className="box-content summary-content">
             <div className="summary-item">
               <span className="label">Ubicación:</span>
               <span className="value">
@@ -361,6 +390,17 @@ const EditProfile = () => {
               </select>
             </div>
             <div className="form-group">
+              <label>Pronombres</label>
+              <select
+                value={tempData.pronouns || ""}
+                onChange={(e) => handleTempChange('pronouns', e.target.value)}
+                className="custom-select"
+              >
+                <option value="">Selecciona</option>
+                {pronounsData.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
               <label>Orientación Sexual</label>
               <select
                 value={tempData.sexualOrientation || ""}
@@ -371,11 +411,27 @@ const EditProfile = () => {
                 {orientationData.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
+            {/* Ubicación movida a su propio modal */}
+            <div className="modal-actions">
+              <Button onClick={handleSaveChanges} disabled={saving}>
+                {saving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Location Modal */}
+        <Modal isOpen={activeModal === 'location'} onClose={closeModal} title="Editar Ubicación">
+          <div className="modal-form-content">
             <div className="form-group">
               <label>Ubicación</label>
               <LocationSelector
                 onLocationChange={handleTempLocationChange}
-                initialLocation={tempData.location || {}}
+                initialLocation={{
+                  pais: tempData.location?.country || "",
+                  provincia: tempData.location?.state || "",
+                  ciudad: tempData.location?.city || ""
+                }}
               />
             </div>
             <div className="modal-actions">

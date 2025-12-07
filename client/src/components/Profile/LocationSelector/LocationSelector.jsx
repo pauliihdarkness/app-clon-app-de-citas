@@ -24,14 +24,27 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
 
     // Actualizar sugerencias cuando cambia la ciudad o provincia
     useEffect(() => {
-        if (provincia && ciudad.length > 0) {
-            const ciudadesProvincia = localizations[pais][provincia] || [];
-            const filtered = ciudadesProvincia
-                .filter(item => item.ciudad.toLowerCase().includes(ciudad.toLowerCase()))
-                .map(item => item.ciudad)
-                .slice(0, 10); // Limitar a 10 resultados
-            setSugerencias(filtered);
-            setShowSuggestions(true);
+            if (provincia && ciudad.length > 0) {
+                const ciudadesProvincia = localizations[pais][provincia] || [];
+                // Mapear nombres de ciudad y filtrar por texto
+                const mapped = ciudadesProvincia
+                    .map(item => item.ciudad)
+                    .filter(name => name && name.toLowerCase().includes(ciudad.toLowerCase()));
+
+                // Deduplicar case-insensitive manteniendo el primer encontrado
+                const unique = [];
+                const seen = new Set();
+                for (const name of mapped) {
+                    const key = name.toLowerCase();
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        unique.push(name);
+                    }
+                }
+
+                const limited = unique.slice(0, 10); // Limitar a 10 resultados
+                setSugerencias(limited);
+                setShowSuggestions(limited.length > 0);
         } else {
             setSugerencias([]);
             setShowSuggestions(false);
@@ -89,14 +102,14 @@ const LocationSelector = ({ onLocationChange, initialLocation }) => {
             </div>
 
             <div className="city-input-wrapper">
-                <Input
+                    <Input
                     type="text"
                     placeholder={provincia ? "Escribe tu ciudad..." : "Primero selecciona una provincia"}
                     value={ciudad}
                     onChange={(e) => setCiudad(e.target.value)}
                     disabled={!provincia}
                     icon={<Building2 size={18} />}
-                    onFocus={() => ciudad && setSugerencias(s => s) && setShowSuggestions(true)}
+                    onFocus={() => { if (sugerencias.length > 0) setShowSuggestions(true); }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Delay para permitir click
                 />
 

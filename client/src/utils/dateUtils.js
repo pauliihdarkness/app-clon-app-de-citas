@@ -10,14 +10,20 @@
 export const calculateAge = (birthDate) => {
     if (!birthDate) return null;
 
-    const birth = new Date(birthDate);
+    // Parse date in local timezone, not UTC
+    // YYYY-MM-DD format should be interpreted as local date
+    const [year, month, day] = typeof birthDate === 'string' 
+        ? birthDate.split('-').map(Number)
+        : [birthDate.getFullYear(), birthDate.getMonth() + 1, birthDate.getDate()];
+    
+    const birth = new Date(year, month - 1, day); // Month is 0-indexed in Date constructor
     const today = new Date();
 
     let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
+    const monthDiff = today.getMonth() - (month - 1);
 
     // Adjust age if birthday hasn't occurred yet this year
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
         age--;
     }
 
