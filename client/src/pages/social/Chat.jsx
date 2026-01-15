@@ -5,11 +5,10 @@ import useChatSnapshot from "../../hooks/onSnapShot";
 import { db } from "../../api/firebase";
 import { doc, getDoc, collection, addDoc, updateDoc, serverTimestamp, increment } from "firebase/firestore";
 // MessageBubble is rendered inside ChatMessages component
-import ChatHeader from '../../components/Chat/ChatHeader'
 import ChatMessages from '../../components/Chat/ChatMessages'
 import ChatInput from '../../components/Chat/ChatInput'
 import ReportModal from '../../components/Chat/ReportModal'
-import { ChevronLeft, Send, MessageCircle, MoreVertical, EyeOff, UserX, Flag, Trash2 } from "lucide-react";
+import BaseLayout from "../../components/Layout/BaseLayout";
 import { hideMatchForUser, unmatchUser } from "../../api/matches";
 import { blockUser } from "../../api/user";
 import { reportUser } from "../../api/reports";
@@ -27,21 +26,8 @@ const Chat = () => {
   const isFirstLoad = useRef(true);
   const textareaRef = useRef(null);
   const { showToast } = useToast();
-  const [showMenu, setShowMenu] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
-  const menuRef = useRef(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // Use custom hook for real-time updates
   useChatSnapshot(matchId, user, setOtherUser, setMessages, setLoading);
@@ -144,6 +130,41 @@ const Chat = () => {
     }
   };
 
+  const chatTitleNode = otherUser ? (
+    <button
+      onClick={handleProfileClick}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "0.75rem",
+        background: "transparent",
+        border: "none",
+        padding: 0,
+        cursor: "pointer",
+        color: "inherit"
+      }}
+    >
+      <div style={{
+        width: 40,
+        height: 40,
+        borderRadius: "50%",
+        overflow: "hidden",
+        border: "2px solid rgba(255,255,255,0.3)",
+        flexShrink: 0
+      }}>
+        <img
+          src={otherUser.images?.[0]}
+          alt={otherUser.name}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+        <span style={{ fontWeight: 600, fontSize: "1rem" }}>{otherUser.name}</span>
+        <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>Toca para ver perfil</span>
+      </div>
+    </button>
+  ) : null;
+
   const handleHideChat = async () => {
     if (!matchId || !user) return;
     try {
@@ -199,121 +220,70 @@ const Chat = () => {
 
   if (!matchId) {
     return (
-      <div style={{
-        minHeight: "100dvh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--bg-primary)",
-        color: "white"
-      }}>
-        <div style={{ textAlign: "center" }}>
-          <h1>No match ID provided</h1>
-          <p>Please select a conversation from your matches.</p>
-          <button
-            onClick={() => navigate("/chat")}
-            style={{
-              marginTop: "1rem",
-              padding: "0.75rem 1.5rem",
-              background: "var(--primary-gradient)",
-              border: "none",
-              borderRadius: "12px",
-              color: "white",
-              cursor: "pointer",
-              fontSize: "1rem"
-            }}
-          >
-            Volver a Matches
-          </button>
+      <BaseLayout maxWidth="mobile" showTabs={false} title="Chat">
+        <div style={{
+          minHeight: "50vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          <div style={{ textAlign: "center" }}>
+            <h1>No match ID provided</h1>
+            <p>Please select a conversation from your matches.</p>
+            <button
+              onClick={() => navigate("/chat")}
+              style={{
+                marginTop: "1rem",
+                padding: "0.75rem 1.5rem",
+                background: "var(--primary-gradient)",
+                border: "none",
+                borderRadius: "12px",
+                color: "white",
+                cursor: "pointer",
+                fontSize: "1rem"
+              }}
+            >
+              Volver a Matches
+            </button>
+          </div>
         </div>
-      </div>
+      </BaseLayout>
     );
   }
 
   return (
-    <div style={{
-      maxWidth: "600px",
-      margin: "0 auto",
-      height: "100dvh",
-      display: "flex",
-      flexDirection: "column",
-      background: "var(--bg-primary)",
-      overflow: "hidden"
-    }}>
-      <ChatHeader
-        onBack={() => navigate('/chat')}
-        loading={loading}
-        otherUser={otherUser}
-        onProfileClick={handleProfileClick}
-        showMenu={showMenu}
-        setShowMenu={setShowMenu}
-        menuRef={menuRef}
-        onReportOpen={() => setShowReportModal(true)}
-        onBlockUser={handleBlockUser}
-        onUnmatch={handleUnmatch}
-      />
+    <BaseLayout
+      maxWidth="mobile"
+      showTabs={false}
+      title={otherUser ? otherUser.name : "Chat"}
+      titleNode={chatTitleNode}
+      backPath="/chat"
+      hideFooter={true}
+    >
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "calc(100dvh - 60px)", // viewport dinámico menos header
+        background: "var(--bg-primary)",
+        borderRadius: "24px 24px 0 0",
+        overflow: "hidden"
+      }}>
+        <ChatMessages
+          messages={messages}
+          user={user}
+          otherUser={otherUser}
+          formatMessageTime={formatMessageTime}
+          messagesEndRef={messagesEndRef}
+        />
 
-
-      <ChatMessages
-        messages={messages}
-        user={user}
-        otherUser={otherUser}
-        formatMessageTime={formatMessageTime}
-        messagesEndRef={messagesEndRef}
-      />
-
-      <ChatInput
-        message={message}
-        setMessage={setMessage}
-        onSend={handleSendMessage}
-        textareaRef={textareaRef}
-        user={user}
-      />
-
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.8; }
-        }
-
-        /* Custom Scrollbar Styles */
-        *::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        
-        *::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 10px;
-        }
-        
-        *::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #FE3C72, #FF7854);
-          border-radius: 10px;
-          transition: all 0.3s ease;
-        }
-        
-        *::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #FF5D8F, #FF9574);
-          box-shadow: 0 0 8px rgba(254, 60, 114, 0.5);
-        }
-
-        /* Firefox scrollbar */
-        * {
-          scrollbar-width: thin;
-          scrollbar-color: #FE3C72 rgba(255, 255, 255, 0.05);
-        }
-      `}</style>
+        <ChatInput
+          message={message}
+          setMessage={setMessage}
+          onSend={handleSendMessage}
+          textareaRef={textareaRef}
+          user={user}
+        />
+      </div>
 
       <ReportModal
         show={showReportModal}
@@ -322,7 +292,7 @@ const Chat = () => {
         setReportReason={setReportReason}
         onSubmit={handleReportUser}
       />
-    </div>
+    </BaseLayout>
   );
 };
 

@@ -4,13 +4,17 @@ import { MessageCircle } from 'lucide-react'
 
 export default function ChatMessages({ messages, user, otherUser, formatMessageTime, messagesEndRef }) {
   return (
-    <div style={{
+    <div
+      className="scroll-hidden"
+      style={{
       flex: 1,
       overflowY: 'auto',
       padding: '1rem',
       display: 'flex',
       flexDirection: 'column',
-      gap: '0.75rem'
+      gap: '0.75rem',
+      WebkitOverflowScrolling: 'touch',
+      paddingBottom: '1rem'
     }}>
       {messages.length === 0 ? (
         <div style={{

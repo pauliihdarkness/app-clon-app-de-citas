@@ -11,6 +11,7 @@ import LocationSelector from "../../components/Profile/LocationSelector/Location
 import UpdateMultipleImagesWithCrop from "../../components/Profile/UpdateMultipleImagesWithCrop/UpdateMultipleImagesWithCrop.jsx";
 import genderData from "../../assets/data/gender-identities.json";
 import orientationData from "../../assets/data/sexual-orientation.json";
+import pronounsData from "../../assets/data/pronouns.json";
 import { MapPin, Calendar, Camera, User, Users, Heart } from "lucide-react";
 
 const CreateProfile = () => {
@@ -22,6 +23,7 @@ const CreateProfile = () => {
     const [fechaNacimiento, setFechaNacimiento] = useState("");
     const [edad, setEdad] = useState("");
     const [genero, setGenero] = useState("");
+    const [pronombres, setPronombres] = useState("");
     const [orientacionSexual, setOrientacionSexual] = useState("");
     const [pais, setPais] = useState("");
     const [provincia, setProvincia] = useState("");
@@ -63,11 +65,6 @@ const CreateProfile = () => {
             return;
         }
 
-        if (!orientacionSexual) {
-            alert("Por favor selecciona tu orientación sexual");
-            return;
-        }
-
         if (imageUrls.length === 0) {
             alert("Por favor sube al menos una foto");
             return;
@@ -94,11 +91,12 @@ const CreateProfile = () => {
                 return;
             }
 
-            // Save public profile data
+                // Save public profile data
             await createUserProfile(user.uid, {
                 name: nombre,
                 age: edadActual,
                 gender: genero,
+                    pronouns: pronombres,
                 sexualOrientation: orientacionSexual,
                 location: {
                     country: pais || "",
@@ -214,7 +212,26 @@ const CreateProfile = () => {
                     </div>
                 </div>
 
-                {/* 4. Orientación Sexual */}
+                {/* 4. Pronombres (opcional) */}
+                <div className="form-section">
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
+                        <Users size={18} /> Pronombres
+                    </label>
+                    <div style={{ position: "relative" }}>
+                        <select
+                            value={pronombres}
+                            onChange={(e) => setPronombres(e.target.value)}
+                            style={selectStyle}
+                        >
+                            <option value="" style={{ color: "#999" }}>Elige cómo te nombramos (opcional)</option>
+                            {pronounsData.pronouns.map((p) => (
+                                <option key={p} value={p} style={{ color: "#333" }}>{p}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                {/* 5. Orientación Sexual */}
                 <div className="form-section">
                     <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
                         <Heart size={18} /> Orientación Sexual
@@ -233,7 +250,7 @@ const CreateProfile = () => {
                     </div>
                 </div>
 
-                {/* 5. Fotos */}
+                {/* 6. Fotos */}
                 <div className="form-section">
                     <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>
                         <Camera size={18} /> Tus Fotos

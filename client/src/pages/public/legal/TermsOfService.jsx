@@ -1,17 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import BaseLayout from '../../../components/Layout/BaseLayout';
 import './LegalPage.css';
 
 function TermsOfService() {
-    const navigate = useNavigate();
-
     return (
-        <div className="legal-page">
+        <BaseLayout title="Términos y Condiciones">
             <div className="legal-container">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    ← Volver
-                </button>
-
-                <h1>Términos y Condiciones</h1>
                 <p className="last-updated">Última actualización: 28 de noviembre de 2025</p>
 
                 <div className="legal-content">
@@ -228,7 +222,7 @@ function TermsOfService() {
                     <p>Al usar nuestro servicio, confirmas que has leído y aceptado estos Términos y Condiciones.</p>
                 </div>
             </div>
-        </div>
+        </BaseLayout>
     );
 }
 

@@ -1,17 +1,11 @@
 import React from 'react'
-import { ChevronLeft, MoreVertical } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 
 export default function ChatHeader({
   onBack,
   loading,
   otherUser,
-  onProfileClick,
-  showMenu,
-  setShowMenu,
-  menuRef,
-  onReportOpen,
-  onBlockUser,
-  onUnmatch,
+  onProfileClick
 }) {
   return (
     <div style={{
@@ -22,7 +16,10 @@ export default function ChatHeader({
       alignItems: 'center',
       gap: '1rem',
       backdropFilter: 'blur(10px)',
-      flexShrink: 0
+      flexShrink: 0,
+      position: 'sticky',
+      top: 0,
+      zIndex: 20
     }}>
       <button
         onClick={onBack}
@@ -110,111 +107,6 @@ export default function ChatHeader({
           </div>
         </>
       )}
-
-      <div style={{ position: 'relative' }} ref={menuRef}>
-        <button
-          onClick={() => setShowMenu(!showMenu)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'white',
-            cursor: 'pointer',
-            padding: '0.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <MoreVertical size={24} />
-        </button>
-
-        {showMenu && (
-          <div style={{
-            position: 'absolute',
-            top: '100%',
-            right: 0,
-            marginTop: '0.5rem',
-            background: '#1a1a1a',
-            border: '1px solid var(--glass-border)',
-            borderRadius: '12px',
-            padding: '0.5rem',
-            minWidth: '200px',
-            zIndex: 100,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.25rem'
-          }}>
-            <div style={{ height: '1px', background: 'var(--glass-border)', margin: '0.25rem 0' }} />
-
-            <button
-              onClick={() => { onReportOpen(); setShowMenu(false); }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#fbbf24',
-                padding: '0.75rem',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                transition: 'background 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(251, 191, 36, 0.1)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              Reportar
-            </button>
-
-            <button
-              onClick={onBlockUser}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#ef4444',
-                padding: '0.75rem',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                transition: 'background 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              Bloquear
-            </button>
-
-            <button
-              onClick={onUnmatch}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#ef4444',
-                padding: '0.75rem',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                transition: 'background 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              Deshacer Match
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   )
 }

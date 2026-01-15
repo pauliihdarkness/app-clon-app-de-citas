@@ -1,17 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import BaseLayout from '../../../components/Layout/BaseLayout';
 import './LegalPage.css';
 
 function PrivacyPolicy() {
-    const navigate = useNavigate();
-
     return (
-        <div className="legal-page">
+        <BaseLayout title="Política de Privacidad">
             <div className="legal-container">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    ← Volver
-                </button>
-
-                <h1>Política de Privacidad</h1>
                 <p className="last-updated">Última actualización: 28 de noviembre de 2025</p>
 
                 <div className="legal-content">
@@ -259,7 +253,7 @@ function PrivacyPolicy() {
                     </p>
                 </div>
             </div>
-        </div>
+        </BaseLayout>
     );
 }
 

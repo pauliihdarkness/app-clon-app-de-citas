@@ -194,11 +194,17 @@ const Profile = () => {
             </div>
           )}
 
-          {/* More About Me - Sexual Orientation & Search Intent */}
-          {(userData?.sexualOrientation || userData?.searchIntent) && (
+          {/* More About Me - Pronouns, Sexual Orientation & Search Intent */}
+          {(userData?.pronouns || userData?.sexualOrientation || userData?.searchIntent) && (
             <div className="profile-section">
               <h3><Info size={18} /> Más sobre mí</h3>
               <div className="details-grid">
+              {userData.pronouns && (
+                <div className="detail-item">
+                  <span className="detail-label">Pronombres</span>
+                  <span className="detail-value">{userData.pronouns}</span>
+                </div>
+              )}
                 {userData.sexualOrientation && (
                   <div className="detail-item">
                     <span className="detail-label">Orientación</span>

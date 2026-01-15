@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useUserProfiles } from "../../context/UserProfilesContext";
 import { useToast } from "../../hooks/useToast";
-import TabNavigation from "../../components/Navigation/TabNavigation";
+import BaseLayout from "../../components/Layout/BaseLayout";
 import MatchModal from "../../components/MatchModal/MatchModal";
 import { db } from "../../api/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -188,19 +188,13 @@ const MatchesList = () => {
 
     if (loading) {
         return (
-            <div style={{
-                maxWidth: "600px",
-                height: "100dvh",
-                display: "flex",
-                flexDirection: "column",
-                background: "var(--bg-primary)"
-            }}>
+            <BaseLayout title="Mensajes" showTabs={true} maxWidth="md">
                 <div style={{
-                    flex: 1,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
+                    minHeight: "calc(100vh - 60px - 64px)",
                     gap: "1rem"
                 }}>
                     <div style={{
@@ -226,52 +220,29 @@ const MatchesList = () => {
                         fontWeight: "500"
                     }}>Cargando conversaciones...</p>
                 </div>
-                <TabNavigation />
                 <style>{`
                     @keyframes spin {
                         to { transform: rotate(360deg); }
                     }
                 `}</style>
-            </div>
+            </BaseLayout>
         );
     }
 
     return (
-        <div style={{
-            margin: "0 auto",
-            maxWidth: "600px",
-            height: "100dvh",
-            display: "flex",
-            flexDirection: "column",
-            background: "var(--bg-primary)",
-            overflow: "hidden"
-        }}>
-            {/* Header */}
+        <BaseLayout title="Mensajes" showTabs={true} maxWidth="md">
             <div style={{
-                background: "var(--glass-bg)",
-                borderBottom: "1px solid var(--glass-border)",
-                padding: "1rem",
-                backdropFilter: "blur(10px)",
-                flexShrink: 0
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+                overflow: "hidden"
             }}>
-                <h1 style={{
-                    fontSize: "1.5rem",
-                    margin: 0,
-                    background: "var(--primary-gradient)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    fontWeight: "700"
+                <div style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                    WebkitOverflowScrolling: "touch"
                 }}>
-                    Mensajes
-                </h1>
-            </div>
-
-            {/* Content */}
-            <div style={{
-                flex: 1,
-                overflowY: "auto",
-                overflowX: "hidden"
-            }}>
                 {/* New Matches - Instagram Stories Style */}
                 {newMatches.length > 0 && (
                     <div style={{
@@ -520,8 +491,6 @@ const MatchesList = () => {
                 ) : null}
             </div>
 
-            <TabNavigation />
-
             {showMatchModal && newMatchData && (
                 <MatchModal
                     currentUser={newMatchData.currentUser}
@@ -531,12 +500,11 @@ const MatchesList = () => {
                 />
             )}
 
-            <style>{`
-                .hide-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-            `}</style>
+            <style>
+                {".hide-scrollbar::-webkit-scrollbar { display: none; }"}
+            </style>
         </div>
+        </BaseLayout>
     );
 };
 

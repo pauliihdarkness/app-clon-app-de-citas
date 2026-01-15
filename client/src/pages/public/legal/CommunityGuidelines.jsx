@@ -1,17 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import BaseLayout from '../../../components/Layout/BaseLayout';
 import './LegalPage.css';
 
 function CommunityGuidelines() {
-    const navigate = useNavigate();
-
     return (
-        <div className="legal-page">
+        <BaseLayout title="Guía de Comunidad">
             <div className="legal-container">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    ← Volver
-                </button>
-
-                <h1>Guía de Comunidad</h1>
                 <p className="last-updated">Última actualización: 28 de noviembre de 2025</p>
 
                 <div className="legal-content">
@@ -296,7 +290,7 @@ function CommunityGuidelines() {
                     </p>
                 </div>
             </div>
-        </div>
+        </BaseLayout>
     );
 }
 

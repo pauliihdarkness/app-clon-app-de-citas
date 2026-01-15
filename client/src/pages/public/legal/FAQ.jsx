@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BaseLayout from '../../../components/Layout/BaseLayout';
 import './LegalPage.css';
 
 function FAQ() {
@@ -182,13 +183,8 @@ function FAQ() {
     ];
 
     return (
-        <div className="legal-page">
+        <BaseLayout title="Preguntas Frecuentes (FAQ)">
             <div className="legal-container">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    ← Volver
-                </button>
-
-                <h1>Preguntas Frecuentes (FAQ)</h1>
                 <p className="last-updated">Última actualización: 28 de noviembre de 2025</p>
 
                 <div className="faq-intro">
@@ -238,7 +234,7 @@ function FAQ() {
                     </button>
                 </div>
             </div>
-        </div>
+        </BaseLayout>
     );
 }
 

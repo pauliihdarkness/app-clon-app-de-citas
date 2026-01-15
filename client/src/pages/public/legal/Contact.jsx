@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import BaseLayout from '../../../components/Layout/BaseLayout';
 import './LegalPage.css';
 
 function Contact() {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -33,13 +32,8 @@ function Contact() {
     };
 
     return (
-        <div className="legal-page">
+        <BaseLayout title="Contacto">
             <div className="legal-container contact-page">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    ← Volver
-                </button>
-
-                <h1>Contacto</h1>
                 <p className="page-subtitle">¿Necesitas ayuda? Estamos aquí para ti</p>
 
                 <div className="contact-content">
@@ -182,7 +176,7 @@ function Contact() {
                     </p>
                 </div>
             </div>
-        </div>
+        </BaseLayout>
     );
 }
 

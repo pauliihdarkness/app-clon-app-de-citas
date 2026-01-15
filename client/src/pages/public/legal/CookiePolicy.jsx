@@ -1,17 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import BaseLayout from '../../../components/Layout/BaseLayout';
 import './LegalPage.css';
 
 function CookiePolicy() {
-    const navigate = useNavigate();
-
     return (
-        <div className="legal-page">
+        <BaseLayout title="Política de Cookies">
             <div className="legal-container">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    ← Volver
-                </button>
-
-                <h1>Política de Cookies</h1>
                 <p className="last-updated">Última actualización: 28 de noviembre de 2025</p>
 
                 <div className="legal-content">
@@ -219,7 +213,7 @@ function CookiePolicy() {
                     </p>
                 </div>
             </div>
-        </div>
+        </BaseLayout>
     );
 }
 

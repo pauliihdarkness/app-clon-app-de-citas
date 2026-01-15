@@ -2,10 +2,11 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import TabNavigation from "../Navigation/TabNavigation";
 import { useNotifications } from "../../context/NotificationContext";
+import { ChevronLeft, Bell, Sparkles } from "lucide-react";
 import "./BaseLayout.css";
 import "../../assets/styles/global.css";
 
-const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "App de Citas", backPath, headerActions }) => {
+const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "App de Citas", backPath, headerActions, onTitleClick, titleNode, hideFooter = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,6 +39,14 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
     alert("⚡ Filtros próximamente...");
   };
 
+  const handleTitleClick = () => {
+    if (onTitleClick) {
+      onTitleClick();
+    } else {
+      navigate("/feed");
+    }
+  };
+
   return (
     <div className="base-layout">
       {/* Header Inteligente */}
@@ -45,15 +54,19 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
         <div className="header-left">
           {showBackButton && (
             <button onClick={handleBack} className="header-btn" aria-label="Volver">
-              ←
+              <ChevronLeft size={20} />
             </button>
           )}
         </div>
 
         <div className="header-center">
-          <h2 className="app-logo" onClick={() => navigate("/feed")}>
-            {title}
-          </h2>
+          {titleNode ? (
+            titleNode
+          ) : (
+            <h2 className="app-logo" onClick={handleTitleClick}>
+              {title}
+            </h2>
+          )}
         </div>
 
         <div className="header-right">
@@ -62,10 +75,10 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
           ) : location.pathname === '/feed' ? (
             <>
               <button onClick={handleFilters} className="header-btn" aria-label="Filtros">
-                ⚡
+                <Sparkles size={18} />
               </button>
               <button onClick={handleNotifications} className="header-btn" aria-label="Notificaciones">
-                🔔
+                <Bell size={18} />
                 {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
               </button>
             </>
@@ -80,10 +93,12 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
         </div>
       </main>
 
-      {/* Footer (Solo si no hay tabs) */}
-      <footer className={`app-footer ${showTabs ? "hidden" : ""}`}>
-        <small>© 2025 App de Citas</small>
-      </footer>
+      {/* Footer (Solo si no hay tabs y no está oculto explícitamente) */}
+      {!hideFooter && (
+        <footer className={`app-footer ${showTabs ? "hidden" : ""}`}>
+          <small>© 2025 App de Citas</small>
+        </footer>
+      )}
 
       {/* Bottom Navigation */}
       {showTabs && <TabNavigation />}
