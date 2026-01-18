@@ -22,7 +22,7 @@ export function useFeed() {
         if (stack.length === 0) {
             loadBatch();
         }
-    }, []);
+    }, [stack.length, loadBatch]);
 
     /**
      * Acción LIKE

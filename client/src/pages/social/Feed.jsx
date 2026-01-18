@@ -20,7 +20,7 @@ const Feed = () => {
   useEffect(() => {
     // Initial load
     loadBatch().finally(() => setIsInitialLoading(false));
-  }, []);
+  }, [loadBatch]);
 
   // Listen for new matches
   useEffect(() => {
@@ -55,13 +55,14 @@ const Feed = () => {
   }, [user]);
 
   // Preload next user's image
+  const nextImage = stack[1] && stack[1].images && stack[1].images[0];
+
   useEffect(() => {
-    const nextUser = stack[1];
-    if (nextUser && nextUser.images && nextUser.images.length > 0) {
+    if (nextImage) {
       const img = new Image();
-      img.src = nextUser.images[0];
+      img.src = nextImage;
     }
-  }, [stack]);
+  }, [stack.length, nextImage]);
 
   const handleLike = throttle(async () => {
     const currentUser = stack[0];

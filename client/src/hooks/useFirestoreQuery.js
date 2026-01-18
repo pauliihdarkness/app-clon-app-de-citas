@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../api/firebase";
 
@@ -8,10 +8,14 @@ const useFirestoreQuery = (collectionName, filters = []) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const filtersConstraints = useMemo(() => {
+    return (filters || []).map(f => where(f.field, f.op, f.value));
+  }, [filters]);
+
   useEffect(() => {
     let q = collection(db, collectionName);
-    if (filters.length > 0) {
-      q = query(q, ...filters.map(f => where(f.field, f.op, f.value)));
+    if (filtersConstraints.length > 0) {
+      q = query(q, ...filtersConstraints);
     }
     const unsubscribe = onSnapshot(q,
       (snapshot) => {
@@ -24,7 +28,7 @@ const useFirestoreQuery = (collectionName, filters = []) => {
       }
     );
     return () => unsubscribe();
-  }, [collectionName, JSON.stringify(filters)]);
+  }, [collectionName, filtersConstraints]);
 
   return { data, loading, error };
 };

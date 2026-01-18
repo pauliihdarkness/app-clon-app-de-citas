@@ -27,8 +27,8 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
         // CRITICAL: Filter out any users already in the stack that we just discovered are interacted
         setStack(prev => prev.filter(u => !idsSet.has(u.id)));
 
-        // Si el stack estaba vacío y estábamos esperando esto, podríamos cargar ahora
-        if (stack.length === 0) loadBatch();
+        // NOTE: not calling `loadBatch()` here to avoid referencing `stack` from this effect.
+        // The prefetch effect below (`stack.length` watcher) will trigger loading when appropriate.
       });
     });
   }, [userId]);
@@ -92,6 +92,11 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
     }
   }
 
+  // keep a stable ref to loadBatch so effects can call it without being required
+  // to include the function in dependency arrays.
+  const loadBatchRef = useRef();
+  loadBatchRef.current = loadBatch;
+
   function popProfile() {
     setStack(prev => prev.slice(1));
   }
@@ -106,8 +111,10 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
 
   // prefetch trigger: call loadBatch when stack.length < 5
   React.useEffect(() => {
-    if (stack.length < 5 && interactedLoadedRef.current) loadBatch();
-  }, [stack.length, interactedLoadedRef.current]);
+    if (stack.length < 5 && interactedLoadedRef.current) {
+      loadBatchRef.current && loadBatchRef.current();
+    }
+  }, [stack.length]);
 
   return (
     <FeedContext.Provider value={{ stack, loadBatch, popProfile, markAsInteracted, reset: () => loadBatch({ reset: true }) }}>
