@@ -147,7 +147,8 @@ const PublicProfile = () => {
             try {
                 await blockUser(user.uid, userId);
                 showToast("Usuario bloqueado", "success");
-                navigate(-1);
+                // Después de bloquear, volver al listado de chats
+                navigate("/chat");
             } catch { // error intentionally ignored for user feedback
                 showToast("Error al bloquear usuario", "error");
             }
