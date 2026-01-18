@@ -1,6 +1,6 @@
 // hooks/useFeed.js
 import { useEffect, useCallback } from "react";
-import { useFeed } from "../context/FeedContext";
+import { useFeed as useFeedContext } from "../context/FeedContext";
 import { sendLike } from "../api/firestore/likes";
 import { useAuth } from "../context/AuthContext";
 
@@ -12,7 +12,7 @@ export function useFeed() {
         loadBatch,
         popProfile,
         reset
-    } = useFeed();
+    } = useFeedContext();
 
     // Perfil actual (primer item del stack)
     const currentProfile = stack.length > 0 ? stack[0] : null;
@@ -35,7 +35,7 @@ export function useFeed() {
 
         await sendLike(user.uid, currentProfile.id);
         popProfile();
-    }, [currentProfile, user]);
+    }, [currentProfile, user, popProfile]);
 
     /**
      * Acción PASS
@@ -45,14 +45,14 @@ export function useFeed() {
     const pass = useCallback(() => {
         if (!currentProfile) return;
         popProfile();
-    }, [currentProfile]);
+    }, [currentProfile, popProfile]);
 
     /**
      * Reiniciar feed (cuando cambian filtros, por ejemplo)
      */
     const reload = useCallback(() => {
         reset();
-    }, []);
+    }, [reset]);
 
     return {
         currentProfile,

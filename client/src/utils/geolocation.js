@@ -23,10 +23,10 @@ export const getInitialLocation = async () => {
                 const provincia = data.address.state || "";
                 const pais = data.address.country || "";
                 resolve({ ciudad, provincia, pais });
-            } catch (err) {
+            } catch {
                 reject("No se pudo obtener la ubicación");
             }
-        }, (error) => {
+        }, () => {
             reject("Permiso de ubicación denegado");
         }, { enableHighAccuracy: false, timeout: 10000 });
     });

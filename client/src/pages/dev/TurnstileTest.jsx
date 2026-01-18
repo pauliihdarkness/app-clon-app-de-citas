@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { renderTurnstile, getTurnstileToken, resetTurnstile } from '../../utils/turnstile';
+import { renderTurnstile, resetTurnstile } from '../../utils/turnstile';
 import BaseLayout from '../../components/Layout/BaseLayout';
 import Button from '../../components/UI/Button';
 

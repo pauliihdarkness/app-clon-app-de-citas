@@ -1,4 +1,4 @@
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getToken, onMessage } from 'firebase/messaging';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../api/firebase';
 

@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MatchModal.css";
 import { MessageCircle } from "lucide-react";
 
 const MatchModal = ({ currentUser, matchedUser, matchId, onClose }) => {
     const navigate = useNavigate();
+    const [confetti, setConfetti] = useState([]);
 
     // Prevent body scroll when modal is open
     useEffect(() => {
@@ -12,6 +13,24 @@ const MatchModal = ({ currentUser, matchedUser, matchId, onClose }) => {
         return () => {
             document.body.style.overflow = "unset";
         };
+    }, []);
+
+    useEffect(() => {
+        const colors = [
+            "#FF6B9D",
+            "#C471ED",
+            "#12E7C3",
+            "#FFA500",
+            "#FF1493",
+        ];
+        const particles = Array.from({ length: 30 }).map(() => ({
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 3}s`,
+            animationDuration: `${2 + Math.random() * 2}s`,
+            backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+        }));
+        const t = setTimeout(() => setConfetti(particles), 0);
+        return () => clearTimeout(t);
     }, []);
 
     const handleSendMessage = () => {
@@ -28,21 +47,15 @@ const MatchModal = ({ currentUser, matchedUser, matchId, onClose }) => {
             <div className="match-modal-content" onClick={(e) => e.stopPropagation()}>
                 {/* Confetti particles */}
                 <div className="confetti-container">
-                    {[...Array(30)].map((_, i) => (
+                    {confetti.map((p, i) => (
                         <div
                             key={i}
                             className="confetti-particle"
                             style={{
-                                left: `${Math.random() * 100}%`,
-                                animationDelay: `${Math.random() * 3}s`,
-                                animationDuration: `${2 + Math.random() * 2}s`,
-                                backgroundColor: [
-                                    "#FF6B9D",
-                                    "#C471ED",
-                                    "#12E7C3",
-                                    "#FFA500",
-                                    "#FF1493",
-                                ][Math.floor(Math.random() * 5)],
+                                left: p.left,
+                                animationDelay: p.animationDelay,
+                                animationDuration: p.animationDuration,
+                                backgroundColor: p.backgroundColor,
                             }}
                         />
                     ))}

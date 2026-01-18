@@ -43,10 +43,10 @@ const Login = () => {
 
                         navigate("/create-profile");
                     }
-                } catch (err) {
-                    console.error("Error checking user profile:", err);
-                    navigate("/create-profile");
-                } finally {
+                } catch {
+                            console.error("Error checking user profile:");
+                            navigate("/create-profile");
+                        } finally {
                     setIsLoading(false);
                 }
             }
@@ -60,7 +60,7 @@ const Login = () => {
         setIsLoading(true);
         try {
             await login(email, password);
-        } catch (err) {
+        } catch {
             // Error handled by context
             setIsLoading(false);
         }

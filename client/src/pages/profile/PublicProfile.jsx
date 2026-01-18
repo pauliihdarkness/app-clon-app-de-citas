@@ -148,7 +148,7 @@ const PublicProfile = () => {
                 await blockUser(user.uid, userId);
                 showToast("Usuario bloqueado", "success");
                 navigate(-1);
-            } catch (error) {
+            } catch { // error intentionally ignored for user feedback
                 showToast("Error al bloquear usuario", "error");
             }
         }
@@ -164,7 +164,7 @@ const PublicProfile = () => {
             if (window.confirm("Gracias por tu reporte. ¿Deseas bloquear a este usuario también?")) {
                 await handleBlockUser();
             }
-        } catch (error) {
+        } catch { // error intentionally ignored for user feedback
             showToast("Error al reportar usuario", "error");
         }
     };

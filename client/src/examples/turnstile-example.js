@@ -37,7 +37,7 @@ export async function initializeTurnstile() {
 /**
  * Callback when Turnstile is completed successfully
  */
-function onTurnstileSuccess(token) {
+function onTurnstileSuccess() {
     console.log('✅ Turnstile verification completed');
     // You can enable submit button here if needed
     const submitBtn = document.querySelector('button[type="submit"]');

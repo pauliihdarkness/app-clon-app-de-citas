@@ -9,7 +9,7 @@ import { Info } from "lucide-react";
 
 const AccountInfo = () => {
     const { user } = useAuth();
-    const navigate = useNavigate();
+    const _navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [accountData, setAccountData] = useState({
         email: "",

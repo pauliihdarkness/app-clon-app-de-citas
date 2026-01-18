@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useRef } from "react";
 import { getProfilesBatch } from "../api/firebase/feed";
 import { useUserProfiles } from "./UserProfilesContext";

@@ -51,7 +51,8 @@ const InstallPrompt = () => {
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
         if (dismissed || isStandalone) {
-            setShowPrompt(false);
+            const t = setTimeout(() => setShowPrompt(false), 0);
+            return () => clearTimeout(t);
         }
     }, []);
 

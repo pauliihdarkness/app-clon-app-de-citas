@@ -15,7 +15,7 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
   try {
     const notifications = useNotifications();
     unreadCount = notifications?.unreadCount || 0;
-  } catch (error) {
+  } catch {
     // NotificationProvider not available, use default value
     console.warn('NotificationContext not available in BaseLayout');
   }

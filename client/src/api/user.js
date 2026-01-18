@@ -45,7 +45,7 @@ export const getUserProfile = async (userId) => {
 // Actualizar perfil
 export const updateUserProfile = async (userId, profileData) => {
   // Remove age from profileData if present (it should be calculated)
-  const { age, ...dataToUpdate } = profileData;
+  const { age: _age, ...dataToUpdate } = profileData;
 
   // Get birth date to recalculate age
   const privateData = await getPrivateUserData(userId);
@@ -75,7 +75,7 @@ export const getPrivateUserData = async (userId) => {
 // Actualizar datos privados (solo para campos permitidos, NO birthDate)
 export const updatePrivateUserData = async (userId, privateData) => {
   // Prevent birthDate from being updated after initial creation
-  const { birthDate, ...allowedData } = privateData;
+  const { birthDate: _birthDate, ...allowedData } = privateData;
 
   if (Object.keys(allowedData).length > 0) {
     await updateDoc(doc(db, "users", userId, "private", "data"), allowedData);

@@ -1,3 +1,5 @@
+/* eslint-env serviceworker */
+/* global clients */
 // Service Worker for PWA
 const CACHE_NAME = 'dating-app-v1';
 const STATIC_CACHE = [

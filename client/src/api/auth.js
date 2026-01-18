@@ -2,7 +2,7 @@
 // Aquí puedes implementar las funciones relacionadas con la autenticación.
 
 //login y register con firebase auth con google
-import { getAuth, signInWithPopup, GoogleAuthProvider, logout } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import app from "./firebase";
 
 const auth = getAuth(app);

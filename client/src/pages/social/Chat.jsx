@@ -21,7 +21,7 @@ const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [otherUser, setOtherUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
   const isFirstLoad = useRef(true);
   const textareaRef = useRef(null);
@@ -165,25 +165,25 @@ const Chat = () => {
     </button>
   ) : null;
 
-  const handleHideChat = async () => {
+  const _handleHideChat = async () => {
     if (!matchId || !user) return;
     try {
       await hideMatchForUser(matchId, user.uid);
       showToast("Chat ocultado", "success");
       navigate("/chat");
-    } catch (error) {
+      } catch {
       showToast("Error al ocultar chat", "error");
     }
   };
 
-  const handleUnmatch = async () => {
+  const _handleUnmatch = async () => {
     if (!matchId) return;
     if (window.confirm("¿Estás seguro de que quieres deshacer el match? Esta acción es irreversible.")) {
       try {
         await unmatchUser(matchId);
         showToast("Match deshecho", "success");
         navigate("/chat");
-      } catch (error) {
+      } catch {
         showToast("Error al deshacer match", "error");
       }
     }
@@ -196,7 +196,7 @@ const Chat = () => {
         await blockUser(user.uid, otherUser.uid);
         showToast("Usuario bloqueado", "success");
         navigate("/chat");
-      } catch (error) {
+      } catch {
         showToast("Error al bloquear usuario", "error");
       }
     }
@@ -213,7 +213,7 @@ const Chat = () => {
       if (window.confirm("Gracias por tu reporte. ¿Deseas bloquear a este usuario también?")) {
         await handleBlockUser();
       }
-    } catch (error) {
+    } catch {
       showToast("Error al reportar usuario", "error");
     }
   };

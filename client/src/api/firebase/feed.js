@@ -2,7 +2,7 @@
 import { collection, query, where, orderBy, limit, startAfter, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
-export async function getProfilesBatch({ filters, pageSize = 15, lastDoc = null, excludeIds = [], userId = null }) {
+export async function getProfilesBatch({ pageSize = 15, lastDoc = null, excludeIds = [], userId = null }) {
   // Note: Firestore 'in' operator only supports up to 10 values
   // Since we have 29 gender identities, we can't filter by gender in the query
   // Instead, we'll fetch all active users and let the client handle any filtering if needed

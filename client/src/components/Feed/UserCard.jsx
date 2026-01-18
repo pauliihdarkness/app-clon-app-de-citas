@@ -15,11 +15,14 @@ const UserCard = ({ user, onLike, onPass }) => {
     const infoRef = useRef(null);
 
     useEffect(() => {
-        // Reset photo index when user changes
-        setCurrentPhotoIndex(0);
-        setSwipeX(0);
-        setSwipeY(0);
-        setIsExiting(false);
+        // Reset photo index when user changes (deferred to avoid synchronous setState in effect)
+        const t = setTimeout(() => {
+            setCurrentPhotoIndex(0);
+            setSwipeX(0);
+            setSwipeY(0);
+            setIsExiting(false);
+        }, 0);
+        return () => clearTimeout(t);
     }, [user?.id]);
 
     if (!user) return null;

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { db } from '../api/firebase';
@@ -30,10 +31,12 @@ export const NotificationProvider = ({ children }) => {
 
     useEffect(() => {
         if (!user) {
-            setNotifications([]);
-            setUnreadCount(0);
-            setLoading(false);
-            return;
+            const t = setTimeout(() => {
+                setNotifications([]);
+                setUnreadCount(0);
+                setLoading(false);
+            }, 0);
+            return () => clearTimeout(t);
         }
 
         const notificationsRef = collection(db, "users", user.uid, "notifications");
@@ -58,7 +61,7 @@ export const NotificationProvider = ({ children }) => {
         return () => unsubscribe();
     }, [user]);
 
-    const markAsRead = async (notificationId) => {
+    const markAsRead = React.useCallback(async (notificationId) => {
         if (!user) return;
         try {
             const notifRef = doc(db, "users", user.uid, "notifications", notificationId);
@@ -67,9 +70,9 @@ export const NotificationProvider = ({ children }) => {
         } catch (error) {
             console.error("Error marking notification as read:", error);
         }
-    };
+    }, [user]);
 
-    const markAllAsRead = async () => {
+    const markAllAsRead = React.useCallback(async () => {
         if (!user || notifications.length === 0) return;
 
         const unreadNotifications = notifications.filter(n => !n.read);
@@ -85,9 +88,9 @@ export const NotificationProvider = ({ children }) => {
         } catch (error) {
             console.error("Error marking all as read:", error);
         }
-    };
+    }, [user, notifications]);
 
-    const deleteNotification = async (notificationId) => {
+    const deleteNotification = React.useCallback(async (notificationId) => {
         if (!user) return;
         try {
             const notifRef = doc(db, "users", user.uid, "notifications", notificationId);
@@ -95,7 +98,7 @@ export const NotificationProvider = ({ children }) => {
         } catch (error) {
             console.error("Error deleting notification:", error);
         }
-    };
+    }, [user]);
 
     const value = React.useMemo(() => ({
         notifications,
@@ -104,7 +107,7 @@ export const NotificationProvider = ({ children }) => {
         markAsRead,
         markAllAsRead,
         deleteNotification
-    }), [notifications, unreadCount, loading]);
+    }), [notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification]);
 
     return (
         <NotificationContext.Provider value={value}>

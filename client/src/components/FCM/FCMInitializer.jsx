@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { setupFCM, handleForegroundMessages } from '../../utils/messaging';
+import { setupFCM } from '../../utils/messaging';
 import { useToast } from '../../hooks/useToast';
 
 /**

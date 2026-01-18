@@ -39,7 +39,7 @@ const Feed = () => {
           const matchData = change.doc.data();
           const createdAt = matchData.createdAt?.toDate();
           if (createdAt && (Date.now() - createdAt.getTime() < 10000)) {
-            const otherUserId = matchData.users.find(id => id !== user.uid);
+            const _otherUserId = matchData.users.find(id => id !== user.uid);
             setMatchedUser({ name: "Alguien" });
             setShowMatchNotification(true);
             setTimeout(() => {
