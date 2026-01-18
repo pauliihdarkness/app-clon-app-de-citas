@@ -1,0 +1,21 @@
+.filter-panel {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  color: white;
+}
+.filter-panel .row {
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.filter-panel .actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.btn { padding: 0.5rem 0.75rem; border-radius: 8px; border: none; cursor: pointer; }
+.btn.primary { background: linear-gradient(90deg,#7c3aed,#06b6d4); color: white; }
+.btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.08); color: white; }
