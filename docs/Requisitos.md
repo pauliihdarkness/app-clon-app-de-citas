@@ -233,7 +233,8 @@
 
 ## 🧪 Testing
 
-- [ ] Tests unitarios (Jest + React Testing Library)
+- [x] Tests unitarios (Vitest) — configuración inicial y test de ejemplo añadidos
+- [ ] Tests unitarios (React Testing Library) — pendientes para componentes
 - [ ] Tests de integración
 - [ ] Tests E2E (Cypress/Playwright)
 - [ ] Tests de reglas de Firestore
@@ -252,7 +253,9 @@
 - [x] **Configuración de Vercel** (vercel.json para SPA routing)
 - [x] **Guía de despliegue** (DEPLOYMENT.md)
 - [x] **Archivo _redirects** para fallback routing
-- [ ] CI/CD con GitHub Actions
+- [x] Workflows de lint añadidos (client)
+- [x] Workflow fallback `self-hosted` añadido (runner local posible)
+- [ ] CI/CD completo en GitHub Actions (pendiente: cuenta bloqueada por facturación)
 - [ ] Environments (dev, staging, production)
 - [ ] Monitoreo de errores (Sentry)
 - [ ] Analytics (Firebase Analytics)
@@ -314,24 +317,48 @@ Se realizó una auditoría exhaustiva del cliente para verificar requisitos no m
 - ⏳ Cambio de contraseña
 - ⏳ 2FA
 
+**Estimaciones y responsables (rápido):**
+- ⏳ Recuperación de contraseña — ETA: 1 semana — Responsable: Backend
+- ⏳ Cambio de contraseña — ETA: 1 semana — Responsable: Backend
+- ⏳ 2FA — ETA: 4–6 semanas — Responsable: Seguridad / Backend
+
 **Chat/Mensajes:**
 - ⏳ Envío de imágenes
 - ⏳ Typing indicator
 - ⏳ Read receipts
 - ⏳ Reportar conversación (UI hecha, backend pendiente)
 
+**Estimaciones y responsables (rápido):**
+- ⏳ Envío de imágenes — ETA: 2–3 semanas — Responsable: Frontend + Backend
+- ⏳ Typing indicator — ETA: 1–2 semanas — Responsable: Frontend
+- ⏳ Read receipts — ETA: 2–3 semanas — Responsable: Backend + Frontend
+- ⏳ Reportar conversación (backend) — ETA: 1–2 semanas — Responsable: Backend / Moderación
+
 **Perfiles:**
 - ⏳ Indicador de distancia en km
 - ⏳ Indicador de última conexión
+
+**Estimaciones y responsables (rápido):**
+- ⏳ Indicador de distancia en km — ETA: 2–3 semanas — Responsable: Frontend + Backend (geodata)
+- ⏳ Indicador de última conexión — ETA: 1–2 semanas — Responsable: Backend
 
 **Notificaciones:**
 - ⏳ FCM Push Notifications
 - ⏳ Notificación de nuevo like
 - ⏳ Badge de contador
 
+**Estimaciones y responsables (rápido):**
+- ⏳ FCM Push Notifications — ETA: 2–3 semanas — Responsable: Infra / Backend
+- ⏳ Notificación de nuevo like — ETA: 1–2 semanas — Responsable: Backend
+- ⏳ Badge de contador — ETA: 1 semana — Responsable: Frontend
+
 **Testing & DevOps:**
 - ⏳ Tests unitarios e integración
 - ⏳ CI/CD con GitHub Actions
+
+**Estimaciones y responsables (rápido):**
+- ⏳ Tests unitarios e integración — ETA: proceso continuo (1–3 meses) — Responsable: QA / Frontend
+- ⏳ CI/CD con GitHub Actions — ETA: 1–2 semanas (workflow + fixes de facturación) — Responsable: DevOps
 
 ---
 

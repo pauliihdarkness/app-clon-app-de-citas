@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { db } from '../api/firebase';
 import { doc, collection, query, orderBy, limit, onSnapshot, updateDoc } from 'firebase/firestore';
-import { getUserProfile } from '../api/user';
+import { registerListener, unregisterListener } from '../utils/listenerDebug';
+import { useUserProfiles } from '../context/UserProfilesContext';
 
 /**
  * Hook personalizado para escuchar cambios en tiempo real de un chat
@@ -13,28 +14,36 @@ import { getUserProfile } from '../api/user';
  * @returns {function} Función de limpieza
  */
 export const useChatSnapshot = (matchId, user, setOtherUser, setMessages, setLoading) => {
+    const { getProfile } = useUserProfiles();
+
     useEffect(() => {
         if (!matchId || !user) return;
 
         let matchUnsubscribe;
         let messagesUnsubscribe;
+        let lastOtherUserId = null;
+        let matchListenerId;
+        let messagesListenerId;
 
         const setupListeners = async () => {
             try {
                 // 1. Listener para el documento del match (para obtener info del otro usuario)
                 const matchRef = doc(db, 'matches', matchId);
 
+                console.debug('useChatSnapshot: subscribing matchRef', matchId);
+                try { matchListenerId = registerListener(`useChatSnapshot.match:${matchId}`); } catch (e) { console.debug('useChatSnapshot: registerListener failed', e); }
                 matchUnsubscribe = onSnapshot(matchRef, async (matchDoc) => {
                     if (matchDoc.exists()) {
                         const matchData = matchDoc.data();
                         const otherUserId = matchData.users?.find(id => id !== user.uid);
 
-                        if (otherUserId) {
+                        if (otherUserId && otherUserId !== lastOtherUserId) {
+                            lastOtherUserId = otherUserId;
                             try {
-                                const otherUserProfile = await getUserProfile(otherUserId);
+                                const otherUserProfile = await getProfile(otherUserId);
                                 setOtherUser(otherUserProfile);
                             } catch (error) {
-                                console.error('Error fetching other user profile:', error);
+                                console.error('Error fetching other user profile via cache:', error);
                             }
                         }
 
@@ -56,6 +65,8 @@ export const useChatSnapshot = (matchId, user, setOtherUser, setMessages, setLoa
                     limit(50)
                 );
 
+                console.debug('useChatSnapshot: subscribing messagesQuery', matchId);
+                try { messagesListenerId = registerListener(`useChatSnapshot.messages:${matchId}`); } catch (e) { console.debug('useChatSnapshot: registerListener failed', e); }
                 messagesUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
                     const messagesData = snapshot.docs.map(doc => ({
                         id: doc.id,
@@ -86,8 +97,20 @@ export const useChatSnapshot = (matchId, user, setOtherUser, setMessages, setLoa
 
         // Cleanup: desuscribirse de ambos listeners
         return () => {
-            if (matchUnsubscribe) matchUnsubscribe();
-            if (messagesUnsubscribe) messagesUnsubscribe();
+            try {
+                if (matchUnsubscribe) {
+                    matchUnsubscribe();
+                    console.debug('useChatSnapshot: unsubscribed matchRef', matchId);
+                }
+                if (messagesUnsubscribe) {
+                    messagesUnsubscribe();
+                    console.debug('useChatSnapshot: unsubscribed messagesQuery', matchId);
+                }
+            } catch (e) {
+                console.warn('useChatSnapshot: error during unsubscribe', e);
+            }
+            try { if (matchListenerId) { unregisterListener(matchListenerId); matchListenerId = null; } } catch (e) { console.debug('useChatSnapshot: unregisterListener failed', e); }
+            try { if (messagesListenerId) { unregisterListener(messagesListenerId); messagesListenerId = null; } } catch (e) { console.debug('useChatSnapshot: unregisterListener failed', e); }
         };
     }, [matchId, user, setOtherUser, setMessages, setLoading]);
 };

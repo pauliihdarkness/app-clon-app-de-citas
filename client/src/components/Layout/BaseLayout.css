@@ -72,6 +72,31 @@
   transform: scale(0.95);
 }
 
+/* Animación específica para el botón de filtros */
+.filter-btn {
+  transition: transform 200ms cubic-bezier(.2,.9,.3,1), box-shadow 200ms ease;
+}
+
+.filter-btn svg {
+  transition: transform 220ms cubic-bezier(.2,.9,.3,1), filter 220ms ease;
+  transform-origin: 50% 50%;
+}
+
+/* Hover: elevación suave + rotación ligera del icono + glow */
+.filter-btn:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 6px 18px rgba(254,60,114,0.12);
+}
+
+.filter-btn:hover svg {
+  transform: rotate(-10deg) scale(1.08);
+  filter: drop-shadow(0 6px 14px rgba(254,60,114,0.18));
+}
+
+.filter-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
 /* Notification Badge */
 .badge {
   position: absolute;

@@ -55,7 +55,7 @@ export const UserProfilesProvider = ({ children }) => {
 
         pendingRequests.current[userId] = requestPromise;
         return requestPromise;
-    }, [profiles]);
+    }, []);
 
     const clearCache = useCallback(() => {
         setProfiles({});

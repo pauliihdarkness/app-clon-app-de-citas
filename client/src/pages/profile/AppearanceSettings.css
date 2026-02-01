@@ -1,0 +1,37 @@
+.appearance-page {
+    padding: 1rem;
+}
+
+.appearance-section {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.appearance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.appearance-item:last-child {
+    border-bottom: none;
+}
+
+.label {
+    color: var(--text-secondary);
+}
+
+.control {
+    display: flex;
+    align-items: center;
+}
+
+.actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}

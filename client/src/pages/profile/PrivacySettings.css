@@ -1,0 +1,82 @@
+.privacy-page {
+    padding: 1rem;
+}
+
+.privacy-section {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.privacy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.privacy-item:last-child {
+    border-bottom: none;
+}
+
+.label {
+    color: var(--text-secondary);
+}
+
+.control {
+    display: flex;
+    align-items: center;
+}
+
+.hint {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.8rem;
+}
+
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+}
+
+.toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+.actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.upcoming-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
+}
+
+.upcoming-item .label {
+    color: var(--text-secondary);
+}
+
+.upcoming-btn {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: not-allowed;
+}
+
+.upcoming-note {
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}

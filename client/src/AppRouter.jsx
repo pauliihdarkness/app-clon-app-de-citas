@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
 import SplashScreen from "./components/Layout/SplashScreen";
 import InstallPrompt from "./components/PWA/InstallPrompt";
-import { FeedProvider } from "./context/FeedContext";
+import { FeedProvider, useFeed } from "./context/FeedContext";
 import { useAuth } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import FCMInitializer from "./components/FCM/FCMInitializer";
@@ -22,6 +22,9 @@ const Register = lazy(() => import("./pages/public/Register"));
 const NotFound = lazy(() => import("./pages/public/NotFound"));
 const CreateProfile = lazy(() => import("./pages/profile/CreateProfile"));
 const Settings = lazy(() => import("./pages/profile/Settings"));
+const PrivacySettings = lazy(() => import("./pages/profile/PrivacySettings"));
+const NotificationsSettings = lazy(() => import("./pages/profile/NotificationsSettings"));
+const AppearanceSettings = lazy(() => import("./pages/profile/AppearanceSettings"));
 const AccountInfo = lazy(() => import("./pages/profile/AccountInfo"));
 const TurnstileTest = lazy(() => import("./pages/dev/TurnstileTest"));
 const TermsOfService = lazy(() => import("./pages/public/legal/TermsOfService"));
@@ -30,16 +33,75 @@ const CookiePolicy = lazy(() => import("./pages/public/legal/CookiePolicy"));
 const CommunityGuidelines = lazy(() => import("./pages/public/legal/CommunityGuidelines"));
 const FAQ = lazy(() => import("./pages/public/legal/FAQ"));
 const Contact = lazy(() => import("./pages/public/legal/Contact"));
+const FeedFilters = lazy(() => import("./pages/social/FeedFilters"));
 
 // Wrapper to provide userId to FeedProvider
 const FeedWithProvider = () => {
     const { user } = useAuth();
+    
+    // Cargar filtros guardados desde localStorage
+    const getSavedFilters = () => {
+        try {
+            const saved = localStorage.getItem('feedFilters');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (error) {
+            console.error('Error loading filters from localStorage:', error);
+        }
+        return {};
+    };
+    
+    function ApplyPendingFilters() {
+        const { applyFilters } = useFeed();
+        React.useEffect(() => {
+            try {
+                const p = localStorage.getItem('pendingFilters');
+                if (p) {
+                    const parsed = JSON.parse(p);
+                    applyFilters(parsed);
+                    localStorage.removeItem('pendingFilters');
+                }
+            } catch {
+                // ignore
+            }
+        }, [applyFilters]);
+        return null;
+    }
+
     return (
         <FeedProvider
-            initialFilters={{ genders: ["female", "male", "other"] }}
+            initialFilters={getSavedFilters()}
             userId={user?.uid}
         >
+            <ApplyPendingFilters />
             <Feed />
+        </FeedProvider>
+    );
+};
+
+const FeedFiltersWithProvider = () => {
+    const { user } = useAuth();
+    
+    // Cargar filtros guardados desde localStorage
+    const getSavedFilters = () => {
+        try {
+            const saved = localStorage.getItem('feedFilters');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (error) {
+            console.error('Error loading filters from localStorage:', error);
+        }
+        return {};
+    };
+    
+    return (
+        <FeedProvider
+            initialFilters={getSavedFilters()}
+            userId={user?.uid}
+        >
+            <FeedFilters />
         </FeedProvider>
     );
 };
@@ -61,6 +123,11 @@ const AppRouter = () => {
                         <Route path="/" element={user ? <Navigate to="/feed" replace /> : <Home />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
+                        <Route path="/filters" element={
+                            <ProtectedRoute>
+                                <FeedFiltersWithProvider />
+                            </ProtectedRoute>
+                        } />
                         <Route path="/feed" element={
                             <ProtectedRoute>
                                 <FeedWithProvider />
@@ -104,6 +171,21 @@ const AppRouter = () => {
                         <Route path="/settings" element={
                             <ProtectedRoute>
                                 <Settings />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/settings/privacy" element={
+                            <ProtectedRoute>
+                                <PrivacySettings />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/settings/notifications" element={
+                            <ProtectedRoute>
+                                <NotificationsSettings />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/settings/appearance" element={
+                            <ProtectedRoute>
+                                <AppearanceSettings />
                             </ProtectedRoute>
                         } />
                         <Route path="/account-info" element={

@@ -1,8 +1,8 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import TabNavigation from "../Navigation/TabNavigation";
-import { useNotifications } from "../../context/NotificationContext";
-import { ChevronLeft, Bell, Sparkles } from "lucide-react";
+ import { useNotifications } from "../../context/NotificationContext";
+import { ChevronLeft, Bell, SlidersHorizontal } from "lucide-react";
 import "./BaseLayout.css";
 import "../../assets/styles/global.css";
 
@@ -23,6 +23,11 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
   // Determinar si mostrar botón de atrás
   const showBackButton = !showTabs && location.pathname !== "/";
 
+  // Debug: log pathname when layout mounts (temporary)
+  React.useEffect(() => {
+    console.debug('BaseLayout mounted, pathname=', location.pathname);
+  }, [location.pathname]);
+
   const handleBack = () => {
     if (backPath) {
       navigate(backPath);
@@ -35,9 +40,7 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
     navigate("/notifications");
   };
 
-  const handleFilters = () => {
-    alert("⚡ Filtros próximamente...");
-  };
+  // Navigation to notifications handled below
 
   const handleTitleClick = () => {
     if (onTitleClick) {
@@ -74,9 +77,10 @@ const BaseLayout = ({ children, maxWidth = "full", showTabs = false, title = "Ap
             headerActions
           ) : location.pathname === '/feed' ? (
             <>
-              <button onClick={handleFilters} className="header-btn" aria-label="Filtros">
-                <Sparkles size={18} />
-              </button>
+              <Link to="/filters" className="header-btn filter-btn" aria-label="Filtros" title="Filtros">
+                <SlidersHorizontal size={18} />
+                <span className="visually-hidden">Filtros</span>
+              </Link>
               <button onClick={handleNotifications} className="header-btn" aria-label="Notificaciones">
                 <Bell size={18} />
                 {unreadCount > 0 && <span className="badge">{unreadCount}</span>}

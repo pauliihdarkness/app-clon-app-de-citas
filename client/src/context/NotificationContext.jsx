@@ -12,6 +12,7 @@ import {
     deleteDoc,
     writeBatch
 } from 'firebase/firestore';
+import { registerListener, unregisterListener } from '../utils/listenerDebug';
 
 const NotificationContext = createContext();
 
@@ -42,23 +43,37 @@ export const NotificationProvider = ({ children }) => {
         const notificationsRef = collection(db, "users", user.uid, "notifications");
         const q = query(notificationsRef, orderBy("timestamp", "desc"));
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const notifs = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                // Ensure timestamp is converted to date/string if it's a Firestore Timestamp
-                timestamp: doc.data().timestamp?.toDate ? doc.data().timestamp.toDate().toISOString() : doc.data().timestamp
-            }));
+        console.debug('NotificationContext: polling notifications for user', user.uid);
+        let stopped = false;
 
-            setNotifications(notifs);
-            setUnreadCount(notifs.filter(n => !n.read).length);
-            setLoading(false);
-        }, (error) => {
-            console.error("Error fetching notifications:", error);
-            setLoading(false);
-        });
+        const fetchNotifications = async () => {
+            try {
+                const snapshot = await getDocs(q);
+                if (stopped) return;
+                const notifs = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    timestamp: doc.data().timestamp?.toDate ? doc.data().timestamp.toDate().toISOString() : doc.data().timestamp
+                }));
 
-        return () => unsubscribe();
+                setNotifications(notifs);
+                setUnreadCount(notifs.filter(n => !n.read).length);
+                setLoading(false);
+            } catch (error) {
+                console.error("NotificationContext: error fetching notifications:", error);
+                setLoading(false);
+            }
+        };
+
+        // Initial fetch + polling every 15s
+        fetchNotifications();
+        const iv = setInterval(fetchNotifications, 15000);
+
+        return () => {
+            stopped = true;
+            clearInterval(iv);
+            console.debug('NotificationContext: stopped polling notifications for user', user.uid);
+        };
     }, [user]);
 
     const markAsRead = React.useCallback(async (notificationId) => {

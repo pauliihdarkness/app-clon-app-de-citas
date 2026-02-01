@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import BaseLayout from "../../components/Layout/BaseLayout";
 import { useAuth } from "../../context/AuthContext";
 import { useFeed } from "../../context/FeedContext";
 import { saveLike, savePass } from "../../api/likes";
 import UserCard from "../../components/Feed/UserCard";
-import { collection, query, where, onSnapshot, orderBy, limit } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "../../api/firebase";
+import { registerListener, unregisterListener } from "../../utils/listenerDebug";
 import { throttle } from "../../utils/throttle";
 import SkeletonCard from "../../components/UI/SkeletonCard";
 import "./Feed.css";
@@ -13,6 +14,9 @@ import "./Feed.css";
 const Feed = () => {
   const { user } = useAuth();
   const { stack, loadBatch, popProfile } = useFeed();
+  useEffect(() => {
+    console.debug('Feed: stack length=', stack.length);
+  }, [stack.length]);
   const [showMatchNotification, setShowMatchNotification] = useState(false);
   const [matchedUser, setMatchedUser] = useState(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -22,37 +26,56 @@ const Feed = () => {
     loadBatch().finally(() => setIsInitialLoading(false));
   }, [loadBatch]);
 
-  // Listen for new matches
+  
+
+  // Poll for new matches instead of real-time listener to avoid Firestore Listen streams from Feed
   useEffect(() => {
-    if (!user) return;
+    const uid = user?.uid;
+    if (!uid) return;
+
+    let lastMatchId = null;
+    let stopped = false;
 
     const q = query(
       collection(db, "matches"),
-      where("users", "array-contains", user.uid),
+      where("users", "array-contains", uid),
       orderBy("createdAt", "desc"),
       limit(1)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const matchData = change.doc.data();
-          const createdAt = matchData.createdAt?.toDate();
-          if (createdAt && (Date.now() - createdAt.getTime() < 10000)) {
-            const _otherUserId = matchData.users.find(id => id !== user.uid);
-            setMatchedUser({ name: "Alguien" });
-            setShowMatchNotification(true);
-            setTimeout(() => {
-              setShowMatchNotification(false);
-              setMatchedUser(null);
-            }, 3000);
-          }
-        }
-      });
-    });
+    const fetchLatest = async () => {
+      try {
+        const snapshot = await getDocs(q);
+        if (stopped) return;
+        const doc = snapshot.docs[0];
+        if (!doc) return;
+        const matchData = doc.data();
+        const matchId = doc.id;
+        const createdAt = matchData.createdAt?.toDate?.getTime?.() || (matchData.createdAt ? new Date(matchData.createdAt).getTime() : null);
 
-    return () => unsubscribe();
-  }, [user]);
+        if (matchId && createdAt && Date.now() - createdAt < 10000 && matchId !== lastMatchId) {
+          lastMatchId = matchId;
+          setMatchedUser({ name: "Alguien" });
+          setShowMatchNotification(true);
+          setTimeout(() => {
+            setShowMatchNotification(false);
+            setMatchedUser(null);
+          }, 3000);
+        }
+      } catch (err) {
+        console.error('Feed: error fetching latest match', err);
+      }
+    };
+
+    // Initial fetch
+    fetchLatest();
+    const iv = setInterval(fetchLatest, 20000);
+
+    return () => {
+      stopped = true;
+      clearInterval(iv);
+    };
+  }, [user?.uid]);
 
   // Preload next user's image
   const nextImage = stack[1] && stack[1].images && stack[1].images[0];
@@ -63,6 +86,7 @@ const Feed = () => {
       img.src = nextImage;
     }
   }, [stack.length, nextImage]);
+  
 
   const handleLike = throttle(async () => {
     const currentUser = stack[0];
@@ -97,6 +121,7 @@ const Feed = () => {
   return (
     <BaseLayout showTabs={true} maxWidth="full" title="Descubre">
       <div className="feed-container">
+        
         {showMatchNotification && matchedUser && (
           <div className="match-notification">
             <div className="match-content">
@@ -129,6 +154,7 @@ const Feed = () => {
             />
           )}
         </div>
+        
       </div>
     </BaseLayout>
   );

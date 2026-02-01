@@ -6,7 +6,7 @@ import { useToast } from "../../hooks/useToast";
 import BaseLayout from "../../components/Layout/BaseLayout";
 import MatchModal from "../../components/MatchModal/MatchModal";
 import { db } from "../../api/firebase";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 import { Sparkles, MessageCircle } from "lucide-react";
 import { requestNotificationPermission, showMessageNotification, showMatchNotification, isAppInBackground } from "../../utils/webNotifications";
@@ -32,109 +32,110 @@ const MatchesList = () => {
         requestNotificationPermission();
     }, []);
 
-    // Real-time matches updates using Firestore onSnapshot
+    // Poll matches periodically instead of onSnapshot to avoid many persistent Listens
     useEffect(() => {
         if (!user) return;
 
-        // Listen to all matches where the user is a participant
         const matchesRef = collection(db, "matches");
         const q = query(matchesRef, where("users", "array-contains", user.uid));
 
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-            const updatedMatches = [];
-            let detectedNewMatch = null;
+        let stopped = false;
+        const fetchMatches = async () => {
+            try {
+                const snapshot = await getDocs(q);
+                if (stopped) return;
+                console.debug('MatchesList: fetched matches, docs=', snapshot.docs.length);
+                const updatedMatches = [];
+                let detectedNewMatch = null;
 
-            for (const doc of snapshot.docs) {
-                const matchData = doc.data();
-                const matchId = doc.id;
+                for (const doc of snapshot.docs) {
+                    const matchData = doc.data();
+                    const matchId = doc.id;
 
-                // Find the other user ID
-                const otherUserId = matchData.users?.find(id => id !== user.uid);
-                const currentUnreadCount = matchData.unreadCount?.[user.uid] || 0;
+                    const otherUserId = matchData.users?.find(id => id !== user.uid);
+                    const currentUnreadCount = matchData.unreadCount?.[user.uid] || 0;
 
-                // Skip if hidden for current user
-                if (matchData.hiddenFor?.includes(user.uid)) continue;
+                    if (matchData.hiddenFor?.includes(user.uid)) continue;
 
-                // Detect NEW match (not seen before)
-                if (!isFirstLoad.current && !previousMatchIds.current.has(matchId) && otherUserId) {
-                    const otherUserProfile = await getProfile(otherUserId);
-                    const currentUserProfile = await getProfile(user.uid);
+                    if (!isFirstLoad.current && !previousMatchIds.current.has(matchId) && otherUserId) {
+                        console.debug('MatchesList: detected new match', matchId);
+                        const otherUserProfile = await getProfile(otherUserId);
+                        const currentUserProfile = await getProfile(user.uid);
 
-                    detectedNewMatch = {
-                        matchId,
-                        currentUser: currentUserProfile,
-                        matchedUser: otherUserProfile
-                    };
+                        detectedNewMatch = {
+                            matchId,
+                            currentUser: currentUserProfile,
+                            matchedUser: otherUserProfile
+                        };
 
-                    previousMatchIds.current.add(matchId);
-                    localStorage.setItem('viewedMatches', JSON.stringify([...previousMatchIds.current]));
-                } else if (isFirstLoad.current) {
-                    // On first load, just track existing matches without showing modal
-                    previousMatchIds.current.add(matchId);
-                    localStorage.setItem('viewedMatches', JSON.stringify([...previousMatchIds.current]));
-                }
-
-                if (otherUserId) {
-                    // Use cached profile (significant performance improvement)
-                    const otherUserProfile = await getProfile(otherUserId);
-
-                    // Toast logic for new messages
-                    if (!isFirstLoad.current && otherUserProfile) {
-                        const prevCount = prevUnreadCounts.current[matchId] || 0;
-                        if (currentUnreadCount > prevCount) {
-                            // Show toast
-                            showToast(`Tienes un mensaje nuevo de ${otherUserProfile.name}`, 'message');
-
-                            // Show browser notification if app is in background
-                            if (isAppInBackground()) {
-                                showMessageNotification(
-                                    otherUserProfile.name,
-                                    matchData.lastMessage || 'Nuevo mensaje',
-                                    otherUserProfile.images?.[0],
-                                    matchId
-                                );
-                            }
-                        }
+                        previousMatchIds.current.add(matchId);
+                        localStorage.setItem('viewedMatches', JSON.stringify([...previousMatchIds.current]));
+                    } else if (isFirstLoad.current) {
+                        previousMatchIds.current.add(matchId);
+                        localStorage.setItem('viewedMatches', JSON.stringify([...previousMatchIds.current]));
                     }
 
-                    updatedMatches.push({
-                        id: matchId,
-                        ...matchData,
-                        otherUserId,
-                        otherUser: otherUserProfile,
-                        unreadCount: currentUnreadCount
-                    });
+                    if (otherUserId) {
+                        const otherUserProfile = await getProfile(otherUserId);
+
+                        if (!isFirstLoad.current && otherUserProfile) {
+                            const prevCount = prevUnreadCounts.current[matchId] || 0;
+                            if (currentUnreadCount > prevCount) {
+                                showToast(`Tienes un mensaje nuevo de ${otherUserProfile.name}`, 'message');
+                                if (isAppInBackground()) {
+                                    showMessageNotification(
+                                        otherUserProfile.name,
+                                        matchData.lastMessage || 'Nuevo mensaje',
+                                        otherUserProfile.images?.[0],
+                                        matchId
+                                    );
+                                }
+                            }
+                        }
+
+                        updatedMatches.push({
+                            id: matchId,
+                            ...matchData,
+                            otherUserId,
+                            otherUser: otherUserProfile,
+                            unreadCount: currentUnreadCount
+                        });
+                    }
+
+                    prevUnreadCounts.current[matchId] = currentUnreadCount;
                 }
 
-                // Update ref for next time
-                prevUnreadCounts.current[matchId] = currentUnreadCount;
-            }
+                setMatches(updatedMatches);
+                setLoading(false);
 
-            setMatches(updatedMatches);
-            setLoading(false);
-
-            // Show match modal if new match detected
-            if (detectedNewMatch) {
-                setNewMatchData(detectedNewMatch);
-                setShowMatchModal(true);
-                showToast(`¡Es un Match! 💗 ${detectedNewMatch.matchedUser.name}`, 'match');
-
-                // Show browser notification
-                if (isAppInBackground()) {
-                    showMatchNotification(
-                        detectedNewMatch.matchedUser.name,
-                        detectedNewMatch.matchedUser.images?.[0],
-                        detectedNewMatch.matchId
-                    );
+                if (detectedNewMatch) {
+                    setNewMatchData(detectedNewMatch);
+                    setShowMatchModal(true);
+                    showToast(`¡Es un Match! 💗 ${detectedNewMatch.matchedUser.name}`, 'match');
+                    if (isAppInBackground()) {
+                        showMatchNotification(
+                            detectedNewMatch.matchedUser.name,
+                            detectedNewMatch.matchedUser.images?.[0],
+                            detectedNewMatch.matchId
+                        );
+                    }
                 }
+
+                isFirstLoad.current = false;
+            } catch (err) {
+                console.error('MatchesList: error fetching matches', err);
             }
+        };
 
-            isFirstLoad.current = false;
-        });
+        // Initial fetch + poll every 10s
+        fetchMatches();
+        const iv = setInterval(fetchMatches, 10000);
 
-        // Cleanup on unmount
-        return () => unsubscribe();
-    }, [user, getProfile, showToast]);
+        return () => {
+            stopped = true;
+            clearInterval(iv);
+        };
+    }, [user?.uid, getProfile, showToast]);
 
     // Helper to safely convert Firestore Timestamp or string to Date object
     const getDateObject = (timestamp) => {

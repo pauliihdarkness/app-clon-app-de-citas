@@ -33,7 +33,7 @@ const Settings = () => {
                             </div>
                             <span className="arrow"><ChevronRight size={20} /></span>
                         </button>
-                        <button className="settings-item" onClick={() => alert("Próximamente: Privacidad")}>
+                        <button className="settings-item" onClick={() => navigate("/settings/privacy") }>
                             <span className="icon"><Lock size={20} /></span>
                             <span className="label">Privacidad y Seguridad</span>
                             <span className="arrow"><ChevronRight size={20} /></span>
@@ -45,12 +45,12 @@ const Settings = () => {
                 <div className="settings-section">
                     <h3>Preferencias</h3>
                     <div className="settings-menu">
-                        <button className="settings-item" onClick={() => alert("Próximamente: Notificaciones")}>
+                        <button className="settings-item" onClick={() => navigate("/settings/notifications") }>
                             <span className="icon"><Bell size={20} /></span>
                             <span className="label">Notificaciones</span>
                             <span className="arrow"><ChevronRight size={20} /></span>
                         </button>
-                        <button className="settings-item" onClick={() => alert("Próximamente: Tema")}>
+                        <button className="settings-item" onClick={() => navigate("/settings/appearance") }>
                             <span className="icon"><Moon size={20} /></span>
                             <span className="label">Apariencia</span>
                             <span className="arrow"><ChevronRight size={20} /></span>

@@ -34,7 +34,7 @@ const EditProfile = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState(null); // 'basic', 'bio', 'interests', 'lifestyle', 'job', 'intentions', 'location'
+  const [activeModal, setActiveModal] = useState(null); // 'basic', 'bio', 'interests', 'lifestyle', 'job', 'intentions', 'location', 'privacy'
 
   // Data states (Source of Truth)
   const [userData, setUserData] = useState({
@@ -54,6 +54,12 @@ const EditProfile = () => {
   // Temp states for editing (Modals)
   const [tempData, setTempData] = useState({});
   const [saving, setSaving] = useState(false);
+  const [privacySettings, setPrivacySettings] = useState({
+    showApproxLocation: true,
+    shareExactLocation: false,
+    allowUseForProximity: true
+  });
+  const [privacyTemp, setPrivacyTemp] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -98,16 +104,29 @@ const EditProfile = () => {
     };
 
     fetchUserData();
+    // Load privacy settings (UI-only, local)
+    try {
+      const stored = localStorage.getItem('privacySettings');
+      if (stored) {
+        setPrivacySettings(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.debug('No privacy settings found');
+    }
   }, [user]);
 
   const openModal = useCallback((modalName) => {
     setTempData({ ...userData }); // Copy current data to temp
+    if (modalName === 'privacy') {
+      setPrivacyTemp({ ...privacySettings });
+    }
     setActiveModal(modalName);
-  }, [userData]);
+  }, [userData, privacySettings]);
 
   const closeModal = useCallback(() => {
     setActiveModal(null);
     setTempData({});
+    setPrivacyTemp(null);
   }, []);
 
   const handleSaveChanges = useCallback(async () => {
@@ -182,6 +201,20 @@ const EditProfile = () => {
   const handleTempLocationChange = useCallback((location) => {
     setTempData(prev => ({ ...prev, location }));
   }, []);
+
+  const handlePrivacyToggle = useCallback((key) => {
+    setPrivacyTemp(prev => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+
+  const handleSavePrivacy = useCallback(() => {
+    try {
+      localStorage.setItem('privacySettings', JSON.stringify(privacyTemp));
+      setPrivacySettings(privacyTemp);
+    } catch (e) {
+      console.error('Error saving privacy settings', e);
+    }
+    closeModal();
+  }, [privacyTemp, closeModal]);
 
   const handleTempInterestClick = useCallback((interest) => {
     const currentInterests = tempData.interests || [];
@@ -356,6 +389,28 @@ const EditProfile = () => {
             <p className="bio-preview">
               {userData.searchIntent || "Selecciona qué estás buscando..."}
             </p>
+          </div>
+        </div>
+
+        {/* 8. Privacy Summary Box */}
+        <div className="edit-box summary-box" onClick={() => openModal('privacy')}>
+          <div className="box-header">
+            <h2>🔒 Privacidad</h2>
+            <span className="edit-icon"><Edit2 size={18} /></span>
+          </div>
+          <div className="box-content summary-content privacy-summary">
+            <div className="privacy-item">
+              <span className="label">Ubicación aproximada:</span>
+              <span className="value">{privacySettings.showApproxLocation ? 'Visible (ciudad/provincia)' : 'Oculta'}</span>
+            </div>
+            <div className="privacy-item">
+              <span className="label">Compartir ubicación exacta:</span>
+              <span className="value">{privacySettings.shareExactLocation ? 'Sí' : 'No'}</span>
+            </div>
+            <div className="privacy-item">
+              <span className="label">Usar ubicación para 'Cercanía':</span>
+              <span className="value">{privacySettings.allowUseForProximity ? 'Permitido' : 'No permitido'}</span>
+            </div>
           </div>
         </div>
 
@@ -616,6 +671,62 @@ const EditProfile = () => {
             <div className="modal-actions">
               <Button onClick={handleSaveChanges} disabled={saving}>
                 {saving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Privacy Modal (UI-only, local settings) */}
+        <Modal isOpen={activeModal === 'privacy'} onClose={closeModal} title="Privacidad (visual)">
+          <div className="modal-form-content">
+            <div className="form-group">
+              <label>Mostrar ubicación aproximada</label>
+              <div>
+                <label className="privacy-toggle">
+                  <input
+                    type="checkbox"
+                    checked={privacyTemp?.showApproxLocation || false}
+                    onChange={() => handlePrivacyToggle('showApproxLocation')}
+                  />
+                  <span style={{marginLeft:8}}>{privacyTemp?.showApproxLocation ? 'Visible (ciudad/provincia)' : 'Oculta'}</span>
+                </label>
+                <div className="hint">Controla si tu ciudad/provincia se muestra a otros usuarios (UI only).</div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Compartir ubicación exacta</label>
+              <div>
+                <label className="privacy-toggle">
+                  <input
+                    type="checkbox"
+                    checked={privacyTemp?.shareExactLocation || false}
+                    onChange={() => handlePrivacyToggle('shareExactLocation')}
+                  />
+                  <span style={{marginLeft:8}}>{privacyTemp?.shareExactLocation ? 'Sí' : 'No'}</span>
+                </label>
+                <div className="hint">Compartir lat/lng exactos requiere consentimiento explícito y no está activado.</div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Usar ubicación para filtrar por 'Cercanía'</label>
+              <div>
+                <label className="privacy-toggle">
+                  <input
+                    type="checkbox"
+                    checked={privacyTemp?.allowUseForProximity || false}
+                    onChange={() => handlePrivacyToggle('allowUseForProximity')}
+                  />
+                  <span style={{marginLeft:8}}>{privacyTemp?.allowUseForProximity ? 'Permitido' : 'No permitido'}</span>
+                </label>
+                <div className="hint">Si está activado, la app puede usar tu ubicación (según la política) para mejorar resultados de cercanía.</div>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <Button onClick={handleSavePrivacy} disabled={!privacyTemp}>
+                Guardar preferencias (UI)
               </Button>
             </div>
           </div>

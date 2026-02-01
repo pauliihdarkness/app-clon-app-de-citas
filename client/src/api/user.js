@@ -17,29 +17,35 @@ export const createUserProfile = async (userId, profileData) => {
 
 // Leer perfil (caching now handled by UserProfilesContext)
 export const getUserProfile = async (userId) => {
-  const docSnap = await getDoc(doc(db, "users", userId));
-  if (!docSnap.exists()) return null;
+  console.debug(`getUserProfile: called for ${userId} at ${new Date().toISOString()}`);
+  try {
+    const docSnap = await getDoc(doc(db, "users", userId));
+    if (!docSnap.exists()) return null;
 
-  const userData = docSnap.data();
+    const userData = docSnap.data();
 
-  // Only read private data if requesting the current authenticated user's profile
-  const auth = getAuth();
-  const currentUser = auth.currentUser;
+    // Only read private data if requesting the current authenticated user's profile
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
 
-  if (currentUser && currentUser.uid === userId) {
-    // Get birth date from private collection to calculate age for current user
-    try {
-      const privateData = await getPrivateUserData(userId);
-      if (privateData?.birthDate) {
-        userData.age = calculateAge(privateData.birthDate);
+    if (currentUser && currentUser.uid === userId) {
+      // Get birth date from private collection to calculate age for current user
+      try {
+        const privateData = await getPrivateUserData(userId);
+        if (privateData?.birthDate) {
+          userData.age = calculateAge(privateData.birthDate);
+        }
+      } catch (error) {
+        console.warn(`Could not fetch private data for user ${userId}:`, error);
       }
-    } catch (error) {
-      console.warn(`Could not fetch private data for user ${userId}:`, error);
     }
-  }
-  // For other users, age should already be in the public profile
+    // For other users, age should already be in the public profile
 
-  return userData;
+    return userData;
+  } catch (error) {
+    console.error(`getUserProfile: failed to load profile for ${userId}:`, error);
+    return null;
+  }
 };
 
 // Actualizar perfil
@@ -68,8 +74,14 @@ export const createPrivateUserData = async (userId, privateData) => {
 
 // Leer datos privados del usuario
 export const getPrivateUserData = async (userId) => {
-  const docSnap = await getDoc(doc(db, "users", userId, "private", "data"));
-  return docSnap.exists() ? docSnap.data() : null;
+  console.debug(`getPrivateUserData: called for ${userId} at ${new Date().toISOString()}`);
+  try {
+    const docSnap = await getDoc(doc(db, "users", userId, "private", "data"));
+    return docSnap.exists() ? docSnap.data() : null;
+  } catch (error) {
+    console.error(`getPrivateUserData: failed for ${userId}:`, error);
+    return null;
+  }
 };
 
 // Actualizar datos privados (solo para campos permitidos, NO birthDate)
@@ -84,30 +96,36 @@ export const updatePrivateUserData = async (userId, privateData) => {
 
 // Obtener usuarios para el feed (excluyendo al usuario actual y usuarios ya vistos)
 export const getFeedUsers = async (currentUserId) => {
+  console.debug(`getFeedUsers: called for ${currentUserId} at ${new Date().toISOString()}`);
   // Nota: En una app real, esto debería ser una query paginada y filtrada en el backend.
   // Para este MVP, traemos una colección limitada y filtramos en cliente.
 
-  // Importar dinámicamente para evitar dependencia circular
-  const { getInteractedUserIds } = await import("./likes");
+  try {
+    // Importar dinámicamente para evitar dependencia circular
+    const { getInteractedUserIds } = await import("./likes");
 
-  // Obtener usuarios con los que ya hubo interacción
-  const interactedUserIds = await getInteractedUserIds(currentUserId);
+    // Obtener usuarios con los que ya hubo interacción
+    const interactedUserIds = await getInteractedUserIds(currentUserId);
 
-  const usersRef = collection(db, "users");
-  const q = query(usersRef, limit(50)); // Aumentamos el límite para compensar el filtrado
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, limit(50)); // Aumentamos el límite para compensar el filtrado
 
-  const querySnapshot = await getDocs(q);
-  const users = [];
+    const querySnapshot = await getDocs(q);
+    const users = [];
 
-  querySnapshot.forEach((doc) => {
-    const userId = doc.id;
-    // Excluir: usuario actual y usuarios ya vistos
-    if (userId !== currentUserId && !interactedUserIds.includes(userId)) {
-      users.push({ uid: userId, ...doc.data() });
-    }
-  });
+    querySnapshot.forEach((doc) => {
+      const userId = doc.id;
+      // Excluir: usuario actual y usuarios ya vistos
+      if (userId !== currentUserId && !interactedUserIds.includes(userId)) {
+        users.push({ uid: userId, ...doc.data() });
+      }
+    });
 
-  return users;
+    return users;
+  } catch (error) {
+    console.error(`getFeedUsers: failed for ${currentUserId}:`, error);
+    return [];
+  }
 };
 
 /**
@@ -132,12 +150,14 @@ export const blockUser = async (currentUserId, targetUserId) => {
     const q = query(matchesRef, where("users", "array-contains", currentUserId));
     const snapshot = await getDocs(q);
 
-    snapshot.forEach(async (doc) => {
+    const unmatchPromises = [];
+    snapshot.forEach((doc) => {
       const data = doc.data();
       if (data.users.includes(targetUserId)) {
-        await unmatchUser(doc.id);
+        unmatchPromises.push(unmatchUser(doc.id));
       }
     });
+    await Promise.all(unmatchPromises);
 
   } catch (error) {
     console.error("Error blocking user:", error);

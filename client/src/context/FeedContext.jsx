@@ -5,12 +5,61 @@ import { useUserProfiles } from "./UserProfilesContext";
 
 const FeedContext = createContext();
 
+// Función para cargar filtros desde localStorage
+const loadFiltersFromStorage = () => {
+  try {
+    const saved = localStorage.getItem('feedFilters');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      console.debug('loadFiltersFromStorage: loaded', parsed);
+      return parsed;
+    }
+  } catch (error) {
+    console.error('Error loading filters from localStorage:', error);
+  }
+  return null;
+};
+
+// Función para guardar filtros en localStorage
+const saveFiltersToStorage = (filters) => {
+  try {
+    localStorage.setItem('feedFilters', JSON.stringify(filters));
+    console.debug('saveFiltersToStorage: saved', filters);
+  } catch (error) {
+    console.error('Error saving filters to localStorage:', error);
+  }
+};
+
 export function FeedProvider({ children, initialFilters, pageSize = 15, userId }) {
   const [stack, setStack] = useState([]); // perfiles listos para mostrar
   const [interactedUserIds, setInteractedUserIds] = useState(new Set());
+
+  // Refs to access latest state in loadBatch without adding to dependencies
+  const stackRef = useRef(stack);
+  const interactedRef = useRef(interactedUserIds);
   const lastDocRef = useRef(null);
   const loadingRef = useRef(false);
-  const filtersRef = useRef(initialFilters);
+
+  // Sync refs with state
+  React.useEffect(() => {
+    stackRef.current = stack;
+  }, [stack]);
+
+  React.useEffect(() => {
+    interactedRef.current = interactedUserIds;
+  }, [interactedUserIds]);
+
+  // Cargar filtros guardados o usar initialFilters
+  const savedFilters = loadFiltersFromStorage();
+  const defaultFilters = {};
+  const mergedInitial = {
+    ...defaultFilters,
+    ...(savedFilters || {}),
+    ...(initialFilters || {})
+  };
+
+  const filtersRef = useRef(mergedInitial);
+  const [filters, setFiltersState] = useState(mergedInitial);
   const interactedLoadedRef = useRef(false);
   const { getProfile } = useUserProfiles();
 
@@ -33,15 +82,27 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
     });
   }, [userId]);
 
-  async function loadBatch({ reset = false } = {}) {
+  /* 
+  /*
+   * Fix for excessive recursion:
+   * Added recursionDepth parameter to limit retries.
+   * Added delay to prevent browser freeze.
+   */
+  const MAX_RECURSION_DEPTH = 5;
+
+  const loadBatch = React.useCallback(async ({ reset = false, recursionDepth = 0 } = {}) => {
     if (loadingRef.current) return;
+
+    // Safety check: stop if recursion too deep
+    if (recursionDepth > MAX_RECURSION_DEPTH) {
+      console.warn('FeedContext: Max recursion depth reached. Stopping to prevent infinite loop.');
+      loadingRef.current = false;
+      return;
+    }
+
     // Esperar a que carguen las interacciones si es la primera carga
     if (!interactedLoadedRef.current && userId) {
-      // Podríamos esperar o simplemente continuar y filtrar después, 
-      // pero mejor esperar un poco o dejar que el efecto de carga lo maneje
-      // Por simplicidad, si no ha cargado, retornamos y dejamos que el effect de interacted lo dispare
-      // Ojo: esto podría causar un deadlock si la carga de interacciones falla.
-      // Asumiremos que es rápido.
+      // ... existing logic ...
     }
 
     loadingRef.current = true;
@@ -49,13 +110,31 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
       if (reset) {
         lastDocRef.current = null;
         setStack([]);
+        stackRef.current = []; // Sync ref immediately for this execution
       }
 
-      const currentStackIds = stack.map(u => u.id);
-      const excludeIds = [...interactedUserIds, ...currentStackIds];
+      const currentStackIds = stackRef.current.map(u => u.id);
+      const excludeIds = [...interactedRef.current, ...currentStackIds];
+
+      // Inject current user's public location into filters for approximate proximity filtering
+      let filtersToPass = { ...(filtersRef.current || {}) };
+      try {
+        if (userId) {
+          const profile = await getProfile(userId);
+          console.debug('FeedContext.loadBatch: current user profile', profile);
+          if (profile?.location) {
+            filtersToPass = { ...filtersToPass, userLocation: profile.location };
+          }
+        }
+      } catch (err) {
+        // ignore errors getting profile; proceed without location
+        console.warn('Could not load current user profile for proximity filtering', err);
+      }
+
+      console.debug(`FeedContext.loadBatch: depth=${recursionDepth}, filters=`, filtersToPass);
 
       const { docs, lastDoc } = await getProfilesBatch({
-        filters: filtersRef.current,
+        filters: filtersToPass,
         pageSize,
         lastDoc: lastDocRef.current,
         userId, // CRITICAL: Pass userId to filter out own profile
@@ -70,7 +149,7 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
       });
 
       // Filtrado adicional de seguridad por si acaso
-      const newProfiles = profiles.filter(p => !interactedUserIds.has(p.id));
+      const newProfiles = profiles.filter(p => !interactedRef.current.has(p.id));
 
       setStack(prev => {
         // Evitar duplicados que ya estén en el stack
@@ -84,12 +163,35 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
       // Si no obtuvimos perfiles pero hay más en la DB (lastDoc no es null), cargar más automáticamente
       if (newProfiles.length === 0 && lastDoc) {
         loadingRef.current = false; // Reset loading to allow recursive call
-        return loadBatch(); // Recursive call
+
+        // Add specific delay to prevent tight loop
+        console.debug(`FeedContext: No profiles in this batch, retrying... (Attempt ${recursionDepth + 1}/${MAX_RECURSION_DEPTH})`);
+        setTimeout(() => {
+          loadBatch({ reset: false, recursionDepth: recursionDepth + 1 });
+        }, 500);
+
+        return;
       }
 
     } finally {
       loadingRef.current = false;
     }
+  }, [userId, pageSize, getProfile]); // Removed stack and interactedUserIds from deps
+
+  function setFilters(newFilters) {
+    const filtersToSave = newFilters || {};
+    filtersRef.current = filtersToSave;
+    setFiltersState(filtersToSave);
+    // Guardar en localStorage
+    saveFiltersToStorage(filtersToSave);
+  }
+
+  function applyFilters(newFilters) {
+    // Apply and reset pagination
+    console.debug('FeedContext.applyFilters called with', newFilters);
+    setFilters(newFilters);
+    // Reset stack and lastDoc then load first batch
+    return loadBatch({ reset: true });
   }
 
   // keep a stable ref to loadBatch so effects can call it without being required
@@ -116,8 +218,19 @@ export function FeedProvider({ children, initialFilters, pageSize = 15, userId }
     }
   }, [stack.length]);
 
+  const value = React.useMemo(() => ({
+    stack,
+    loadBatch,
+    popProfile,
+    markAsInteracted,
+    reset: () => loadBatch({ reset: true }),
+    filters,
+    setFilters,
+    applyFilters
+  }), [stack, loadBatch, filters]);
+
   return (
-    <FeedContext.Provider value={{ stack, loadBatch, popProfile, markAsInteracted, reset: () => loadBatch({ reset: true }) }}>
+    <FeedContext.Provider value={value}>
       {children}
     </FeedContext.Provider>
   );
