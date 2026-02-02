@@ -6,7 +6,9 @@
 ![Node.js](https://img.shields.io/badge/Node.js-20-green?style=for-the-badge&logo=node.js)
 ![Cloudinary](https://img.shields.io/badge/Cloudinary-Blue?style=for-the-badge&logo=cloudinary)
 
-Una aplicación moderna de citas y conexiones sociales construida con React y Firebase, diseñada con un enfoque **Mobile First** y una estética **Glassmorphism** premium.
+Una aplicación educativa queer de citas y conexiones sociales construida con React y Firebase, diseñada con un enfoque **Mobile First** y una estética **Glassmorphism** premium. Proyecto 100% abierto, ético y seguro para aprender desarrollo consciente.
+
+> **Versión:** 1.0.1 | **Estado:** 98% Completado | **Actualización:** 2 de febrero de 2026
 
 ## ✨ Características Implementadas
 
@@ -67,24 +69,30 @@ Una aplicación moderna de citas y conexiones sociales construida con React y Fi
 - ✅ **Página de Settings**: Configuración centralizada con navegación clara
 - ✅ **Información de Cuenta**: Visualización de datos privados (email, fecha de nacimiento)
 
-### 💬 Chat y Mensajería (Nuevo)
-- ✅ **Chat en Tiempo Real**: Mensajería instantánea con Socket.IO
+### 💬 Chat y Mensajería (Completo)
+- ✅ **Chat en Tiempo Real**: Mensajería instantánea con Firestore (listeners)
 - ✅ **UI de Chat Premium**: Diseño full-screen sin distracciones
-- ✅ **Navegación Fluida**: Acceso directo a perfiles desde el chat
+- ✅ **Input Auto-expandible**: Hasta 3 líneas, Enter/Shift+Enter
 - ✅ **Lista de Matches**: Vista moderna con badges de mensajes no leídos
-- ✅ **Timestamps Inteligentes**: Formato relativo para mejor lectura
-- ✅ **Indicadores de Estado**: Visualización de estado online/offline
+- ✅ **Historial Persistente**: Todos los mensajes guardados en Firestore
+- ✅ **Sistema de unreadCount**: Contador de mensajes no leídos por usuario
+- ✅ **Scroll Optimizado**: Instantáneo al cargar, suave para nuevos mensajes
+- ✅ **Ocultar Conversación**: Soft delete para el usuario
+- ✅ **Deshacer Match**: Hard delete que elimina para ambos usuarios
+- ✅ **Notificaciones**: Toast glassmorphism al recibir mensajes
 
-### 🔒 Seguridad y Privacidad
+### 🔒 Seguridad y Privacidad (Avanzado)
 - ✅ **Separación de Datos**: Públicos vs Privados en Firestore
-- ✅ **Fecha de Nacimiento Protegida**: Almacenada en subcolección privada
+- ✅ **Fecha de Nacimiento Protegida**: Almacenada en subcolección privada, no editable
 - ✅ **Validaciones Robustas**: Edad mínima 18 años, formatos de datos
 - ✅ **Reglas de Firestore**: Protección completa para users, likes y matches
 - ✅ **Variables de Entorno**: Credenciales sensibles fuera del código
 - ✅ **Cloudflare Turnstile**: Protección contra bots en registro y login
 - ✅ **Helmet + CSP**: Prevención de XSS y configuración de seguridad HTTP
-- ✅ **Moderación NSFW**: Detección automática de contenido inapropiado con nsfwjs
-- ✅ **Compresión de Imágenes**: Optimización automática antes de subir (max 1MB)
+- ✅ **Moderación NSFW**: Detección automática de contenido inapropiado con nsfwjs + TensorFlow.js
+- ✅ **Compresión de Imágenes**: Optimización automática antes de subir (max 1MB, 1080px)
+- ✅ **Sistema de Bloqueos**: Control total sobre usuarios bloqueados
+- ✅ **Privacy Settings**: Página dedicada para gestionar privacidad y seguridad
 
 ### 📍 Geolocalización
 - ✅ Selector de ubicación con autocompletado
@@ -372,7 +380,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 ---
 
 <div align="center">
-    <sub>Hecho con 💜 por Pauliihh Darkness Dev</sub>
+    <sub>Hecho con 💜 desde la disidencia queer</sub>
     <br>
-    <sub>Noviembre 2025</sub>
+    <sub>v1.0.1 | Febrero 2026</sub>
 </div>
