@@ -34,6 +34,7 @@ const CommunityGuidelines = lazy(() => import("./pages/public/legal/CommunityGui
 const FAQ = lazy(() => import("./pages/public/legal/FAQ"));
 const Contact = lazy(() => import("./pages/public/legal/Contact"));
 const FeedFilters = lazy(() => import("./pages/social/FeedFilters"));
+const IdentityVerificationPage = lazy(() => import("./pages/profile/IdentityVerificationPage"));
 
 // Wrapper to provide userId to FeedProvider
 const FeedWithProvider = () => {
@@ -191,6 +192,11 @@ const AppRouter = () => {
                         <Route path="/account-info" element={
                             <ProtectedRoute>
                                 <AccountInfo />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/verify-identity" element={
+                            <ProtectedRoute>
+                                <IdentityVerificationPage />
                             </ProtectedRoute>
                         } />
                         <Route path="/test-turnstile" element={<TurnstileTest />} />

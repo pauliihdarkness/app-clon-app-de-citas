@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { getUserProfile } from "../../api/user";
 import { useNavigate } from "react-router-dom";
 import { Edit2, Settings, Camera, MessageSquareQuote, Info, Wine, Briefcase, Target, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import VerificationBadge from "../../components/UI/VerificationBadge";
 import "./Profile.css";
 
 const Profile = () => {
@@ -175,9 +176,12 @@ const Profile = () => {
         <div className="profile-info">
           {/* Name & Age */}
           <div className="profile-header">
-            <h1>
-              {userData?.name || "Usuario"}, {userData?.age || "—"}
-            </h1>
+            <div className="name-badge-container">
+              <h1>
+                {userData?.name || "Usuario"}, {userData?.age || "—"}
+              </h1>
+              <VerificationBadge size="medium" />
+            </div>
             {userData?.location?.city && (
               <p className="location">
                 <MapPin /> {userData.location.city}

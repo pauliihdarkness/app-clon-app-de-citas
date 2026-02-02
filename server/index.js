@@ -11,6 +11,7 @@ import { setupSocket } from "./socket/socketHandler.js"; // Import socket handle
 import matchesRouter from "./routes/matches.js";
 import likesRouter from "./routes/likes.js";
 import fcmTokensRouter from "./routes/fcmTokens.js";
+import verificationRouter from "./routes/verification.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -82,6 +83,7 @@ app.use("/api", verifyToken);
 app.use("/api/matches", readLimiter, matchesRouter); // Read limiter: 200 req/hour
 app.use("/api/likes", strictLimiter, likesRouter); // Strict limiter: 50 req/hour (adicional al rate limit interno)
 app.use("/api/fcm-tokens", strictLimiter, fcmTokensRouter); // Strict limiter: 50 req/hour
+app.use("/api/verification", strictLimiter, verificationRouter); // Strict limiter for verification
 
 
 app.get("/api/status", (req, res) => {

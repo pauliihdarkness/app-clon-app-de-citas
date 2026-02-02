@@ -2,21 +2,27 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import BaseLayout from "../../components/Layout/BaseLayout";
 import Button from "../../components/UI/Button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Shield, X } from "lucide-react";
+import { useVerification } from "../../context/VerificationContext";
 import "./PrivacySettings.css";
 
 const PrivacySettings = () => {
   const navigate = useNavigate();
+  const { isVerified, verificationStatus } = useVerification();
   const [settings, setSettings] = useState({
     showApproxLocation: true,
     shareExactLocation: false,
     allowUseForProximity: true
   });
+  const [blockedContacts, setBlockedContacts] = useState([]);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem('privacySettings');
       if (stored) setSettings(JSON.parse(stored));
+      
+      const blockedStored = localStorage.getItem('blockedContacts');
+      if (blockedStored) setBlockedContacts(JSON.parse(blockedStored));
     } catch (e) {
       // ignore
     }
@@ -26,13 +32,18 @@ const PrivacySettings = () => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
+  const unblockContact = useCallback((contactId) => {
+    setBlockedContacts(prev => prev.filter(contact => contact.id !== contactId));
+  }, []);
+
   const save = useCallback(() => {
     try {
       localStorage.setItem('privacySettings', JSON.stringify(settings));
+      localStorage.setItem('blockedContacts', JSON.stringify(blockedContacts));
     } catch (e) {
       console.error('Error saving privacy settings', e);
     }
-  }, [settings]);
+  }, [settings, blockedContacts]);
 
   return (
     <BaseLayout showTabs={false} maxWidth="mobile" title="Privacidad y Seguridad" backPath="/settings">
@@ -72,7 +83,61 @@ const PrivacySettings = () => {
           </div>
           <div className="hint">Cuando está activo, la app puede usar tu ubicación para mejorar los resultados de cercanía.</div>
 
+          {/* Contactos bloqueados */}
+          <h3 style={{marginTop:16}}>Contactos Bloqueados</h3>
+          {blockedContacts.length > 0 ? (
+            <div className="blocked-contacts-list">
+              {blockedContacts.map((contact) => (
+                <div key={contact.id} className="blocked-contact-item">
+                  <div className="contact-info">
+                    {contact.avatar && (
+                      <img src={contact.avatar} alt={contact.name} className="contact-avatar" />
+                    )}
+                    <div className="contact-details">
+                      <div className="contact-name">{contact.name}</div>
+                      <div className="contact-username">@{contact.username}</div>
+                    </div>
+                  </div>
+                  <button 
+                    className="unblock-btn"
+                    onClick={() => unblockContact(contact.id)}
+                    title="Desbloquear contacto"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>No tienes contactos bloqueados</p>
+            </div>
+          )}
+
           {/* Futuras funciones (UI-only, Próximamente) */}
+          <h3 style={{marginTop:16}}>Seguridad</h3>
+          <div className="privacy-item">
+            <div className="label">
+              <Shield size={18} style={{marginRight: '0.5rem', color: '#ff6b9d'}} />
+              Verificación de Identidad
+            </div>
+            <div className="control">
+              <button 
+                className={`verify-btn ${isVerified ? 'verified' : 'not-verified'}`}
+                onClick={() => !isVerified && navigate('/verify-identity')}
+              >
+                {isVerified ? '✓ Verificado' : verificationStatus?.status === 'pending' ? '⏳ Pendiente' : 'Verificar Ahora'}
+              </button>
+            </div>
+          </div>
+          <div className="hint">
+            {isVerified 
+              ? 'Tu identidad ha sido verificada. Tu perfil aparecerá con un badge de verificado.'
+              : verificationStatus?.status === 'pending'
+              ? 'Tu verificación está siendo revisada. Te notificaremos cuando se complete.'
+              : 'Verifica tu identidad realizando un gesto facial. Esto aumentará la confianza en tu perfil.'}
+          </div>
+
           <h3 style={{marginTop:16}}>Futuras funciones</h3>
           <div className="upcoming-item">
             <div className="label">Modo Incógnito</div>
@@ -81,19 +146,6 @@ const PrivacySettings = () => {
             </div>
           </div>
 
-          <div className="upcoming-item">
-            <div className="label">Verificación de Identidad</div>
-            <div className="control">
-              <button className="upcoming-btn" disabled>Próximamente</button>
-            </div>
-          </div>
-
-          <div className="upcoming-item">
-            <div className="label">Insignia de perfil verificado</div>
-            <div className="control">
-              <button className="upcoming-btn" disabled>Próximamente</button>
-            </div>
-          </div>
 
           <div className="upcoming-item">
             <div className="label">Compartir ubicación por segmentos (avanzado)</div>

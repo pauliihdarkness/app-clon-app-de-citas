@@ -1,0 +1,103 @@
+.verification-badge {
+    display: inline-block;
+}
+
+.verification-badge.small {
+    font-size: 12px;
+}
+
+.verification-badge.medium {
+    font-size: 14px;
+}
+
+.verification-badge.large {
+    font-size: 16px;
+}
+
+.badge-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.badge-content svg {
+    width: 18px;
+    height: 18px;
+}
+
+.badge-content.verified {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #81c784;
+}
+
+.badge-content.pending {
+    background: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffb74d;
+}
+
+.badge-content.rejected {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef5350;
+}
+
+.badge-content.not-verified {
+    background: #f5f5f5;
+    color: #ff6b9d;
+    border: 1px solid #ffb3cf;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    padding: 8px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.badge-content.not-verified:hover {
+    background: #ff6b9d;
+    color: white;
+    border-color: #ff6b9d;
+}
+
+.badge-content.loading {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #ff6b9d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .badge-content span {
+        display: none;
+    }
+
+    .badge-content {
+        padding: 6px;
+    }
+
+    .badge-content svg {
+        width: 20px;
+        height: 20px;
+    }
+}

@@ -24,18 +24,25 @@
 | ❤️ Likes/Matches | 100% | ✅ Completo |
 | 💬 Chat | 95% | ✅ Funcional |
 | 🔔 Notificaciones | 20% | 🚧 En Progreso |
-| 🎨 UI/UX | 95% | ✅ Premium |
+| 🎨 UI/UX | 96% | ✅ Premium |
 | 🖥️ Backend | 90% | ✅ Estable |
-| 🔒 Seguridad | 95% | ✅ Auditada |
+| 🔒 Seguridad | 97% | ✅ Auditada |
+| 🔐 Privacidad | 85% | ✅ Funcional |
 | 📚 Documentación | 100% | ✅ Completa |
 | ⚖️ Legal | 100% | ✅ Completo |
 | 🚀 Despliegue | 100% | ✅ Listo |
 
-**Progreso Total:** 92% completado
+**Progreso Total:** 93% completado
 
 ---
 
 ## 🚀 Novedades de la Versión 0.9.0
+
+### 🔒 Privacidad y Seguridad Avanzada (NUEVO)
+- ✅ **Lista de Contactos Bloqueados**: Gestión visual de usuarios bloqueados
+- ✅ **Botón de Desbloqueo**: Interfaz intuitiva para desbloquear contactos
+- ✅ **Persistencia en localStorage**: Los datos de bloqueo se guardan localmente
+- ✅ **Diseño Responsive**: Optimizado para móvil y desktop
 
 ### ⚖️ Páginas Legales (NUEVO)
 - ✅ **6 Páginas Completas**: Términos, Privacidad, Cookies, Comunidad, FAQ, Contacto
@@ -137,13 +144,23 @@
 - ⏳ API REST endpoints (pendiente)
 - ⏳ Notificaciones push (pendiente)
 
-#### UI/UX (80%)
+#### Privacidad y Seguridad (85%)
+- ✅ Configuración de ubicación (aproximada/exacta)
+- ✅ Control de datos de proximidad
+- ✅ Badge de verificación de identidad
+- ✅ **NUEVO: Lista de contactos bloqueados**
+- ✅ **NUEVO: Gestor visual de bloqueos**
+- ⏳ Sistema de reportes (pendiente)
+- ⏳ Modo incógnito (pendiente)
+
+#### UI/UX (85%)
 - ✅ Diseño Glassmorphism
 - ✅ Navegación por tabs
 - ✅ Header dinámico
 - ✅ Animaciones suaves
 - ✅ Responsive design
 - ✅ Mobile First
+- ✅ **NUEVO: Cards de contactos bloqueados con avatar**
 - ⏳ PWA (pendiente)
 
 ### ⏳ En Desarrollo (0%)
@@ -154,10 +171,10 @@
 - Filtros de búsqueda avanzados
 - Super Like
 - Deshacer último swipe
-- Sistema de reportes
-- Sistema de bloqueos
-- Verificación de perfil
-- Páginas legales
+- Sistema de reportes avanzado
+- **Sistema de bloqueos mejorado** (backend integration)
+- Modo incógnito
+- Exportar datos (GDPR)
 
 ---
 

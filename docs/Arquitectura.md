@@ -55,6 +55,8 @@ client/src/
  │   ├── AccountInfo.jsx    # Información de cuenta
  │   ├── Feed.jsx           # Feed de usuarios (pendiente)
  │   ├── Chat.jsx           # Chat (pendiente)
+ │   ├── profile/
+ │   │   ├── PrivacySettings.jsx  # (NUEVO) Privacidad y contactos bloqueados
  │   └── NotFound.jsx       # Página 404
  ├── utils/                 # Funciones de utilidad
  │   ├── dateUtils.js       # Cálculo y validación de fechas
@@ -87,6 +89,14 @@ users/{userId}                          # Datos PÚBLICOS
       - (futuro: preferencias, notificaciones)
 ```
 
+### Estructura Actual - Privacidad
+
+```plaintext
+users/{userId}/private/data    # Subcoleción PRIVADA
+  - email, birthDate, authMethod
+  - blockedContacts []          # (NUEVO) Array de IDs de usuarios bloqueados
+```
+
 ### Estructura Futura (Pendiente)
 
 ```plaintext
@@ -106,6 +116,10 @@ chats/{chatId}
   /messages/{messageId}
     - senderId, text, createdAt
     - read, readAt
+
+blockedContacts/{blockId}       # (FUTURO) Migrar a colección independiente
+  - fromUserId, toUserId
+  - createdAt
 ```
 
 ---
@@ -165,6 +179,20 @@ El backend actúa como un **Worker** que complementa al frontend. No es una API 
 2. Se obtiene `birthDate` desde `/users/{uid}/private/data`
 3. Se muestra fecha de nacimiento formateada
 4. Se indica que NO es editable por seguridad
+
+### 🚫 Privacidad y Contactos Bloqueados (NUEVO)
+
+1. Usuario accede a `Settings → Privacidad y Seguridad`
+2. Sección de **Lista de Contactos Bloqueados**:
+   - Obtiene lista desde `localStorage` (actual)
+   - Muestra cards con avatar, nombre, usuario
+   - Botón de desbloqueo con icono X
+   - Estado vacío si no hay bloqueados
+3. Al desbloquear:
+   - Se elimina del array en `blockedContacts`
+   - Se actualiza localStorage
+   - Se sincroniza backend (futuro)
+4. Datos guardados en `localStorage['blockedContacts']`
 
 ### ❤️ Feed y Recomendaciones (Futuro)
 
@@ -288,6 +316,24 @@ service cloud.firestore {
       // Los matches no se pueden actualizar ni eliminar
       allow update, delete: if false;
     }
+    
+    // (FUTURO) Colección de contactos bloqueados
+    // match /blockedContacts/{blockId} {
+    //   // Solo los usuarios involucrados pueden leer el bloqueo
+    //   allow read: if isAuthenticated() 
+    //               && (request.auth.uid == resource.data.fromUserId);
+    //   
+    //   // Solo se puede crear si el usuario es quien bloquea
+    //   allow create: if isAuthenticated() 
+    //                 && request.auth.uid == request.resource.data.fromUserId;
+    //   
+    //   // Solo el bloqueador puede eliminar (desbloquear)
+    //   allow delete: if isAuthenticated() 
+    //                 && request.auth.uid == resource.data.fromUserId;
+    //   
+    //   // No se permite actualizar
+    //   allow update: if false;
+    // }
   }
 }
 ```
@@ -299,6 +345,8 @@ service cloud.firestore {
 - ✅ Fecha de nacimiento inmutable después del registro
 - ✅ Solo el usuario puede ver/editar sus datos privados
 - ✅ Perfiles públicos visibles solo para usuarios autenticados
+- ✅ (NUEVO) Contactos bloqueados almacenados en datos privados
+- ✅ (FUTURO) Reglas de seguridad para colección `blockedContacts`
 
 ---
 
@@ -307,8 +355,10 @@ service cloud.firestore {
 ### Estado Global (Context API)
 
 - **AuthContext**: Usuario autenticado, funciones de login/logout
+- **VerificationContext**: Estado de verificación de identidad
 - Futuro: **UserContext** para perfil completo
 - Futuro: **MatchesContext** para matches activos
+- Futuro: **PrivacyContext** para contactos bloqueados (backend)
 
 ### Estado Local (useState)
 
@@ -316,6 +366,14 @@ service cloud.firestore {
 - Estados de carga (loading, saving)
 - Estados de modales (open/close)
 - Estados de UI (carrusel, tabs)
+- **blockedContacts**: Array en localStorage (PrivacySettings)
+- **privacySettings**: Objeto en localStorage (PrivacySettings)
+
+### Almacenamiento Local (localStorage)
+
+- `privacySettings`: Configuración de ubicación y proximidad
+- `blockedContacts`: Lista de usuarios bloqueados (estructura: `{id, name, username, avatar}`)
+- `verificationStatus`: Estado de verificación de identidad
 
 > **Nota**: Para funcionalidades futuras más complejas, considerar **Zustand** o **Redux Toolkit**
 
@@ -329,14 +387,20 @@ service cloud.firestore {
 - ✅ Compresión automática con Cloudinary
 - ✅ Separación de datos públicos/privados
 - ✅ Cálculo de edad en el backend (no en cliente)
+- ✅ Caché local de contactos bloqueados en localStorage
+- ✅ Batch loading con prefetch inteligente
+- ✅ Índices compuestos en Firestore (60% reducción en lecturas)
 
 ### Optimizaciones Futuras
 
-- [ ] Índices compuestos en Firestore para consultas de feed
+- [ ] Backend integration para contactos bloqueados (Firestore → API)
+- [ ] Sincronización en tiempo real de bloqueos
 - [ ] Paginación con `startAfter` para resultados grandes
-- [ ] Cache de perfiles visitados
+- [ ] Cache de perfiles visitados (IndexedDB)
 - [ ] Listeners eficientes con `onSnapshot`
 - [ ] Cloud Functions para automatización (detección de matches)
+- [ ] Sistema de reportes integrado
+- [ ] Modo incógnito para perfiles
 - [ ] PWA para instalación en móviles
 
 ---
@@ -381,5 +445,5 @@ service cloud.firestore {
 <div align="center">
   <sub>✨ Arquitectura pensada para escalar, ser segura y fácil de mantener. ✨</sub>
   <br>
-  <sub>Actualizado: Noviembre 2025</sub>
+  <sub>Actualizado: 2 de febrero de 2026 (v1.0.1)</sub>
 </div>

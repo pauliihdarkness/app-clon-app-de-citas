@@ -27,7 +27,11 @@
 - [x] **Cloudflare Turnstile** para protección contra bots (reemplaza App Check)
 - [x] **Helmet + CSP** configurado en servidor para prevenir XSS
 - [x] **Análisis de vulnerabilidades XSS** completado (cliente seguro)
+- [x] **NUEVO: Lista de contactos bloqueados**
+- [x] **NUEVO: Gestor visual de bloqueos en Privacy Settings**
+- [x] **NUEVO: Persistencia de bloqueos en localStorage**
 - [ ] Encriptación de datos sensibles
+- [ ] Backend integration para contactos bloqueados (Firestore → API)
 
 ### Optimización de Recursos
 - [x] Carga de perfiles en batches (15-25 usuarios)
@@ -96,11 +100,16 @@
 - [x] Página de Información de Cuenta
 - [x] Visualización de datos privados (email, fecha de nacimiento, edad)
 - [x] **Información de perfil personal** (nombre, fecha nacimiento, edad, createdAt)
+- [x] **NUEVO: Página de Privacidad y Seguridad (PrivacySettings.jsx)**
+- [x] **NUEVO: Configuración de ubicación** (aproximada/exacta)
+- [x] **NUEVO: Control de datos de proximidad**
+- [x] **NUEVO: Lista visual de contactos bloqueados**
 - [ ] Cambio de contraseña desde Settings
-- [ ] Gestión de privacidad (estructura lista, funcionalidad pendiente)
 - [ ] Gestión de notificaciones (estructura lista, funcionalidad pendiente)
 - [ ] Eliminar cuenta
 - [ ] Recuperación de contraseña
+- [ ] Modo incógnito
+- [ ] Exportar datos (GDPR)
 
 ---
 
@@ -159,7 +168,7 @@
 
 ### Colecciones Implementadas
 - [x] `users/{userId}` - Datos públicos del perfil
-- [x] `users/{userId}/private/data` - Datos privados (email, birthDate)
+- [x] `users/{userId}/private/data` - Datos privados (email, birthDate, **blockedContacts**)
 - [x] `likes/{likeId}` - Registro de likes/dislikes
 - [x] `matches/{matchId}` - Matches mutuos
 - [x] `chats/{chatId}` - Conversaciones
@@ -168,6 +177,7 @@
 - [x] Reglas de seguridad para datos públicos
 - [x] Reglas de seguridad para datos privados
 - [x] Prevención de edición de birthDate
+- [ ] `blockedContacts/{blockId}` - Colección independiente (futuro)
 
 ---
 
@@ -284,10 +294,12 @@
 - [x] **UserProfilesContext** (sistema unificado de caché con expiración)
 - [x] **Turnstile utilities** (client/src/utils/turnstile.js)
 - [x] **NSFW Detector** (client/src/utils/nsfwDetector.js)
+- [x] **PrivacySettings component** con localStorage de bloqueos
 - [x] Componentes UI reutilizables
 - [x] Context API para autenticación
 - [x] FeedContext para gestión de perfiles (migrado a UserProfilesContext)
 - [x] ToastContext para notificaciones visuales
+- [x] VerificationContext para verificación de identidad
 - [ ] Utilidades de validación
 - [ ] Utilidades de formato
 - [ ] Custom hooks adicionales
@@ -362,7 +374,7 @@ Se realizó una auditoría exhaustiva del cliente para verificar requisitos no m
 
 ---
 
-### ✅ Completado (~97%)
+### ✅ Completado (~98%)
 - ✅ Autenticación completa (email + Google OAuth)
 - ✅ Gestión de perfiles completa con edición por secciones
 - ✅ Feed optimizado con batch loading, caché y paginación
@@ -380,15 +392,18 @@ Se realizó una auditoría exhaustiva del cliente para verificar requisitos no m
 - ✅ **Configuración de despliegue** (Vercel ready)
 - ✅ **Despliegue a producción** (Vercel + Render)
 - ✅ **UI/UX premium** (Glassmorphism + diseño centrado 600px)
+- ✅ **NUEVO: Sistema de contactos bloqueados** (Privacy Settings)
+- ✅ **NUEVO: Privacidad y Seguridad configurables**
 - ✅ **Limpieza de código** (archivos obsoletos eliminados)
 - ✅ Configuración básica y cuenta
 - ✅ Firebase configurado y desplegado
 - ✅ Documentación completa actualizada
 
-### ⏳ Pendiente (~3%)
+### ⏳ Pendiente (~2%)
 - ⏳ Recuperación de contraseña
 - ⏳ Cambio de contraseña
 - ⏳ 2FA (Autenticación de dos factores)
+- ⏳ Backend integration para contactos bloqueados
 - ⏳ Notificaciones push (FCM)
 - ⏳ Testing automatizado
 - ⏳ Analytics y monitoreo
@@ -430,6 +445,6 @@ Se realizó una auditoría exhaustiva del cliente para verificar requisitos no m
 - ✅ Archivos obsoletos removidos (socket.js, UserCache.js, etc.)
 - ✅ Código ~900 bytes más ligero
 
-**Última actualización**: 7 de diciembre de 2025  
-**Versión actual**: 0.9.0-rc1  
-**Progreso Real**: ~97% completado (ajustado después de auditoría de requisitos)
+**Última actualización**: 2 de febrero de 2026  
+**Versión actual**: 1.0.1  
+**Progreso Real**: ~98% completado (nueva funcionalidad de privacidad agregada)

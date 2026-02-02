@@ -4,6 +4,7 @@ import AppRouter from "./AppRouter";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
 import { UserProfilesProvider } from "./context/UserProfilesContext.jsx";
+import { VerificationProvider } from "./context/VerificationContext.jsx";
 import "./assets/styles/global.css";
 
 // Service Worker toggle: set to `true` to enable, `false` to disable
@@ -39,11 +40,13 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <AuthProvider>
-      <UserProfilesProvider>
-        <ToastProvider>
-          <AppRouter />
-        </ToastProvider>
-      </UserProfilesProvider>
+      <VerificationProvider>
+        <UserProfilesProvider>
+          <ToastProvider>
+            <AppRouter />
+          </ToastProvider>
+        </UserProfilesProvider>
+      </VerificationProvider>
     </AuthProvider>
   </React.StrictMode>
 );

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import VerificationBadge from "../UI/VerificationBadge";
 import "./UserCard.css";
 
 const UserCard = ({ user, onLike, onPass }) => {
@@ -188,7 +189,22 @@ const UserCard = ({ user, onLike, onPass }) => {
                 <div className="card-overlay">
                     <div className="card-info" ref={infoRef}>
                         <div className="card-info-header">
-                            <h2>{user.name}, {user.age}</h2>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1 }}>
+                                <div>
+                                    <h2>{user.name}, {user.age}</h2>
+                                    {user.location?.city && (
+                                        <p className="card-location">
+                                            📍 {user.location.city}
+                                            {user.location.state && `, ${user.location.state}`}
+                                        </p>
+                                    )}
+                                </div>
+                                <VerificationBadge 
+                                    status={user?.identityVerified ? "verified" : "unverified"}
+                                    isPublic={true}
+                                    compact={true}
+                                />
+                            </div>
                             <button
                                 className="info-btn profile-btn"
                                 onClick={handleViewProfile}

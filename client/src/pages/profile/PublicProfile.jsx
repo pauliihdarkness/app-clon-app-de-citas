@@ -5,6 +5,7 @@ import { getUserProfile, blockUser } from "../../api/user";
 import { saveLike, savePass } from "../../api/likes";
 import { reportUser } from "../../api/reports";
 import { useToast } from "../../hooks/useToast";
+import VerificationBadge from "../../components/UI/VerificationBadge";
 import { MoreVertical, Flag, UserX, X, Heart, MapPin, MessageSquare, Info, Wine, Briefcase, Target } from "lucide-react";
 import "./PublicProfile.css";
 
@@ -337,9 +338,16 @@ const PublicProfile = () => {
                 <div className="profile-info">
                     {/* Name & Age */}
                     <div className="profile-header">
-                        <h2>
-                            {userData?.name || "Usuario"}, {userData?.age || "—"}
-                        </h2>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <h2>
+                                {userData?.name || "Usuario"}, {userData?.age || "—"}
+                            </h2>
+                            <VerificationBadge 
+                                status={userData?.identityVerified ? "verified" : "unverified"}
+                                isPublic={true}
+                                compact={true}
+                            />
+                        </div>
                         {userData?.location?.city && (
                             <p className="location">
                                 <MapPin size={14} style={{ display: "inline", marginRight: "4px" }} /> {userData.location.city}

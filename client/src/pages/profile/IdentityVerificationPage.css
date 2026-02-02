@@ -1,0 +1,227 @@
+.identity-verification-page {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.verification-loading {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #ff6b9d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 30px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner + p {
+    font-size: 18px;
+    color: #666;
+}
+
+.verification-submitted {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-checkmark {
+    margin-bottom: 30px;
+}
+
+.success-checkmark svg {
+    width: 80px;
+    height: 80px;
+    animation: drawCheckmark 0.8s ease-out;
+}
+
+@keyframes drawCheckmark {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.verification-submitted h2 {
+    font-size: 28px;
+    color: #4caf50;
+    margin-bottom: 15px;
+}
+
+.verification-submitted p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.verification-note {
+    background: #f0f9ff;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #2196f3;
+    margin: 20px 0 !important;
+    font-size: 14px;
+    color: #1976d2;
+}
+
+.redirect-note {
+    font-size: 13px;
+    color: #999;
+    font-style: italic;
+    margin-top: 30px !important;
+}
+
+/* Rejected State */
+.verification-rejected {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    animation: slideUp 0.5s ease-out;
+}
+
+.verification-rejected .error-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.verification-rejected h2 {
+    font-size: 28px;
+    color: #ff6b6b;
+    margin-bottom: 15px;
+}
+
+.verification-rejected p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.verification-rejected .verification-note {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+    color: #856404;
+    margin: 20px 0 !important;
+}
+
+.verification-rejected .hint {
+    font-size: 14px;
+    color: #999;
+    margin: 15px 0 !important;
+}
+
+.retry-button {
+    margin-top: 20px;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff8e9e 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 157, 0.4);
+}
+
+/* Error State */
+.verification-error {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    animation: slideUp 0.5s ease-out;
+}
+
+.verification-error .error-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.verification-error h2 {
+    font-size: 28px;
+    color: #d32f2f;
+    margin-bottom: 15px;
+}
+
+.verification-error p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .verification-submitted,
+    .verification-rejected,
+    .verification-error {
+        margin: 20px;
+        padding: 40px 20px;
+    }
+
+    .verification-submitted h2,
+    .verification-rejected h2,
+    .verification-error h2 {
+        font-size: 22px;
+    }
+
+    .success-checkmark svg {
+        width: 60px;
+        height: 60px;
+    }
+}

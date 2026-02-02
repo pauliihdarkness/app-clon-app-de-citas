@@ -58,7 +58,7 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 0.75rem;
-    margin-bottom: 0;
+    margin-bottom: 0.5rem;
     text-align: left;
 }
 
@@ -66,6 +66,10 @@
     flex: 1;
     margin: 0;
     text-align: left;
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 1), 0 1px 4px rgba(0, 0, 0, 0.9);
+    letter-spacing: -0.5px;
 }
 
 .info-btn {
@@ -224,14 +228,22 @@
 }
 
 .card-info h2 {
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 1), 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.5);
     letter-spacing: -0.5px;
     text-align: left;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
 }
 
+.card-location {
+    font-size: 0.95rem;
+    opacity: 0.85;
+    margin: 0;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    font-weight: 500;
+}
 
 .card-bio {
     font-size: 1.05rem;
@@ -418,6 +430,7 @@
     color: white !important;
     box-shadow: 0 4px 20px rgba(254, 60, 114, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
     border: 2px solid rgba(255, 255, 255, 0.15) !important;
+    opacity: 1 !important;
 }
 
 .user-card .card-actions .action-btn.like:hover {
